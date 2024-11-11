@@ -1,21 +1,10 @@
 import os
-import toml
 from roboflow import Roboflow, CLIPModel, GazeModel
 
-# Cargar variables de entorno desde el archivo secrets.toml
-secrets_path = os.path.join(os.path.dirname(__file__), '..', 'secrets.toml')
-
-# Verificar si el archivo secrets.toml existe
-if not os.path.exists(secrets_path):
-    raise FileNotFoundError(f"El archivo {secrets_path} no se encuentra.")
-
-# Cargar el archivo secrets.toml
-config = toml.load(secrets_path)
-
-# Obtener las variables de entorno desde las secciones correspondientes
-API_KEY = config["ROBOFLOW"]["ROBOFLOW_API_KEY"]
-MODEL_ID = config["ROBOFLOW"]["ROBOFLOW_MODEL_ID"]
-API_URL = config["ROBOFLOW"]["ROBOFLOW_API_URL"]
+# Obtener las variables de entorno desde los secretos de Streamlit Cloud
+API_KEY = os.getenv("ROBOFLOW_API_KEY")
+MODEL_ID = os.getenv("ROBOFLOW_MODEL_ID")
+API_URL = os.getenv("ROBOFLOW_API_URL")
 
 if not API_KEY or not MODEL_ID or not API_URL:
     raise EnvironmentError("API_KEY, MODEL_ID o API_URL no están configurados en los secretos de Streamlit")
