@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Entornos virtuales
+venv/
+.venv/
+
+# Archivos de configuración de entorno
+.env
+
+# Archivos de Streamlit
+.streamlit/
+
+# Archivos de caché y temporales
+*.log
+*.tmp
+*.temp
+
+# Archivos de bases de datos locales
+*.sqlite3
+*.db
+
+# Archivos de imágenes y videos grandes
+*.jpg
+*.jpeg
+*.png
+*.mp4
+*.avi
+
+# Archivos de Jupyter Notebooks
+.ipynb_checkpoints/
