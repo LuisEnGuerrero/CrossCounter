@@ -1,17 +1,30 @@
 import os
 from roboflow import Roboflow, CLIPModel, GazeModel
-from dotenv import load_dotenv
+import toml
+# from dotenv import load_dotenv  ## Solo para modo de desarrollo
 
 # Cargar variables de entorno desde la raíz
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
+# load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 # Obtener las variables de entorno
-API_KEY = os.getenv("ROBOFLOW_API_KEY")
-MODEL_ID = os.getenv("ROBOFLOW_MODEL_ID")
-API_URL = os.getenv("ROBOFLOW_API_URL")
+# API_KEY = os.getenv("ROBOFLOW_API_KEY")
+# MODEL_ID = os.getenv("ROBOFLOW_MODEL_ID")
+# API_URL = os.getenv("ROBOFLOW_API_URL")
 
 # if not API_KEY or not MODEL_ID or not API_URL:
 #    raise EnvironmentError("API_KEY, MODEL_ID o API_URL no están configurados en el archivo .env")
+
+# Cargar variables de entorno desde el archivo secrets.toml
+config = toml.load(os.path.join(os.path.dirname(__file__), '..', 'secrets.toml'))
+
+# Obtener las variables de entorno
+API_KEY = config["general"]["ROBOFLOW_API_KEY"]
+MODEL_ID = config["general"]["ROBOFLOW_MODEL_ID"]
+API_URL = config["general"]["ROBOFLOW_API_URL"]
+
+if not API_KEY or not MODEL_ID or not API_URL:
+    raise EnvironmentError("API_KEY, MODEL_ID o API_URL no están configurados en el archivo secrets.toml")
+
 
 # Inicializar la instancia de Roboflow
 rf = Roboflow(api_key=API_KEY)
