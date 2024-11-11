@@ -1,4 +1,8 @@
 import streamlit as st
+
+# Configuración inicial de la página de Streamlit
+st.set_page_config(page_title="IAMotorCycle CrossCounter", layout="wide")
+
 from PIL import Image, ImageDraw
 import os
 from utils.yoloconnect import get_video_inference, get_image_inference
@@ -6,8 +10,6 @@ import tempfile
 from utils.mongodb import save_inference_result, get_inference_statistics
 import pandas as pd
 
-# Configuración inicial de la página de Streamlit
-st.set_page_config(page_title="IAMotorCycle CrossCounter", layout="wide")
 st.title("Detección y Conteo de Motocicletas")
 
 # Obtener las variables de entorno desde los secretos de Streamlit Cloud
@@ -122,3 +124,4 @@ if statistics:
     st.write(data)
 else:
     st.write("No hay datos de estadísticas disponibles.")
+    
