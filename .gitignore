@@ -10,6 +10,7 @@ venv/
 
 # Archivos de configuración de entorno
 .env
+secrets.toml
 
 # Archivos de Streamlit
 .streamlit/

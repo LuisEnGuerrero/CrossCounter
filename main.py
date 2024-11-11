@@ -2,6 +2,7 @@ import streamlit as st
 from PIL import Image, ImageDraw
 import os
 from dotenv import load_dotenv
+import toml
 from utils.yoloconnect import get_video_inference, get_image_inference
 import tempfile
 from utils.mongodb import save_inference_result, get_inference_statistics
@@ -9,6 +10,15 @@ import pandas as pd
 
 # Cargar las variables de entorno
 load_dotenv()
+
+# Cargar las variables de entorno desde el archivo secrets.toml
+config = toml.load("secrets.toml")
+
+os.environ["MONGO_URI"] = config["general"]["MONGO_URI"]
+os.environ["ROBOFLOW_API_KEY"] = config["general"]["ROBOFLOW_API_KEY"]
+os.environ["ROBOFLOW_MODEL_ID"] = config["general"]["ROBOFLOW_MODEL_ID"]
+os.environ["ROBOFLOW_API_URL"] = config["general"]["ROBOFLOW_API_URL"]
+
 
 # Configuración inicial de la página de Streamlit
 st.set_page_config(page_title="IAMotorCycle CrossCounter", layout="wide")
