@@ -1,30 +1,13 @@
 import os
 from roboflow import Roboflow, CLIPModel, GazeModel
-import toml
-# from dotenv import load_dotenv  ## Solo para modo de desarrollo
 
-# Cargar variables de entorno desde la raíz
-# load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
-
-# Obtener las variables de entorno
-# API_KEY = os.getenv("ROBOFLOW_API_KEY")
-# MODEL_ID = os.getenv("ROBOFLOW_MODEL_ID")
-# API_URL = os.getenv("ROBOFLOW_API_URL")
-
-# if not API_KEY or not MODEL_ID or not API_URL:
-#    raise EnvironmentError("API_KEY, MODEL_ID o API_URL no están configurados en el archivo .env")
-
-# Cargar variables de entorno desde el archivo secrets.toml
-config = toml.load(os.path.join(os.path.dirname(__file__), '..', 'secrets.toml'))
-
-# Obtener las variables de entorno
-API_KEY = config["general"]["ROBOFLOW_API_KEY"]
-MODEL_ID = config["general"]["ROBOFLOW_MODEL_ID"]
-API_URL = config["general"]["ROBOFLOW_API_URL"]
+# Obtener las variables de entorno desde los secretos de Streamlit Cloud
+API_KEY = os.getenv("ROBOFLOW_API_KEY")
+MODEL_ID = os.getenv("ROBOFLOW_MODEL_ID")
+API_URL = os.getenv("ROBOFLOW_API_URL")
 
 if not API_KEY or not MODEL_ID or not API_URL:
-    raise EnvironmentError("API_KEY, MODEL_ID o API_URL no están configurados en el archivo secrets.toml")
-
+    raise EnvironmentError("API_KEY, MODEL_ID o API_URL no están configurados en los secretos de Streamlit")
 
 # Inicializar la instancia de Roboflow
 rf = Roboflow(api_key=API_KEY)
@@ -58,8 +41,7 @@ def get_image_inference(image_path: str):
     """
     from inference_sdk import InferenceHTTPClient
     
-    api_url = os.getenv("ROBOFLOW_API_URL")
-    client = InferenceHTTPClient(api_url=api_url, api_key=API_KEY)
+    client = InferenceHTTPClient(api_url=API_URL, api_key=API_KEY)
     result = client.infer(image_path, model_id=MODEL_ID)
     
     return result
