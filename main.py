@@ -1,29 +1,16 @@
 import streamlit as st
 from PIL import Image, ImageDraw
 import os
-# from dotenv import load_dotenv
 from utils.yoloconnect import get_video_inference, get_image_inference
 import tempfile
 from utils.mongodb import save_inference_result, get_inference_statistics
 import pandas as pd
-
-# Cargar las variables de entorno
-# load_dotenv()
-
-# Cargar las variables de entorno desde el archivo secrets.toml
-# config = toml.load("secrets.toml")
-
-# os.environ["MONGO_URI"] = config["general"]["MONGO_URI"]
-# os.environ["ROBOFLOW_API_KEY"] = config["general"]["ROBOFLOW_API_KEY"]
-# os.environ["ROBOFLOW_MODEL_ID"] = config["general"]["ROBOFLOW_MODEL_ID"]
-# os.environ["ROBOFLOW_API_URL"] = config["general"]["ROBOFLOW_API_URL"]
 
 # Obtener las variables de entorno desde los secretos de Streamlit Cloud
 MONGO_URI = st.secrets["MONGO"]["MONGO_URI"]
 ROBOFLOW_API_KEY = st.secrets["ROBOFLOW"]["ROBOFLOW_API_KEY"]
 ROBOFLOW_MODEL_ID = st.secrets["ROBOFLOW"]["ROBOFLOW_MODEL_ID"]
 ROBOFLOW_API_URL = st.secrets["ROBOFLOW"]["ROBOFLOW_API_URL"]
-
 
 # Configuración inicial de la página de Streamlit
 st.set_page_config(page_title="IAMotorCycle CrossCounter", layout="wide")
@@ -48,6 +35,7 @@ if inference_mode == "Imagen":
         with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as temp_image_file:
             image.save(temp_image_file.name)
             temp_image_path = temp_image_file.name
+            st.write(f"Imagen guardada temporalmente en: {temp_image_path}")
 
         # Realizar inferencia
         if st.button("Realizar inferencia"):
@@ -94,6 +82,7 @@ elif inference_mode == "Video":
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video_file:
             temp_video_file.write(uploaded_video.read())
             temp_video_path = temp_video_file.name
+            st.write(f"Video guardado temporalmente en: {temp_video_path}")
 
         # Realizar inferencia en el video
         if st.button("Realizar inferencia en video"):
@@ -133,3 +122,4 @@ if statistics:
     st.write(data)
 else:
     st.write("No hay datos de estadísticas disponibles.")
+    
