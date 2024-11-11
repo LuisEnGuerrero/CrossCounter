@@ -7,9 +7,9 @@ MODEL_ID = st.secrets["ROBOFLOW"]["ROBOFLOW_MODEL_ID"]
 API_URL = st.secrets["ROBOFLOW"]["ROBOFLOW_API_URL"]
 
 # Agregar mensajes de depuración
-st.write(f"API_KEY: {API_KEY}")
-st.write(f"MODEL_ID: {MODEL_ID}")
-st.write(f"API_URL: {API_URL}")
+# st.write(f"API_KEY: {API_KEY}")
+# st.write(f"MODEL_ID: {MODEL_ID}")
+# st.write(f"API_URL: {API_URL}")
 
 if not API_KEY or not MODEL_ID or not API_URL:
     raise st.error("API_KEY, MODEL_ID o API_URL no están configurados en los secretos de Streamlit")
