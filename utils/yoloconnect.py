@@ -6,8 +6,13 @@ API_KEY = os.getenv("ROBOFLOW_API_KEY")
 MODEL_ID = os.getenv("ROBOFLOW_MODEL_ID")
 API_URL = os.getenv("ROBOFLOW_API_URL")
 
-#if not API_KEY or not MODEL_ID or not API_URL:
-#    raise EnvironmentError("API_KEY, MODEL_ID o API_URL no están configurados en los secretos de Streamlit")
+# Agregar mensajes de depuración
+print(f"API_KEY: {API_KEY}")
+print(f"MODEL_ID: {MODEL_ID}")
+print(f"API_URL: {API_URL}")
+
+if not API_KEY or not MODEL_ID or not API_URL:
+    raise EnvironmentError("API_KEY, MODEL_ID o API_URL no están configurados en los secretos de Streamlit")
 
 # Inicializar la instancia de Roboflow
 rf = Roboflow(api_key=API_KEY)
