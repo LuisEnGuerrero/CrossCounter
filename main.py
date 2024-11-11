@@ -6,15 +6,15 @@ import tempfile
 from utils.mongodb import save_inference_result, get_inference_statistics
 import pandas as pd
 
+# Configuración inicial de la página de Streamlit
+st.set_page_config(page_title="IAMotorCycle CrossCounter", layout="wide")
+st.title("Detección y Conteo de Motocicletas")
+
 # Obtener las variables de entorno desde los secretos de Streamlit Cloud
 MONGO_URI = st.secrets["MONGO"]["MONGO_URI"]
 ROBOFLOW_API_KEY = st.secrets["ROBOFLOW"]["ROBOFLOW_API_KEY"]
 ROBOFLOW_MODEL_ID = st.secrets["ROBOFLOW"]["ROBOFLOW_MODEL_ID"]
 ROBOFLOW_API_URL = st.secrets["ROBOFLOW"]["ROBOFLOW_API_URL"]
-
-# Configuración inicial de la página de Streamlit
-st.set_page_config(page_title="IAMotorCycle CrossCounter", layout="wide")
-st.title("Detección y Conteo de Motocicletas")
 
 # Seleccionar modo de inferencia: Imagen o Video
 inference_mode = st.sidebar.selectbox("Selecciona el modo de inferencia", ("Imagen", "Video"))
@@ -122,4 +122,3 @@ if statistics:
     st.write(data)
 else:
     st.write("No hay datos de estadísticas disponibles.")
-    
