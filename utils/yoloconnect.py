@@ -3,7 +3,7 @@ from roboflow import Roboflow, CLIPModel, GazeModel
 from dotenv import load_dotenv
 
 # Cargar variables de entorno desde la raíz
-# load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 # Obtener las variables de entorno
 API_KEY = os.getenv("ROBOFLOW_API_KEY")
