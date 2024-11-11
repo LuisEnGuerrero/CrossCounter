@@ -7,7 +7,7 @@ MODEL_ID = st.secrets["ROBOFLOW"]["ROBOFLOW_MODEL_ID"]
 API_URL = st.secrets["ROBOFLOW"]["ROBOFLOW_API_URL"]
 
 if not API_KEY or not MODEL_ID or not API_URL:
-    raise EnvironmentError("API_KEY, MODEL_ID o API_URL no están configurados en los secretos de Streamlit")
+    raise st.error("API_KEY, MODEL_ID o API_URL no están configurados en los secretos de Streamlit")
 
 # Inicializar la instancia de Roboflow
 rf = Roboflow(api_key=API_KEY)
