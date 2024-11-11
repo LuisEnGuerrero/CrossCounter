@@ -3,15 +3,15 @@ from roboflow import Roboflow, CLIPModel, GazeModel
 from dotenv import load_dotenv
 
 # Cargar variables de entorno desde la raíz
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
+# load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 # Obtener las variables de entorno
 API_KEY = os.getenv("ROBOFLOW_API_KEY")
 MODEL_ID = os.getenv("ROBOFLOW_MODEL_ID")
 API_URL = os.getenv("ROBOFLOW_API_URL")
 
-if not API_KEY or not MODEL_ID or not API_URL:
-    raise EnvironmentError("API_KEY, MODEL_ID o API_URL no están configurados en el archivo .env")
+# if not API_KEY or not MODEL_ID or not API_URL:
+#    raise EnvironmentError("API_KEY, MODEL_ID o API_URL no están configurados en el archivo .env")
 
 # Inicializar la instancia de Roboflow
 rf = Roboflow(api_key=API_KEY)
