@@ -1,13 +1,22 @@
 from pymongo import MongoClient
 from datetime import datetime
-import os
-from dotenv import load_dotenv
+#import os
+import streamlit as st
+# from dotenv import load_dotenv
 
 # Cargar variables de entorno
-load_dotenv()
+# load_dotenv()
 
 # Conexión a MongoDB
-client = MongoClient(os.getenv("MONGO_URI"))
+#client = MongoClient(os.getenv("MONGO_URI"))
+
+# Obtener la URI de MongoDB desde los secretos de Streamlit Cloud
+MONGO_URI = st.secrets["MONGO"]["MONGO_URI"]
+
+# Crear una instancia del cliente de MongoDB
+client = MongoClient(MONGO_URI)
+
+
 db = client["motorcycle_detection"]  # Nombre de la base de datos
 collection = db["detections"]        # Nombre de la colección
 
