@@ -22,22 +22,16 @@ def save_inference_result(results):
         st.write("Error: El resultado de inferencia no es una lista.")
         return
 
-    for result in results:
-        # Validar que el resultado sea un diccionario
-        if isinstance(result, dict):
-            document = {
-                "inference_id": result.get("inference_id"),
-                "time": result.get("time"),
-                "detection_id": result.get("predictions", [{}])[0].get("detection_id") if result.get("predictions") else None,
-                "timestamp": datetime.now(),  # Fecha y hora de almacenamiento
-            }
-            st.write("Guardando en MongoDB:", document)
+    motorcycle_count = sum(1 for result in results if result.get("name") == "motorcycle")
 
-            collection.insert_one(document)
-            st.write(f"Resultado de inferencia guardado en MongoDB con ID {document['inference_id']}")
-            return document
-        else:
-            st.write("Error: Elemento de la lista no es un diccionario válido.")
+    document = {
+        "timestamp": datetime.now(),  # Fecha y hora de almacenamiento
+        "motorcycle_count": motorcycle_count
+    }
+
+    st.write("Guardando en MongoDB:", document)
+    collection.insert_one(document)
+    st.write(f"Resultado de inferencia guardado en MongoDB con ID {document['_id']}")
 
 def get_inference_statistics():
     """
