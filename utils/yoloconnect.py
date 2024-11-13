@@ -10,7 +10,7 @@ from ultralytics import YOLO  # Si usas YOLOv8
 model_path = "models/best.pt"
 try:
     model = YOLO(model_path)
-    print("Modelo cargado correctamente:", model)
+    print("Modelo cargado correctamente!")
 except Exception as e:
     st.error(f"Error al cargar el modelo: {e}")
     st.stop()
