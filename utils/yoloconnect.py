@@ -27,10 +27,7 @@ def get_image_inference(image_path: str):
     # Depuración: imprime el contenido de los resultados
     print("Resultados de la inferencia:", results)
 
-    # Convertir los resultados a un formato de diccionario
-    detections = []
 
-    # Intentar acceder a las cajas detectadas
     try:
         detections = []  # Asegúrate de tener una lista vacía para las detecciones
 
@@ -42,8 +39,9 @@ def get_image_inference(image_path: str):
                 # Verifica si result tiene el atributo 'boxes'
                 if hasattr(result, 'boxes'):
                     for box in result.boxes:
+                        print("Contenido de box:", box)  # Depuración: Imprimir el contenido de la caja
                         # Verifica que box.xyxy sea un tensor con 4 elementos
-                        if len(box.xyxy) == 4:
+                        if hasattr(box, 'xyxy') and len(box.xyxy) == 4:
                             detection = {
                                 "name": model.names[int(box.cls.item())],  # Convertir a nombre de clase
                                 "confidence": float(box.conf.item()),      # Convertir a valor flotante
@@ -54,7 +52,7 @@ def get_image_inference(image_path: str):
                             }
                             detections.append(detection)
                         else:
-                            print("Error: box.xyxy no tiene 4 elementos.")
+                            print("Error: box.xyxy no tiene 4 elementos o no existe.")
                 else:
                     print("Error: 'result' no tiene el atributo 'boxes'.")
         else:
