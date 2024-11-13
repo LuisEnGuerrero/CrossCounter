@@ -32,20 +32,40 @@ def get_image_inference(image_path: str):
 
     # Intentar acceder a las cajas detectadas
     try:
-        for result in results:
-            print("Resultado individual:", result)
-            for box in result.boxes:
-                detection = {
-                    "name": model.names[int(box.cls.item())],  # Convertir a nombre de clase
-                    "confidence": float(box.conf.item()),      # Convertir a valor flotante
-                    "xmin": int(box.xyxy[0].cpu().item()),     # Coordenada X mínima
-                    "ymin": int(box.xyxy[1].cpu().item()),     # Coordenada Y mínima
-                    "xmax": int(box.xyxy[2].cpu().item()),     # Coordenada X máxima
-                    "ymax": int(box.xyxy[3].cpu().item())      # Coordenada Y máxima
-                }
-                detections.append(detection)
+        detections = []  # Asegúrate de tener una lista vacía para las detecciones
+
+        # Verifica si 'results' es iterable (en caso de que no lo sea)
+        if isinstance(results, list):  
+            for result in results:
+                print("Resultado individual:", result)
+
+                # Verifica si result tiene el atributo 'boxes'
+                if hasattr(result, 'boxes'):
+                    for box in result.boxes:
+                        # Verifica que box.xyxy sea un tensor con 4 elementos
+                        if len(box.xyxy) == 4:
+                            detection = {
+                                "name": model.names[int(box.cls.item())],  # Convertir a nombre de clase
+                                "confidence": float(box.conf.item()),      # Convertir a valor flotante
+                                "xmin": int(box.xyxy[0].cpu().item()),     # Coordenada X mínima
+                                "ymin": int(box.xyxy[1].cpu().item()),     # Coordenada Y mínima
+                                "xmax": int(box.xyxy[2].cpu().item()),     # Coordenada X máxima
+                                "ymax": int(box.xyxy[3].cpu().item())      # Coordenada Y máxima
+                            }
+                            detections.append(detection)
+                        else:
+                            print("Error: box.xyxy no tiene 4 elementos.")
+                else:
+                    print("Error: 'result' no tiene el atributo 'boxes'.")
+        else:
+            print("Error: 'results' no es una lista.")
+
     except AttributeError as e:
         print("Error al acceder a las cajas detectadas:", e)
+
+    # Para depurar, puedes imprimir las detecciones después
+    print("Detecciones obtenidas:", detections)
+
    
     return detections
 
