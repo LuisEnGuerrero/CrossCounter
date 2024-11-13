@@ -59,9 +59,9 @@ if inference_mode == "Imagen":
             draw = ImageDraw.Draw(image_with_boxes)
             motorcycle_count = 0
             
-            for prediction in results['predictions']:
-                if prediction['class'] == 'motorcycle':
-                    x, y, w, h = prediction['x'], prediction['y'], prediction['width'], prediction['height']
+            for prediction in results:
+                if prediction['name'] == 'motorcycle':
+                    x, y, w, h = prediction['xmin'], prediction['ymin'], prediction['xmax'] - prediction['xmin'], prediction['ymax'] - prediction['ymin']
                     confidence = prediction['confidence']
                     motorcycle_count += 1
                     
