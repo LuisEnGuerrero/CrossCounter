@@ -36,12 +36,12 @@ def get_image_inference(image_path: str):
             print("Resultado individual:", result)
             for box in result.boxes:
                 detection = {
-                    "name": model.names[int(box.cls.item())],  # Convertir el índice de clase a nombre
-                    "confidence": float(box.conf.item()),      # Convertir la confianza a flotante
-                    "xmin": int(box.xyxy[0].cpu().numpy()),   # Coordenada xmin
-                    "ymin": int(box.xyxy[1].cpu().numpy()),   # Coordenada ymin
-                    "xmax": int(box.xyxy[2].cpu().numpy()),   # Coordenada xmax
-                    "ymax": int(box.xyxy[3].cpu().numpy())    # Coordenada ymax
+                    "name": model.names[int(box.cls.item())],  # Convertir a nombre de clase
+                    "confidence": float(box.conf.item()),      # Convertir a valor flotante
+                    "xmin": int(box.xyxy[0].cpu().item()),     # Coordenada X mínima
+                    "ymin": int(box.xyxy[1].cpu().item()),     # Coordenada Y mínima
+                    "xmax": int(box.xyxy[2].cpu().item()),     # Coordenada X máxima
+                    "ymax": int(box.xyxy[3].cpu().item())      # Coordenada Y máxima
                 }
                 detections.append(detection)
     except AttributeError as e:
