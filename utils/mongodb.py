@@ -10,7 +10,7 @@ try:
     client = MongoClient(MONGO_URI)
     db = client["motorcycle_detection"]  # Nombre de la base de datos
     collection = db["detections"]        # Nombre de la colección
-    st.write("Conexión a MongoDB establecida correctamente.")
+    # st.write("Conexión a MongoDB establecida correctamente.")
 except Exception as e:
     st.error(f"Error al conectar con MongoDB: {e}")
 
@@ -19,7 +19,7 @@ def save_inference_result(results):
     Guarda el resultado de inferencia en MongoDB con la fecha/hora actual.
     """
     if not isinstance(results, list):
-        print("Error: El resultado de inferencia no es una lista.")
+        st.write("Error: El resultado de inferencia no es una lista.")
         return
 
     for result in results:
@@ -31,13 +31,13 @@ def save_inference_result(results):
                 "detection_id": result.get("predictions", [{}])[0].get("detection_id") if result.get("predictions") else None,
                 "timestamp": datetime.now(),  # Fecha y hora de almacenamiento
             }
-            print("Guardando en MongoDB:", document)
+            st.write("Guardando en MongoDB:", document)
 
             collection.insert_one(document)
             st.write(f"Resultado de inferencia guardado en MongoDB con ID {document['inference_id']}")
             return document
         else:
-            print("Error: Elemento de la lista no es un diccionario válido.")
+            st.write("Error: Elemento de la lista no es un diccionario válido.")
 
 def get_inference_statistics():
     """
