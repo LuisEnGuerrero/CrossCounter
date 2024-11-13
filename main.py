@@ -9,14 +9,16 @@ from utils.yoloconnect import get_video_inference, get_image_inference
 import tempfile
 from utils.mongodb import save_inference_result, get_inference_statistics
 import pandas as pd
+import plotly.express as px
+
 
 st.title("Detección y Conteo de Motocicletas")
 
 # Obtener las variables de entorno desde los secretos de Streamlit Cloud
 MONGO_URI = st.secrets["MONGO"]["MONGO_URI"]
-ROBOFLOW_API_KEY = st.secrets["ROBOFLOW"]["ROBOFLOW_API_KEY"]
-ROBOFLOW_MODEL_ID = st.secrets["ROBOFLOW"]["ROBOFLOW_MODEL_ID"]
-ROBOFLOW_API_URL = st.secrets["ROBOFLOW"]["ROBOFLOW_API_URL"]
+# ROBOFLOW_API_KEY = st.secrets["ROBOFLOW"]["ROBOFLOW_API_KEY"]
+# ROBOFLOW_MODEL_ID = st.secrets["ROBOFLOW"]["ROBOFLOW_MODEL_ID"]
+# ROBOFLOW_API_URL = st.secrets["ROBOFLOW"]["ROBOFLOW_API_URL"]
 
 # Seleccionar modo de inferencia: Imagen o Video
 inference_mode = st.sidebar.selectbox("Selecciona el modo de inferencia", ("Imagen", "Video"))
@@ -89,7 +91,7 @@ elif inference_mode == "Video":
         # Realizar inferencia en el video
         if st.button("Realizar inferencia en video"):
             with st.spinner("Realizando inferencia en el video..."):
-                results = get_video_inference(temp_video_path, fps=5, method="object-detection")
+                results = get_video_inference(temp_video_path, fps=5)
                 st.success("Inferencia en video completada.")
 
                 # Guardar los resultados en MongoDB
@@ -105,8 +107,8 @@ elif inference_mode == "Video":
                 st.markdown(f"[Descargar video procesado]({signed_url})")
 
         # Nota adicional para casos de error de cuota agotada
-        if results.get("status_info") == "quota exhausted error":
-            st.error("Error de cuota agotada. Considera aumentar el límite en Roboflow.")
+        # if results.get("status_info") == "quota exhausted error":
+        #     st.error("Error de cuota agotada. Considera aumentar el límite en Roboflow.")
 
 # Gráfico de estadísticas
 st.header("Estadísticas de Conteo de Motocicletas")
@@ -120,8 +122,8 @@ if statistics:
     data = data.set_index("Fecha y Hora")
 
     # Crear el gráfico
-    st.line_chart(data)
+    fig = px.line(data, x=data.index, y="Cantidad de Motocicletas", title="Conteo de Motocicletas por Fecha y Hora")
+    st.plotly_chart(fig)
     st.write(data)
 else:
-    st.write("No hay datos de estadísticas disponibles.")
-    
+    st.write("No hay datos de estadísticas disponibles.")    
