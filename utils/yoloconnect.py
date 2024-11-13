@@ -24,18 +24,17 @@ def get_image_inference(image_path: str):
 
     # Convertir los resultados a un formato de diccionario
     detections = []
-    for result in results:
-        for box in result.boxes:
-            detection = {
-                "name": model.names[int(box.cls.item())],
-                "confidence": box.conf.item(),
-                "xmin": int(box.xyxy[0].item()),
-                "ymin": int(box.xyxy[1].item()),
-                "xmax": int(box.xyxy[2].item()),
-                "ymax": int(box.xyxy[3].item())
-            }
-            detections.append(detection)
-    
+    for box in results.boxes:  # Asegúrate de acceder a la estructura correcta
+        detection = {
+            "name": model.names[int(box.cls)],  # Nombre de la clase
+            "confidence": float(box.conf),     # Confianza de la predicción
+            "xmin": int(box.xyxy[0]),          # Coordenada xmin
+            "ymin": int(box.xyxy[1]),          # Coordenada ymin
+            "xmax": int(box.xyxy[2]),          # Coordenada xmax
+            "ymax": int(box.xyxy[3])           # Coordenada ymax
+        }
+        detections.append(detection)
+   
     return detections
 
 def get_video_inference(video_path: str, fps: int = 5):
