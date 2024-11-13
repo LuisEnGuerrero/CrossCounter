@@ -4,11 +4,12 @@ from PIL import Image
 import cv2
 import tempfile
 import os
+from ultralytics import YOLO  # Si usas YOLOv8
 
 # Cargar el modelo YOLOv8
 model_path = "models/best.pt"
 try:
-    model = torch.hub.load('ultralytics/yolov5', 'custom', path=model_path, force_reload=True)
+    model = YOLO(model_path)
 except Exception as e:
     st.error(f"Error al cargar el modelo: {e}")
     st.stop()
