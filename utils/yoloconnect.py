@@ -7,7 +7,12 @@ import os
 
 # Cargar el modelo YOLOv8
 model_path = "models/best.pt"
-model = torch.hub.load('ultralytics/yolov5', 'custom', path=model_path, force_reload=True)
+try:
+    model = torch.hub.load('ultralytics/yolov5', 'custom', path=model_path, force_reload=True)
+except Exception as e:
+    st.error(f"Error al cargar el modelo: {e}")
+    st.stop()
+
 
 def get_image_inference(image_path: str):
     """
