@@ -60,10 +60,11 @@ def get_video_inference(video_path: str, fps: int = 5):
 
         # Realizar inferencia en el frame
         results = model(frame)
-        for *box, conf, cls in results.xyxy[0]:
-            label = f'{model.names[int(cls)]} {conf:.2f}'
-            cv2.rectangle(frame, (int(box[0]), int(box[1])), (int(box[2]), int(box[3])), (0, 255, 0), 2)
-            cv2.putText(frame, label, (int(box[0]), int(box[1]) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        for result in results:
+            for box in result.boxes:
+                label = f'{model.names[int(box.cls.item())]} {box.conf.item():.2f}'
+                cv2.rectangle(frame, (int(box.xyxy[0].item()), int(box.xyxy[1].item())), (int(box.xyxy[2].item()), (int(box.xyxy[3].item())), (0, 255, 0), 2))
+                cv2.putText(frame, label, (int(box.xyxy[0].item()), int(box.xyxy[1].item()) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
         # Escribir el frame procesado en el video de salida
         out.write(frame)
