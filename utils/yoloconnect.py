@@ -35,7 +35,7 @@ def get_image_inference(image_path: str):
             for box in result.boxes:
                 print("Contenido de box:", box)  # Depuración: Imprimir el contenido de la caja
                 # Verifica que box.xyxy sea un tensor con 4 elementos
-                if hasattr(box, 'xyxy') and box.xyxy.numel() == 4:
+                if hasattr(box, 'xyxy') and box.xyxy.shape == torch.Size([1, 4]):
                     detection = {
                         "name": model.names[int(box.cls.item())],  # Convertir a nombre de clase
                         "confidence": float(box.conf.item()),      # Convertir a valor flotante
@@ -46,12 +46,12 @@ def get_image_inference(image_path: str):
                     }
                     detections.append(detection)
                 else:
-                    print("Error: box.xyxy no tiene 4 elementos o no existe.")
+                    print(f"Error: box.xyxy no tiene 4 elementos, contiene: {len(box.xyxy)} elementos!")
         else:
             print("Error: 'result' no tiene el atributo 'boxes'.")
 
     # Para depurar, puedes imprimir las detecciones después
-    print("Detecciones obtenidas:", detections)
+    st.write("Detecciones obtenidas:", detections)
 
     return detections
 
