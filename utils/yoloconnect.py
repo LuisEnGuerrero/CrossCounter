@@ -35,15 +35,15 @@ def get_image_inference(image_path: str):
             for box in result.boxes:
                 print("Contenido de box:", box)  # Depuración: Imprimir el contenido de la caja
                 # Verifica que box.xyxy sea un tensor con 4 elementos
-                if hasattr(box, 'xyxy') and box.xyxy.shape == torch.Size([1, 4]):
-                    xyxy = box.xyxy.squeeze()  # Aplanar el tensor para acceder a los valores
+                if hasattr(box, 'xyxy') and box.xyxy.shape[-1] == 4:
+                    xyxy = box.xyxy[0]  # Acceder a la primera fila si es un tensor 2D
                     detection = {
                         "name": model.names[int(box.cls.item())],  # Convertir a nombre de clase
                         "confidence": float(box.conf.item()),      # Convertir a valor flotante
-                        "xmin": int(box.xyxy[0].item()),           # Coordenada X mínima
-                        "ymin": int(box.xyxy[1].item()),           # Coordenada Y mínima
-                        "xmax": int(box.xyxy[2].item()),           # Coordenada X máxima
-                        "ymax": int(box.xyxy[3].item())            # Coordenada Y máxima
+                        "xmin": int(xyxy[0].item()),               # Coordenada X mínima
+                        "ymin": int(xyxy[1].item()),               # Coordenada Y mínima
+                        "xmax": int(xyxy[2].item()),               # Coordenada X máxima
+                        "ymax": int(xyxy[3].item())                # Coordenada Y máxima
                     }
                     detections.append(detection)
                 else:
