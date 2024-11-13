@@ -80,8 +80,9 @@ def get_video_inference(video_path: str, fps: int = 5):
         for result in results:
             for box in result.boxes:
                 label = f'{model.names[int(box.cls.item())]} {box.conf.item():.2f}'
-                cv2.rectangle(frame, (int(box.xyxy[0].item()), int(box.xyxy[1].item())), (int(box.xyxy[2].item()), int(box.xyxy[3].item())), (0, 255, 0), 2)
-                cv2.putText(frame, label, (int(box.xyxy[0].item()), int(box.xyxy[1].item()) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                xyxy = box.xyxy[0]  # Acceder a la primera fila si es un tensor 2D
+                cv2.rectangle(frame, (int(xyxy[0].item()), int(xyxy[1].item())), (int(xyxy[2].item()), int(xyxy[3].item())), (0, 255, 0), 2)
+                cv2.putText(frame, label, (int(xyxy[0].item()), int(xyxy[1].item()) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
         # Escribir el frame procesado en el video de salida
         out.write(frame)
