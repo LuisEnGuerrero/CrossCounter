@@ -36,6 +36,7 @@ def get_image_inference(image_path: str):
                 print("Contenido de box:", box)  # Depuración: Imprimir el contenido de la caja
                 # Verifica que box.xyxy sea un tensor con 4 elementos
                 if hasattr(box, 'xyxy') and box.xyxy.shape == torch.Size([1, 4]):
+                    xyxy = box.xyxy.squeeze()  # Aplanar el tensor para acceder a los valores
                     detection = {
                         "name": model.names[int(box.cls.item())],  # Convertir a nombre de clase
                         "confidence": float(box.conf.item()),      # Convertir a valor flotante
