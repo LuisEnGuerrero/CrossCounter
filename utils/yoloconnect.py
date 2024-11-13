@@ -24,17 +24,18 @@ def get_image_inference(image_path: str):
 
     # Convertir los resultados a un formato de diccionario
     detections = []
-    for *box, conf, cls in results.xyxy[0]:
-        detection = {
-            "xmin": box[0].item(),
-            "ymin": box[1].item(),
-            "xmax": box[2].item(),
-            "ymax": box[3].item(),
-            "confidence": conf.item(),
-            "class": int(cls.item()),
-            "name": model.names[int(cls.item())]
-        }
-        detections.append(detection)
+    for result in results:
+        for box in result.boxes:
+            detection = {
+                "xmin": box.xyxy[0].item(),
+                "ymin": box.xyxy[1].item(),
+                "xmax": box.xyxy[2].item(),
+                "ymax": box.xyxy[3].item(),
+                "confidence": box.conf.item(),
+                "class": int(box.cls.item()),
+                "name": model.names[int(box.cls.item())]
+            }
+            detections.append(detection)
     
     return detections
 
