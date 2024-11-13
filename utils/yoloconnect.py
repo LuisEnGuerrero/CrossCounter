@@ -27,13 +27,12 @@ def get_image_inference(image_path: str):
     for result in results:
         for box in result.boxes:
             detection = {
-                "xmin": box.xyxy[0].item(),
-                "ymin": box.xyxy[1].item(),
-                "xmax": box.xyxy[2].item(),
-                "ymax": box.xyxy[3].item(),
+                "name": model.names[int(box.cls.item())],
                 "confidence": box.conf.item(),
-                "class": int(box.cls.item()),
-                "name": model.names[int(box.cls.item())]
+                "xmin": int(box.xyxy[0].item()),
+                "ymin": int(box.xyxy[1].item()),
+                "xmax": int(box.xyxy[2].item()),
+                "ymax": int(box.xyxy[3].item())
             }
             detections.append(detection)
     
