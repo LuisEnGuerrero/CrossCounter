@@ -66,8 +66,8 @@ if inference_mode == "Imagen":
                     motorcycle_count += 1
                     
                     # Dibuja el rectángulo en torno a la detección
-                    top_left = (x - w / 2, y - h / 2)
-                    bottom_right = (x + w / 2, y + h / 2)
+                    top_left = (x, y)
+                    bottom_right = (x + w, y + h)
                     draw.rectangle([top_left, bottom_right], outline="red", width=2)
                     draw.text(top_left, f"{confidence:.2f}", fill="red")
             
@@ -102,9 +102,9 @@ elif inference_mode == "Video":
             st.json(results)
 
             # Descargar el video procesado (si está disponible en los resultados)
-            signed_url = results.get("signed_url", None)
-            if signed_url:
-                st.markdown(f"[Descargar video procesado]({signed_url})")
+            video_path = results.get("video_path", None)
+            if video_path:
+                st.markdown(f"[Descargar video procesado]({video_path})")
 
         # Nota adicional para casos de error de cuota agotada
         # if results.get("status_info") == "quota exhausted error":
