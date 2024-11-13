@@ -14,20 +14,30 @@ try:
 except Exception as e:
     st.error(f"Error al conectar con MongoDB: {e}")
 
-def save_inference_result(result):
+def save_inference_result(results):
     """
     Guarda el resultado de inferencia en MongoDB con la fecha/hora actual.
     """
-    document = {
-        "inference_id": result.get("inference_id"),
-        "time": result.get("time"),
-        "detection_id": result["predictions"][0].get("detection_id") if result["predictions"] else None,
-        "timestamp": datetime.now(),  # Fecha y hora de almacenamiento en MongoDB
-        "motorcycle_count": len([pred for pred in result["predictions"] if pred["class"] == "motorcycle"]),
-    }
-    collection.insert_one(document)
-    st.write(f"Resultado de inferencia guardado en MongoDB con ID {document['inference_id']}")
-    return document
+    if not isinstance(results, list):
+        print("Error: El resultado de inferencia no es una lista.")
+        return
+
+    for result in results:
+        # Validar que el resultado sea un diccionario
+        if isinstance(result, dict):
+            document = {
+                "inference_id": result.get("inference_id"),
+                "time": result.get("time"),
+                "detection_id": result.get("predictions", [{}])[0].get("detection_id") if result.get("predictions") else None,
+                "timestamp": datetime.now(),  # Fecha y hora de almacenamiento
+            }
+            print("Guardando en MongoDB:", document)
+
+            collection.insert_one(document)
+            st.write(f"Resultado de inferencia guardado en MongoDB con ID {document['inference_id']}")
+            return document
+        else:
+            print("Error: Elemento de la lista no es un diccionario válido.")
 
 def get_inference_statistics():
     """
