@@ -10,6 +10,7 @@ from ultralytics import YOLO  # Si usas YOLOv8
 model_path = "models/best.pt"
 try:
     model = YOLO(model_path)
+    print("Modelo cargado correctamente:", model)
 except Exception as e:
     st.error(f"Error al cargar el modelo: {e}")
     st.stop()
@@ -22,21 +23,29 @@ def get_image_inference(image_path: str):
     img = Image.open(image_path)
     results = model(img)
 
+
+    # Depuración: imprime el contenido de los resultados
+    print("Resultados de la inferencia:", results)
+
     # Convertir los resultados a un formato de diccionario
     detections = []
-    
-    # Iterar sobre cada resultado
-    for result in results:
-        for box in result.boxes:  # Asegúrate de acceder correctamente
-            detection = {
-                "name": model.names[int(box.cls)],  # Nombre de la clase
-                "confidence": float(box.conf),     # Confianza de la predicción
-                "xmin": int(box.xyxy[0]),          # Coordenada xmin
-                "ymin": int(box.xyxy[1]),          # Coordenada ymin
-                "xmax": int(box.xyxy[2]),          # Coordenada xmax
-                "ymax": int(box.xyxy[3])           # Coordenada ymax
-            }
-            detections.append(detection)
+
+    # Intentar acceder a las cajas detectadas
+    try:
+        for result in results:
+            print("Resultado individual:", result)
+            for box in result.boxes:
+                detection = {
+                    "name": model.names[int(box.cls)],  # Nombre de la clase
+                    "confidence": float(box.conf),     # Confianza de la predicción
+                    "xmin": int(box.xyxy[0]),          # Coordenada xmin
+                    "ymin": int(box.xyxy[1]),          # Coordenada ymin
+                    "xmax": int(box.xyxy[2]),          # Coordenada xmax
+                    "ymax": int(box.xyxy[3])           # Coordenada ymax
+                }
+                detections.append(detection)
+    except AttributeError as e:
+        print("Error al acceder a las cajas detectadas:", e)
    
     return detections
 
