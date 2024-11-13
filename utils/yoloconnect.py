@@ -36,12 +36,12 @@ def get_image_inference(image_path: str):
             print("Resultado individual:", result)
             for box in result.boxes:
                 detection = {
-                    "name": model.names[int(box.cls.item())],  # Convertir el tensor de clase a un escalar
-                    "confidence": float(box.conf.item()),     # Convertir la confianza a un escalar
-                    "xmin": int(box.xyxy[0].item()),          # Extraer xmin como escalar
-                    "ymin": int(box.xyxy[1].item()),          # Extraer ymin como escalar
-                    "xmax": int(box.xyxy[2].item()),          # Extraer xmax como escalar
-                    "ymax": int(box.xyxy[3].item())           # Extraer ymax como escalar
+                    "name": model.names[int(box.cls.item())],  # Convertir clase a nombre
+                    "confidence": float(box.conf.item()),     # Convertir confianza a float
+                    "xmin": int(box.xyxy[0].cpu().item()),    # Extraer xmin
+                    "ymin": int(box.xyxy[1].cpu().item()),    # Extraer ymin
+                    "xmax": int(box.xyxy[2].cpu().item()),    # Extraer xmax
+                    "ymax": int(box.xyxy[3].cpu().item())     # Extraer ymax
                 }
                 detections.append(detection)
     except AttributeError as e:
