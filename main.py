@@ -60,6 +60,7 @@ if inference_mode == "Imagen":
             motorcycle_count = 0
             
             for prediction in results:
+                print("Predicción:", prediction)  # Depuración: Imprimir cada predicción
                 if prediction['name'] == 'motorcycle':
                     x, y, w, h = prediction['xmin'], prediction['ymin'], prediction['xmax'] - prediction['xmin'], prediction['ymax'] - prediction['ymin']
                     confidence = prediction['confidence']

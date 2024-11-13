@@ -1,5 +1,5 @@
-import torch
 import streamlit as st
+import torch
 from PIL import Image
 import cv2
 import tempfile
