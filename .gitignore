@@ -12,10 +12,8 @@ venv/
 .env
 secrets.toml
 
-# Archivos de Streamlit
-.streamlit/
-
 # Archivos de caché y temporales
+media/
 *.log
 *.tmp
 *.temp

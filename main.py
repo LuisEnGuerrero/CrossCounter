@@ -132,6 +132,12 @@ elif inference_mode == "Video":
                                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
                                 cv2.putText(frame, f"{confidence:.2f}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
+                        # Añadir el nombre de la aplicación y el contador de motos encontradas
+                        app_name = "AI MotorCycle CrossCounter TalentoTECH"
+                        motos_text = f"Motos encontradas: {motorcycle_count}"
+                        cv2.putText(frame, app_name, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+                        cv2.putText(frame, motos_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+
                         # Mostrar el frame procesado
                         image_container.image(frame, channels="BGR", caption=f"Frame {frame_count}")
 
