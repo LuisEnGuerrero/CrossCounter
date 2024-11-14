@@ -53,7 +53,7 @@ with header_container:
         }}
         .nav a {{
             text-decoration: none;
-            color: #007bff;
+            color: #f7f9faff;
             font-size: 18px;
         }}
         </style>
