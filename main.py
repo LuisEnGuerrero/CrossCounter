@@ -16,9 +16,12 @@ st.set_page_config(page_title="AI·MotorCycle CrossCounter TalentoTECH", layout=
 header_container = st.container()
 
 with header_container:
-    # Cargar el logo
-    logo_path = os.path.join(os.path.dirname(__file__), "logox512.jpg")
-    logo = Image.open(logo_path)
+
+    # Permitir al usuario cargar el logo
+    uploaded_logo = st.file_uploader("Cargar logo", type=["jpg", "jpeg", "png"])
+    
+    if uploaded_logo is not None:
+        logo = Image.open(uploaded_logo)
     
     # Crear columnas para el logo y el título
     col1, col2 = st.columns([1, 3])
