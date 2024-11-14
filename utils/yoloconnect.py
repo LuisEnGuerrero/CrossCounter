@@ -4,7 +4,7 @@ from PIL import Image
 import cv2
 import tempfile
 import os
-from ultralytics import YOLO  # Si usas YOLOv8
+from ultralytics import YOLO  # Al utilizar YOLOv8
 from utils.mongodb import save_inference_result
 
 

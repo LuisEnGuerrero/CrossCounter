@@ -134,6 +134,9 @@ elif inference_mode == "Video":
                         # Mostrar el frame procesado
                         image_container.image(frame, channels="BGR", caption=f"Frame {frame_count}")
 
+                        # Guardar los resultados en MongoDB
+                        save_inference_result(results)
+
                     # Escribir el frame procesado en el video de salida
                     out.write(frame)
                     frame_count += 1
