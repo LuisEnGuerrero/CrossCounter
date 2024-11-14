@@ -134,9 +134,6 @@ elif inference_mode == "Video":
                         # Mostrar el frame procesado
                         st.image(frame, channels="BGR", caption=f"Frame {frame_count}")
 
-                        # Guardar los resultados en MongoDB
-                        save_inference_result(results)
-
                     # Escribir el frame procesado en el video de salida
                     out.write(frame)
                     frame_count += 1
@@ -146,12 +143,19 @@ elif inference_mode == "Video":
 
                 st.success("Inferencia en video completada.")
 
-                # Descargar el video procesado
-                st.markdown(f"[Descargar video procesado]({temp_video_output.name})")
+                # Proporcionar un botón de descarga para el video procesado
+                with open(temp_video_output.name, "rb") as file:
+                    btn = st.download_button(
+                        label="Descargar video procesado",
+                        data=file,
+                        file_name="video_procesado.mp4",
+                        mime="video/mp4"
+                    )
 
-                # Eliminar el archivo temporal
-                os.remove(temp_video_path)
-                os.remove(temp_video_output.name)
+                # Eliminar los archivos temporales después de la descarga
+                if btn:
+                    os.remove(temp_video_path)
+                    os.remove(temp_video_output.name)
 
 # Gráfico de estadísticas
 st.header("Estadísticas de Conteo de Motocicletas")

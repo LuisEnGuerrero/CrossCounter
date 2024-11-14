@@ -5,6 +5,8 @@ import cv2
 import tempfile
 import os
 from ultralytics import YOLO  # Si usas YOLOv8
+from utils.mongodb import save_inference_result
+
 
 # Cargar el modelo YOLOv8
 model_path = "models/best.pt"
@@ -70,42 +72,35 @@ def get_video_inference(video_path: str, fps: int = 5):
     temp_video_output = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
     out = cv2.VideoWriter(temp_video_output.name, fourcc, fps, (width, height))
 
+    frame_count = 0
+
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
 
-            # Procesar solo un frame de cada nueve
-            if frame_count % 9 == 0:
-                # Realizar inferencia en el frame
-                results = model(frame)
-                for result in results:
-                    for box in result.boxes:
-                        label = f'{model.names[int(box.cls.item())]} {box.conf.item():.2f}'
-                        xyxy = box.xyxy[0]  # Acceder a la primera fila si es un tensor 2D
-                        cv2.rectangle(frame, (int(xyxy[0].item()), int(xyxy[1].item())), (int(xyxy[2].item()), int(xyxy[3].item())), (0, 255, 0), 2)
-                        cv2.putText(frame, label, (int(xyxy[0].item()), int(xyxy[1].item()) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        # Procesar solo un frame de cada nueve
+        if frame_count % 9 == 0:
+            # Realizar inferencia en el frame
+            results = get_image_inference(frame)
+            motorcycle_count = 0
+            for prediction in results:
+                if prediction['name'] == 'motorcycle':
+                    x, y, w, h = prediction['xmin'], prediction['ymin'], prediction['xmax'] - prediction['xmin'], prediction['ymax'] - prediction['ymin']
+                    confidence = prediction['confidence']
+                    motorcycle_count += 1
+                    
+                    # Dibuja el rectángulo en torno a la detección
+                    top_left = (x, y)
+                    bottom_right = (x + w, y + h)
+                    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                    cv2.putText(frame, f"{confidence:.2f}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-                # Mostrar el frame procesado
-                st.image(frame, channels="BGR", caption=f"Frame {frame_count}")
+            # Mostrar el frame procesado
+            st.image(frame, channels="BGR", caption=f"Frame {frame_count}")
 
-                # Guardar los resultados en MongoDB
-                detections = []
-                for result in results:
-                    if hasattr(result, 'boxes'):
-                        for box in result.boxes:
-                            if hasattr(box, 'xyxy') and box.xyxy.shape[-1] == 4:
-                                xyxy = box.xyxy[0]
-                                detection = {
-                                    "name": model.names[int(box.cls.item())],
-                                    "confidence": float(box.conf.item()),
-                                    "xmin": int(xyxy[0].item()),
-                                    "ymin": int(xyxy[1].item()),
-                                    "xmax": int(xyxy[2].item()),
-                                    "ymax": int(xyxy[3].item())
-                                }
-                                detections.append(detection)
-            save_inference_result(detections)
+            # Guardar los resultados en MongoDB
+            save_inference_result(results)
 
         # Escribir el frame procesado en el video de salida
         out.write(frame)
