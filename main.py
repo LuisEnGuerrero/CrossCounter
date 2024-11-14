@@ -17,39 +17,69 @@ header_container = st.container()
 
 with header_container:
 
-    # Permitir al usuario cargar el logo
-    uploaded_logo = st.file_uploader("Cargar logo", type=["jpg", "jpeg", "png"])
-    
-    if uploaded_logo is not None:
-        logo = Image.open(uploaded_logo)
-    
-    # Crear columnas para el logo y el título
-    col1, col2 = st.columns([1, 3])
-    
-    with col1:
-        st.image(logo, width=100)
-    
-    with col2:
-        st.title("AI·MotorCycle CrossCounter TalentoTECH")
-    
-    # Crear pestañas para "Acerca de" y "Documentación"
-    tabs = st.tabs(["Inicio", "Acerca de", "Documentación"])
-    
-    with tabs[1]:
-        st.header("Acerca de")
-        st.write("""
-        Somos TechRoads Innovators, un equipo dedicado a desarrollar soluciones innovadoras para el monitoreo y análisis de tráfico. Nuestro proyecto AI·MotorCycle CrossCounter TalentoTECH utiliza inteligencia artificial para detectar y contar motocicletas en videos, proporcionando datos valiosos para mejorar la seguridad y eficiencia del tráfico.
-        """)
-    
-    with tabs[2]:
-        st.header("Documentación")
-        st.write("""
-        ## Guía de Uso
-        1. **Cargar una Imagen o Video**: Selecciona el modo de inferencia (Imagen o Video) y carga el archivo correspondiente.
-        2. **Realizar Inferencia**: Haz clic en el botón "Realizar inferencia" para procesar la imagen o video.
-        3. **Ver Resultados**: Los resultados de la inferencia se mostrarán en la pantalla, incluyendo el conteo de motocicletas detectadas.
-        4. **Descargar Video Procesado**: Si has cargado un video, podrás descargar el video procesado con las detecciones resaltadas.
-        """)
+    # HTML y CSS para el header
+    st.markdown(
+        """
+        <style>
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .header img {
+            width: 100px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #343a40;
+        }
+        .nav {
+            display: flex;
+            gap: 20px;
+        }
+        .nav a {
+            text-decoration: none;
+            color: #007bff;
+            font-size: 18px;
+        }
+        </style>
+        <div class="header">
+            <img src="logox512.jpg" alt="Logo">
+            <h1>AI·MotorCycle CrossCounter TalentoTECH</h1>
+            <div class="nav">
+                <a href="#inicio">Inicio</a>
+                <a href="#acerca-de">Acerca de</a>
+                <a href="#documentacion">Documentación</a>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Secciones de "Acerca de" y "Documentación"
+    st.markdown(
+        """
+        <div id="acerca-de">
+            <h2>Acerca de</h2>
+            <p>Somos TechRoads Innovators, un equipo dedicado a desarrollar soluciones innovadoras para el monitoreo y análisis de tráfico. Nuestro proyecto AI·MotorCycle CrossCounter TalentoTECH utiliza inteligencia artificial para detectar y contar motocicletas en videos, proporcionando datos valiosos para mejorar la seguridad y eficiencia del tráfico.</p>
+        </div>
+        <div id="documentacion">
+            <h2>Documentación</h2>
+            <h3>Guía de Uso</h3>
+            <ol>
+                <li><strong>Cargar una Imagen o Video</strong>: Selecciona el modo de inferencia (Imagen o Video) y carga el archivo correspondiente.</li>
+                <li><strong>Realizar Inferencia</strong>: Haz clic en el botón "Realizar inferencia" para procesar la imagen o video.</li>
+                <li><strong>Ver Resultados</strong>: Los resultados de la inferencia se mostrarán en la pantalla, incluyendo el conteo de motocicletas detectadas.</li>
+                <li><strong>Descargar Video Procesado</strong>: Si has cargado un video, podrás descargar el video procesado con las detecciones resaltadas.</li>
+            </ol>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
     
 # Crear un contenedor para el contenido principal con márgenes
 content_container = st.container()
