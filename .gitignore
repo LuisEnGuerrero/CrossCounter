@@ -25,6 +25,7 @@ secrets.toml
 *.jpeg
 *.png
 *.avi
+*.mp4
 
 # Archivos de Jupyter Notebooks
 .ipynb_checkpoints/
