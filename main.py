@@ -10,6 +10,9 @@ import tempfile
 from utils.mongodb import save_inference_result, get_inference_statistics
 import pandas as pd
 import plotly.express as px
+import cv2
+import tempfile
+
 
 
 st.title("Detección y Conteo de Motocicletas")
@@ -92,24 +95,56 @@ elif inference_mode == "Video":
         # Realizar inferencia en el video
         if st.button("Realizar inferencia en video"):
             with st.spinner("Realizando inferencia en el video..."):
-                results = get_video_inference(temp_video_path, fps=5)
+                cap = cv2.VideoCapture(temp_video_path)
+                width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+                height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+                
+                # Crear un archivo temporal para el video de salida
+                temp_video_output = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
+                out = cv2.VideoWriter(temp_video_output.name, fourcc, 5, (width, height))
+
+                frame_count = 0
+
+                while cap.isOpened():
+                    ret, frame = cap.read()
+                    if not ret:
+                        break
+
+                    # Procesar solo un frame de cada nueve
+                    if frame_count % 9 == 0:
+                        # Realizar inferencia en el frame
+                        results = get_image_inference(frame)
+                        motorcycle_count = 0
+                        for prediction in results:
+                            if prediction['name'] == 'motorcycle':
+                                x, y, w, h = prediction['xmin'], prediction['ymin'], prediction['xmax'] - prediction['xmin'], prediction['ymax'] - prediction['ymin']
+                                confidence = prediction['confidence']
+                                motorcycle_count += 1
+                                
+                                # Dibuja el rectángulo en torno a la detección
+                                top_left = (x, y)
+                                bottom_right = (x + w, y + h)
+                                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                                cv2.putText(frame, f"{confidence:.2f}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+                        # Mostrar el frame procesado
+                        st.image(frame, channels="BGR", caption=f"Frame {frame_count}")
+
+                        # Guardar los resultados en MongoDB
+                        save_inference_result(results)
+
+                    # Escribir el frame procesado en el video de salida
+                    out.write(frame)
+                    frame_count += 1
+
+                cap.release()
+                out.release()
+
                 st.success("Inferencia en video completada.")
 
-                # Guardar los resultados en MongoDB
-                save_inference_result(results)
-
-            # Visualizar resultados de inferencia
-            st.subheader("Resultados de Inferencia")
-            st.json(results)
-
-            # Descargar el video procesado (si está disponible en los resultados)
-            video_path = results.get("video_path", None)
-            if video_path:
-                st.markdown(f"[Descargar video procesado]({video_path})")
-
-        # Nota adicional para casos de error de cuota agotada
-        # if results.get("status_info") == "quota exhausted error":
-        #     st.error("Error de cuota agotada. Considera aumentar el límite en Roboflow.")
+                # Descargar el video procesado
+                st.markdown(f"[Descargar video procesado]({temp_video_output.name})")
 
 # Gráfico de estadísticas
 st.header("Estadísticas de Conteo de Motocicletas")

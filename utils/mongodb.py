@@ -1,6 +1,6 @@
+import streamlit as st
 from pymongo import MongoClient
 from datetime import datetime
-import streamlit as st
 
 # Obtener la URI de MongoDB desde los secretos de Streamlit Cloud
 MONGO_URI = st.secrets["MONGO"]["MONGO_URI"]

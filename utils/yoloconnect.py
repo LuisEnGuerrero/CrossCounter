@@ -75,17 +75,41 @@ def get_video_inference(video_path: str, fps: int = 5):
         if not ret:
             break
 
-        # Realizar inferencia en el frame
-        results = model(frame)
-        for result in results:
-            for box in result.boxes:
-                label = f'{model.names[int(box.cls.item())]} {box.conf.item():.2f}'
-                xyxy = box.xyxy[0]  # Acceder a la primera fila si es un tensor 2D
-                cv2.rectangle(frame, (int(xyxy[0].item()), int(xyxy[1].item())), (int(xyxy[2].item()), int(xyxy[3].item())), (0, 255, 0), 2)
-                cv2.putText(frame, label, (int(xyxy[0].item()), int(xyxy[1].item()) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            # Procesar solo un frame de cada nueve
+            if frame_count % 9 == 0:
+                # Realizar inferencia en el frame
+                results = model(frame)
+                for result in results:
+                    for box in result.boxes:
+                        label = f'{model.names[int(box.cls.item())]} {box.conf.item():.2f}'
+                        xyxy = box.xyxy[0]  # Acceder a la primera fila si es un tensor 2D
+                        cv2.rectangle(frame, (int(xyxy[0].item()), int(xyxy[1].item())), (int(xyxy[2].item()), int(xyxy[3].item())), (0, 255, 0), 2)
+                        cv2.putText(frame, label, (int(xyxy[0].item()), int(xyxy[1].item()) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+                # Mostrar el frame procesado
+                st.image(frame, channels="BGR", caption=f"Frame {frame_count}")
+
+                # Guardar los resultados en MongoDB
+                detections = []
+                for result in results:
+                    if hasattr(result, 'boxes'):
+                        for box in result.boxes:
+                            if hasattr(box, 'xyxy') and box.xyxy.shape[-1] == 4:
+                                xyxy = box.xyxy[0]
+                                detection = {
+                                    "name": model.names[int(box.cls.item())],
+                                    "confidence": float(box.conf.item()),
+                                    "xmin": int(xyxy[0].item()),
+                                    "ymin": int(xyxy[1].item()),
+                                    "xmax": int(xyxy[2].item()),
+                                    "ymax": int(xyxy[3].item())
+                                }
+                                detections.append(detection)
+            save_inference_result(detections)
 
         # Escribir el frame procesado en el video de salida
         out.write(frame)
+        frame_count += 1
 
     cap.release()
     out.release()
