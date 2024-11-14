@@ -29,9 +29,9 @@ def save_inference_result(results):
         "motorcycle_count": motorcycle_count
     }
 
-    st.write("Guardando en MongoDB:", document)
+    # st.write("Guardando en MongoDB:", document)
     collection.insert_one(document)
-    st.write(f"Resultado de inferencia guardado en MongoDB con ID {document['_id']}")
+    # st.write(f"Resultado de inferencia guardado en MongoDB con ID {document['_id']}")
 
 def get_inference_statistics(period="day"):
     """

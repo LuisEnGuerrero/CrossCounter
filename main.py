@@ -19,9 +19,6 @@ st.title("Detección y Conteo de Motocicletas")
 
 # Obtener las variables de entorno desde los secretos de Streamlit Cloud
 MONGO_URI = st.secrets["MONGO"]["MONGO_URI"]
-# ROBOFLOW_API_KEY = st.secrets["ROBOFLOW"]["ROBOFLOW_API_KEY"]
-# ROBOFLOW_MODEL_ID = st.secrets["ROBOFLOW"]["ROBOFLOW_MODEL_ID"]
-# ROBOFLOW_API_URL = st.secrets["ROBOFLOW"]["ROBOFLOW_API_URL"]
 
 # Seleccionar modo de inferencia: Imagen o Video
 inference_mode = st.sidebar.selectbox("Selecciona el modo de inferencia", ("Imagen", "Video"))
@@ -117,7 +114,7 @@ elif inference_mode == "Video":
                     if not ret:
                         break
 
-                    # Procesar solo un frame de cada nueve
+                    # Procesar solo un frame de cada noventa y nueve
                     if frame_count % 99 == 0:
                         # Realizar inferencia en el frame
                         results = get_image_inference(frame)
@@ -135,7 +132,7 @@ elif inference_mode == "Video":
                                 cv2.putText(frame, f"{confidence:.2f}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
                         # Mostrar el frame procesado
-                        st.image(frame, channels="BGR", caption=f"Frame {frame_count}")
+                        image_container.image(frame, channels="BGR", caption=f"Frame {frame_count}")
 
                     # Escribir el frame procesado en el video de salida
                     out.write(frame)
