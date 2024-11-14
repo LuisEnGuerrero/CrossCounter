@@ -12,7 +12,7 @@ from utils.mongodb import save_inference_result
 model_path = "models/best.pt"
 try:
     model = YOLO(model_path, verbose=False)
-    st.write("Modelo cargado correctamente!")
+    # st.write("Modelo cargado correctamente!")
 except Exception as e:
     st.error(f"Error al cargar el modelo: {e}")
     st.stop()
@@ -57,8 +57,8 @@ def get_image_inference(image):
         else:
             print("Error: 'result' no tiene el atributo 'boxes'.")
 
-    # Para depurar, puedes imprimir las detecciones después
-    st.write("Detecciones obtenidas:", detections)
+    # Para depurar, se puede imprimir las detecciones después
+    # st.write("Detecciones obtenidas:", detections)
 
     return detections
 
@@ -83,7 +83,7 @@ def get_video_inference(video_path: str, fps: int = 5):
         if not ret:
             break
 
-        # Procesar solo un frame de cada nueve
+        # Procesar solo un frame de cada noventa y nueve
         if frame_count % 99 == 0:
             # Realizar inferencia en el frame
             results = get_image_inference(frame)

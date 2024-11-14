@@ -39,7 +39,7 @@ if inference_mode == "Imagen":
         with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as temp_image_file:
             image.save(temp_image_file.name)
             temp_image_path = temp_image_file.name
-            st.write(f"Imagen guardada temporalmente en: {temp_image_path}")
+            # st.write(f"Imagen guardada temporalmente en: {temp_image_path}")
 
         # Realizar inferencia
         if st.button("Realizar inferencia"):
@@ -72,7 +72,7 @@ if inference_mode == "Imagen":
                     draw.rectangle([top_left, bottom_right], outline="red", width=2)
                     draw.text(top_left, f"{confidence:.2f}", fill="red")
             
-            st.write(f"Total de motocicletas detectadas: {motorcycle_count}")
+            # st.write(f"Total de motocicletas detectadas: {motorcycle_count}")
             st.image(image_with_boxes, caption="Imagen con detecciones", use_container_width=True)
 
             # Eliminar el archivo temporal
@@ -90,7 +90,7 @@ elif inference_mode == "Video":
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video_file:
             temp_video_file.write(uploaded_video.read())
             temp_video_path = temp_video_file.name
-            st.write(f"Video guardado temporalmente en: {temp_video_path}")
+            # st.write(f"Video guardado temporalmente en: {temp_video_path}")
 
         # Realizar inferencia en el video
         if st.button("Realizar inferencia en video"):
