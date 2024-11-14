@@ -30,42 +30,86 @@ logo_base64 = get_base64_image(logo_path)
 # HTML y CSS para el header
 st.markdown(
     f"""
-    <style>
-    .header {{
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 10px 20px;
-        background-color: #041033ff;
-        border-bottom: 2px solid #f7f9faff;
-    }}
-    .header img {{
-        width: 100px;
-    }}
-    .header h1 {{
-        margin: 0;
-        font-size: 24px;
-        color: #f7f9faff;
-    }}
-    .nav {{
-        display: flex;
-        gap: 20px;
-    }}
-    .nav a {{
-        text-decoration: none;
-        color: #f7f9faff;
-        font-size: 18px;
-    }}
-    </style>
-    <div class="header">
-        <img src="data:image/jpeg;base64,{logo_base64}" alt="Logo">
-        <h1>AI·MotorCycle CrossCounter TalentoTECH</h1>
-        <div class="nav">
-            <a href="#inicio">Inicio</a>
-            <a href="#acerca-de">Acerca de</a>
-            <a href="#documentacion">Documentación</a>
+        <style>
+        /* Estilo del Header */
+        .header {{
+            position: sticky; /* Mantiene el header visible al hacer scroll */
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background-color: #041033ff;
+            border-bottom: 2px solid #f7f9faff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }}
+
+        /* Logo */
+        .header img {{
+            width: 100px;
+            height: auto;
+        }}
+
+        /* Título */
+        .header h1 {{
+            margin: 0;
+            font-size: 24px;
+            color: #f7f9faff;
+            font-family: Arial, sans-serif;
+        }}
+
+        /* Navegación */
+        .nav {{
+            display: flex;
+            gap: 20px;
+        }}
+
+        /* Links de Navegación */
+        .nav a {{
+            text-decoration: none;
+            color: #f7f9faff;
+            font-size: 18px;
+            font-family: Arial, sans-serif;
+            padding: 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s, color 0.3s;
+        }}
+
+        .nav a:hover {{
+            background-color: #f7f9faff;
+            color: #041033ff;
+        }}
+
+        /* Diseño Responsivo */
+        @media (max-width: 768px) {{
+            .header {{
+                flex-direction: column;
+                align-items: flex-start;
+            }}
+
+            .nav {{
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+                align-items: flex-start;
+            }}
+
+            .nav a {{
+                width: 100%;
+            }}
+        }}
+        </style>
+
+        <div class="header">
+            <img src="data:image/jpeg;base64,{logo_base64}" alt="Logo">
+            <h1>AI·MotorCycle CrossCounter TalentoTECH</h1>
+            <div class="nav">
+                <a href="#inicio">Inicio</a>
+                <a href="#acerca-de">Acerca de</a>
+                <a href="#documentacion">Documentación</a>
+            </div>
         </div>
-    </div>
     """,
     unsafe_allow_html=True
 )
