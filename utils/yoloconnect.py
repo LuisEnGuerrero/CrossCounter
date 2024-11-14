@@ -17,7 +17,7 @@ except Exception as e:
     st.error(f"Error al cargar el modelo: {e}")
     st.stop()
 
-def get_image_inference(image_path: str):
+def get_image_inference(image):
     """
     Realiza inferencia en una imagen usando el modelo YOLOv8 entrenado localmente.
     """
