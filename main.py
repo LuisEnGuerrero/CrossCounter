@@ -48,7 +48,7 @@ with header_container:
         }
         </style>
         <div class="header">
-            <img src="logox512.jpg" alt="Logo">
+            <img src="media/logox512.jpg" alt="Logo">
             <h1>AI·MotorCycle CrossCounter TalentoTECH</h1>
             <div class="nav">
                 <a href="#inicio">Inicio</a>
@@ -60,26 +60,6 @@ with header_container:
         unsafe_allow_html=True
     )
 
-    # Secciones de "Acerca de" y "Documentación"
-    st.markdown(
-        """
-        <div id="acerca-de">
-            <h2>Acerca de</h2>
-            <p>Somos TechRoads Innovators, un equipo dedicado a desarrollar soluciones innovadoras para el monitoreo y análisis de tráfico. Nuestro proyecto AI·MotorCycle CrossCounter TalentoTECH utiliza inteligencia artificial para detectar y contar motocicletas en videos, proporcionando datos valiosos para mejorar la seguridad y eficiencia del tráfico.</p>
-        </div>
-        <div id="documentacion">
-            <h2>Documentación</h2>
-            <h3>Guía de Uso</h3>
-            <ol>
-                <li><strong>Cargar una Imagen o Video</strong>: Selecciona el modo de inferencia (Imagen o Video) y carga el archivo correspondiente.</li>
-                <li><strong>Realizar Inferencia</strong>: Haz clic en el botón "Realizar inferencia" para procesar la imagen o video.</li>
-                <li><strong>Ver Resultados</strong>: Los resultados de la inferencia se mostrarán en la pantalla, incluyendo el conteo de motocicletas detectadas.</li>
-                <li><strong>Descargar Video Procesado</strong>: Si has cargado un video, podrás descargar el video procesado con las detecciones resaltadas.</li>
-            </ol>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
     
 # Crear un contenedor para el contenido principal con márgenes
 content_container = st.container()
@@ -282,3 +262,25 @@ with content_container:
         st.write(data)
     else:
         st.write("No hay datos de estadísticas disponibles.")
+
+
+    # Secciones de "Acerca de" y "Documentación"
+    st.markdown(
+        """
+        <div id="acerca-de">
+            <h2>Acerca de</h2>
+            <p>Somos TechRoads Innovators, un equipo dedicado a desarrollar soluciones innovadoras para el monitoreo y análisis de tráfico. Nuestro proyecto AI·MotorCycle CrossCounter TalentoTECH utiliza inteligencia artificial para detectar y contar motocicletas en videos, proporcionando datos valiosos para mejorar la seguridad y eficiencia del tráfico.</p>
+        </div>
+        <div id="documentacion">
+            <h2>Documentación</h2>
+            <h3>Guía de Uso</h3>
+            <ol>
+                <li><strong>Cargar una Imagen o Video</strong>: Selecciona el modo de inferencia (Imagen o Video) y carga el archivo correspondiente.</li>
+                <li><strong>Realizar Inferencia</strong>: Haz clic en el botón "Realizar inferencia" para procesar la imagen o video.</li>
+                <li><strong>Ver Resultados</strong>: Los resultados de la inferencia se mostrarán en la pantalla, incluyendo el conteo de motocicletas detectadas.</li>
+                <li><strong>Descargar Video Procesado</strong>: Si has cargado un video, podrás descargar el video procesado con las detecciones resaltadas.</li>
+            </ol>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )

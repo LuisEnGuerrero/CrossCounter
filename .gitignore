@@ -13,7 +13,6 @@ venv/
 secrets.toml
 
 # Archivos de caché y temporales
-media/
 *.log
 *.tmp
 *.temp
