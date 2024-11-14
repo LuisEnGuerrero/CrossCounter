@@ -21,7 +21,11 @@ def get_image_inference(image_path: str):
     """
     Realiza inferencia en una imagen usando el modelo YOLOv8 entrenado localmente.
     """
-    img = Image.open(image_path)
+    if isinstance(image, str):
+        img = Image.open(image)
+    else:
+        img = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+
     results = model(img)
 
     # Depuración: imprime el contenido de los resultados
