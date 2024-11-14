@@ -109,13 +109,16 @@ elif inference_mode == "Video":
 
                 frame_count = 0
 
+                # Crear un contenedor para las imágenes
+                image_container = st.empty()
+
                 while cap.isOpened():
                     ret, frame = cap.read()
                     if not ret:
                         break
 
                     # Procesar solo un frame de cada nueve
-                    if frame_count % 9 == 0:
+                    if frame_count % 99 == 0:
                         # Realizar inferencia en el frame
                         results = get_image_inference(frame)
                         motorcycle_count = 0
@@ -159,18 +162,34 @@ elif inference_mode == "Video":
 
 # Gráfico de estadísticas
 st.header("Estadísticas de Conteo de Motocicletas")
-statistics = get_inference_statistics()
+
+# Seleccionar el periodo para las estadísticas
+period = st.sidebar.selectbox("Selecciona el periodo para las estadísticas", ("Día", "Mes", "Año"))
+
+# Obtener estadísticas según el periodo seleccionado
+if period == "Día":
+    statistics = get_inference_statistics("day")
+elif period == "Mes":
+    statistics = get_inference_statistics("month")
+elif period == "Año":
+    statistics = get_inference_statistics("year")
 
 if statistics:
     # Convertir estadísticas a DataFrame para su uso en gráficos
     data = pd.DataFrame(statistics)
-    data["_id"] = data["_id"].apply(lambda x: f"{x['day']} - {x['hour']}h")
-    data = data.rename(columns={"total_motos": "Cantidad de Motocicletas", "_id": "Fecha y Hora"})
-    data = data.set_index("Fecha y Hora")
+    if period == "Día":
+        data["_id"] = data["_id"].apply(lambda x: f"{x['day']}/{x['month']}/{x['year']}")
+    elif period == "Mes":
+        data["_id"] = data["_id"].apply(lambda x: f"{x['month']}/{x['year']}")
+    elif period == "Año":
+        data["_id"] = data["_id"].apply(lambda x: f"{x['year']}")
+
+    data = data.rename(columns={"total_motos": "Cantidad de Motocicletas", "average_motos": "Promedio de Motocicletas", "_id": "Fecha"})
+    data = data.set_index("Fecha")
 
     # Crear el gráfico
-    fig = px.line(data, x=data.index, y="Cantidad de Motocicletas", title="Conteo de Motocicletas por Fecha y Hora")
+    fig = px.line(data, x=data.index, y=["Cantidad de Motocicletas", "Promedio de Motocicletas"], title=f"Conteo de Motocicletas por {period}")
     st.plotly_chart(fig)
     st.write(data)
 else:
-    st.write("No hay datos de estadísticas disponibles.")    
+    st.write("No hay datos de estadísticas disponibles.")

@@ -33,15 +33,25 @@ def save_inference_result(results):
     collection.insert_one(document)
     st.write(f"Resultado de inferencia guardado en MongoDB con ID {document['_id']}")
 
-def get_inference_statistics():
+def get_inference_statistics(period="day"):
     """
-    Obtiene estadísticas de conteo de motocicletas, agregando por fecha y hora.
+    Obtiene estadísticas de conteo de motocicletas, agregando por día, mes o año.
     """
+    if period == "day":
+        group_id = {"day": {"$dayOfMonth": "$timestamp"}, "month": {"$month": "$timestamp"}, "year": {"$year": "$timestamp"}}
+    elif period == "month":
+        group_id = {"month": {"$month": "$timestamp"}, "year": {"$year": "$timestamp"}}
+    elif period == "year":
+        group_id = {"year": {"$year": "$timestamp"}}
+    else:
+        raise ValueError("Periodo no válido. Debe ser 'day', 'month' o 'year'.")
+
     pipeline = [
         {
             "$group": {
-                "_id": {"day": {"$dayOfMonth": "$timestamp"}, "hour": {"$hour": "$timestamp"}},
+                "_id": group_id,
                 "total_motos": {"$sum": "$motorcycle_count"},
+                "average_motos": {"$avg": "$motorcycle_count"}
             }
         },
         {"$sort": {"_id": 1}}
