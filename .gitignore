@@ -22,10 +22,8 @@ secrets.toml
 *.db
 
 # Archivos de imágenes y videos grandes
-*.jpg
 *.jpeg
 *.png
-*.mp4
 *.avi
 
 # Archivos de Jupyter Notebooks
