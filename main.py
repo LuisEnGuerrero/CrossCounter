@@ -17,7 +17,7 @@ header_container = st.container()
 
 with header_container:
     # Cargar el logo
-    logo_path = "/logox512.jpg"
+    logo_path = os.path.join(os.path.dirname(__file__), "logox512.jpg")
     logo = Image.open(logo_path)
     
     # Crear columnas para el logo y el título
