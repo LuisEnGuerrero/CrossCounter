@@ -177,19 +177,14 @@ elif period == "Año":
 if statistics:
     # Convertir estadísticas a DataFrame para su uso en gráficos
     data = pd.DataFrame(statistics)
-    if period == "Día":
-        data["_id"] = data["_id"].apply(lambda x: f"{x['day']}/{x['month']}/{x['year']}")
-    elif period == "Mes":
-        data["_id"] = data["_id"].apply(lambda x: f"{x['month']}/{x['year']}")
-    elif period == "Año":
-        data["_id"] = data["_id"].apply(lambda x: f"{x['year']}")
-
-    data = data.rename(columns={"total_motos": "Cantidad de Motocicletas", "average_motos": "Promedio de Motocicletas", "_id": "Fecha"})
-    data = data.set_index("Fecha")
+    data["_id"] = data["_id"].apply(lambda x: f"{x['day']} - {x['hour']}h" if period == "Día" else f"{x['month']} - {x['year']}" if period == "Mes" else f"{x['year']}")
+    data = data.rename(columns={"total_motos": "Cantidad de Motocicletas", "_id": "Fecha y Hora"})
+    data = data.set_index("Fecha y Hora")
 
     # Crear el gráfico
-    fig = px.line(data, x=data.index, y=["Cantidad de Motocicletas", "Promedio de Motocicletas"], title=f"Conteo de Motocicletas por {period}")
+    fig = px.line(data, x=data.index, y="Cantidad de Motocicletas", title="Conteo de Motocicletas por Fecha y Hora")
     st.plotly_chart(fig)
     st.write(data)
 else:
     st.write("No hay datos de estadísticas disponibles.")
+    
