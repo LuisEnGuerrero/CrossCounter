@@ -103,7 +103,7 @@ elif inference_mode == "Video":
                 
                 # Crear un archivo temporal para el video de salida
                 temp_video_output = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
-                out = cv2.VideoWriter(temp_video_output.name, fourcc, 5, (width, height))
+                out = cv2.VideoWriter(temp_video_output.name, fourcc, 30, (width, height))
 
                 frame_count = 0
                 total_motorcycle_count = 0
@@ -140,9 +140,9 @@ elif inference_mode == "Video":
                         save_inference_result(results)
 
                     # Añadir el nombre de la aplicación y el contador de motos encontradas
-                    app_name = "AI MotorCycle CrossCounter TalentoTECH"
+                    app_name = "AI-MotorCycle CrossCounter TalentoTECH"
                     motos_text = f"Motos encontradas: {total_motorcycle_count}"
-                    cv2.putText(frame, app_name, (10, height - 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 111, 0), 2)
+                    cv2.putText(frame, app_name, (10, height - 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                     cv2.putText(frame, motos_text, (10, height - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
                     # Mostrar el frame procesado
