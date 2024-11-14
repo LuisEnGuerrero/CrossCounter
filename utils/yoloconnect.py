@@ -4,8 +4,7 @@ from PIL import Image
 import cv2
 import tempfile
 import os
-from ultralytics import YOLO  # Al utilizar YOLOv8
-from utils.mongodb import save_inference_result
+from ultralytics import YOLO  # Al utilizar YOLOv8 de Ultralytics
 
 
 # Cargar el modelo YOLOv8
@@ -102,9 +101,6 @@ def get_video_inference(video_path: str, fps: int = 5):
 
             # Mostrar el frame procesado
             st.image(frame, channels="BGR", caption=f"Frame {frame_count}")
-
-            # Guardar los resultados en MongoDB
-            # save_inference_result(results)
 
         # Escribir el frame procesado en el video de salida
         out.write(frame)

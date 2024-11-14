@@ -9,9 +9,10 @@ from utils.yoloconnect import get_video_inference, get_image_inference
 import tempfile
 from utils.mongodb import save_inference_result, get_inference_statistics
 import pandas as pd
-import plotly.express as px
 import cv2
 import tempfile
+import plotly.express as px
+import plotly.graph_objects as go
 
 
 
@@ -186,8 +187,23 @@ if statistics:
     data = data.rename(columns={"total_motos": "Cantidad de Motocicletas", "_id": "Fecha y Hora"})
     data = data.set_index("Fecha y Hora")
 
-    # Crear el gráfico
-    fig = px.line(data, x=data.index, y="Cantidad de Motocicletas", title="Conteo de Motocicletas por Fecha y Hora")
+    # Crear el gráfico combinado de líneas y barras
+    fig = go.Figure()
+
+    # Añadir barras
+    fig.add_trace(go.Bar(x=data.index, y=data["Cantidad de Motocicletas"], name="Cantidad de Motocicletas", marker_color='blue'))
+
+    # Añadir línea
+    fig.add_trace(go.Scatter(x=data.index, y=data["Cantidad de Motocicletas"], name="Línea de Motocicletas", mode='lines+markers', line=dict(color='red')))
+
+    # Actualizar el layout del gráfico
+    fig.update_layout(
+        title="Conteo de Motocicletas por Fecha y Hora",
+        xaxis_title="Fecha y Hora",
+        yaxis_title="Cantidad de Motocicletas",
+        barmode='group'
+    )
+
     st.plotly_chart(fig)
     st.write(data)
 else:
