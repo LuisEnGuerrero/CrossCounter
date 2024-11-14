@@ -82,8 +82,8 @@ def get_video_inference(video_path: str, fps: int = 5):
         if not ret:
             break
 
-        # Procesar solo un frame de cada noventa y nueve
-        if frame_count % 99 == 0:
+        # Procesar solo un frame de cada ciento uno
+        if frame_count % 101 == 0:
             # Realizar inferencia en el frame
             results = get_image_inference(frame)
             motorcycle_count = 0

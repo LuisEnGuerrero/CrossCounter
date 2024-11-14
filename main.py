@@ -106,6 +106,7 @@ elif inference_mode == "Video":
                 out = cv2.VideoWriter(temp_video_output.name, fourcc, 5, (width, height))
 
                 frame_count = 0
+                total_motorcycle_count = 0
 
                 # Crear un contenedor para las imágenes
                 image_container = st.empty()
@@ -115,8 +116,8 @@ elif inference_mode == "Video":
                     if not ret:
                         break
 
-                    # Procesar solo un frame de cada noventa y nueve
-                    if frame_count % 99 == 0:
+                    # Procesar solo un frame de cada ciento uno
+                    if frame_count % 101 == 0:
                         # Realizar inferencia en el frame
                         results = get_image_inference(frame)
                         motorcycle_count = 0
@@ -132,17 +133,20 @@ elif inference_mode == "Video":
                                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
                                 cv2.putText(frame, f"{confidence:.2f}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-                        # Añadir el nombre de la aplicación y el contador de motos encontradas
-                        app_name = "AI MotorCycle CrossCounter TalentoTECH"
-                        motos_text = f"Motos encontradas: {motorcycle_count}"
-                        cv2.putText(frame, app_name, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
-                        cv2.putText(frame, motos_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
-
-                        # Mostrar el frame procesado
-                        image_container.image(frame, channels="BGR", caption=f"Frame {frame_count}")
+                        # Actualizar el contador total de motos encontradas
+                        total_motorcycle_count += motorcycle_count
 
                         # Guardar los resultados en MongoDB
                         save_inference_result(results)
+
+                    # Añadir el nombre de la aplicación y el contador de motos encontradas
+                    app_name = "AI MotorCycle CrossCounter TalentoTECH"
+                    motos_text = f"Motos encontradas: {motorcycle_count}"
+                    cv2.putText(frame, app_name, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+                    cv2.putText(frame, motos_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+
+                    # Mostrar el frame procesado
+                    image_container.image(frame, channels="BGR", caption=f"Frame {frame_count}")
 
                     # Escribir el frame procesado en el video de salida
                     out.write(frame)
