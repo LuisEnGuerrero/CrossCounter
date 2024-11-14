@@ -8,6 +8,8 @@ from utils.mongodb import save_inference_result, get_inference_statistics
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import base64
+
 
 # Configuración inicial de la página de Streamlit
 st.set_page_config(page_title="AI·MotorCycle CrossCounter TalentoTECH", layout="wide")
