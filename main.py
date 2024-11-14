@@ -36,8 +36,8 @@ with header_container:
             align-items: center;
             justify-content: space-between;
             padding: 10px 20px;
-            background-color: #f8f9fa;
-            border-bottom: 2px solid #dee2e6;
+            background-color: #041033ff;
+            border-bottom: 2px solid #f7f9faff;
         }}
         .header img {{
             width: 100px;
@@ -45,7 +45,7 @@ with header_container:
         .header h1 {{
             margin: 0;
             font-size: 24px;
-            color: #343a40;
+            color: #f7f9faff;
         }}
         .nav {{
             display: flex;
