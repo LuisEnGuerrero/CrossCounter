@@ -17,7 +17,7 @@ header_container = st.container()
 
 with header_container:
     # Cargar el logo
-    logo_path = "TechRoads Innovators logox512.png"
+    logo_path = "/TechRoads Innovators logox512.png"
     logo = Image.open(logo_path)
     
     # Crear columnas para el logo y el título
@@ -249,4 +249,3 @@ with content_container:
         st.write(data)
     else:
         st.write("No hay datos de estadísticas disponibles.")
-        
