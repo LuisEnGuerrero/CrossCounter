@@ -107,7 +107,7 @@ st.markdown(
             <h1>AI·MotorCycle CrossCounter TalentoTECH</h1>
             <div class="nav">
                 <a href="#inicio">Inicio</a>
-                <a href="#acerca-de">Acerca de</a>
+                <a href="#acerca-de">Acerca·de</a>
                 <a href="#documentacion">Documentación</a>
             </div>
         </div>
