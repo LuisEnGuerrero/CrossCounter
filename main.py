@@ -82,6 +82,87 @@ st.markdown(
             color: #041033ff;
         }}
 
+          /* Estilo general para secciones */
+        section {{
+            padding: 50px 20px;
+            margin: 20px auto;
+            max-width: 1200px;
+            border-radius: 10px;
+            background-color: #f7f9fa;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }}
+
+        section h2 {{
+            text-align: center;
+            font-size: 28px;
+            color: #041033ff;
+            margin-bottom: 20px;
+        }}
+
+        section p {{
+            font-size: 18px;
+            line-height: 1.6;
+            color: #333;
+            text-align: justify;
+        }}
+
+        /* Acerca de - Tarjetas de equipo */
+        .team-container {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }}
+
+        .team-card {{
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }}
+
+        .team-card:hover {{
+            transform: scale(1.05);
+        }}
+
+        .team-card img {{
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }}
+
+        .team-card h3 {{
+            font-size: 20px;
+            color: #041033ff;
+            margin: 0 0 10px;
+        }}
+
+        .team-card p {{
+            font-size: 16px;
+            color: #666;
+            margin: 0;
+        }}
+
+        /* Documentación - Lista ordenada */
+        #documentacion ol {{
+            padding-left: 40px;
+            font-size: 18px;
+            color: #333;
+            line-height: 1.8;
+        }}
+
+        #documentacion li {{
+            margin-bottom: 10px;
+        }}
+
+        #documentacion li strong {{
+            color: #041033ff;
+        }}
+
         /* Diseño Responsivo */
         @media (max-width: 768px) {{
             .header {{
@@ -322,20 +403,61 @@ with content_container:
     # Secciones de "Acerca de" y "Documentación"
     st.markdown(
         """
-        <div id="acerca-de">
-            <h2>Acerca de</h2>
-            <p>Somos TechRoads Innovators, un equipo dedicado a desarrollar soluciones innovadoras para el monitoreo y análisis de tráfico. Nuestro proyecto AI·MotorCycle CrossCounter TalentoTECH utiliza inteligencia artificial para detectar y contar motocicletas en videos, proporcionando datos valiosos para mejorar la seguridad y eficiencia del tráfico.</p>
-        </div>
-        <div id="documentacion">
-            <h2>Documentación</h2>
-            <h3>Guía de Uso</h3>
-            <ol>
-                <li><strong>Cargar una Imagen o Video</strong>: Selecciona el modo de inferencia (Imagen o Video) y carga el archivo correspondiente.</li>
-                <li><strong>Realizar Inferencia</strong>: Haz clic en el botón "Realizar inferencia" para procesar la imagen o video.</li>
-                <li><strong>Ver Resultados</strong>: Los resultados de la inferencia se mostrarán en la pantalla, incluyendo el conteo de motocicletas detectadas.</li>
-                <li><strong>Descargar Video Procesado</strong>: Si has cargado un video, podrás descargar el video procesado con las detecciones resaltadas.</li>
-            </ol>
-        </div>
+            <div id="acerca-de">
+                <section>
+                    <h2>Acerca de</h2>
+                    <p>
+                        Somos <strong>TechRoads Innovators</strong>, un equipo dedicado a desarrollar soluciones innovadoras para el monitoreo y análisis de tráfico. 
+                        Nuestro proyecto <strong>AI·MotorCycle CrossCounter TalentoTECH</strong> utiliza inteligencia artificial para detectar y contar motocicletas en videos, 
+                        proporcionando datos valiosos para mejorar la seguridad y eficiencia del tráfico.
+                    </p>
+
+                    <!-- Tarjetas del Equipo -->
+                    <div class="team-container">
+                        <div class="team-card">
+                            <img src="media\Enrique.jpg" alt="Luis Enrique Guerrero">
+                            <h3>Luis Enrique Guerrero</h3>
+                            <p>Ingeniero de Infraestructura y Desarrollo Fullstack</p>
+                        </div>
+                        <div class="team-card">
+                            <img src="media\Alex.jpg" alt="Alex García">
+                            <h3>Alex García</h3>
+                            <p>Líder de Proyecto y Especialista en Machine Learning</p>
+                        </div>
+                        <div class="team-card">
+                            <img src="media\Arenita_Mejillas.jpg" alt="Adriana Garay">
+                            <h3>Adriana Garay</h3>
+                            <p>Coordinadora de Presentaciones y Gestión de Datos</p>
+                        </div>
+                        <div class="team-card">
+                            <img src="media\Jeisson.jpg" alt="Jeisson Poveda">
+                            <h3>Jeisson Poveda</h3>
+                            <p>Gestor de Recursos y Analista de Datos</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div id="documentacion">
+                <section>
+                    <h2>Documentación</h2>
+                    <h3>Guía de Uso</h3>
+                    <ol>
+                        <li>
+                            <strong>Cargar una Imagen o Video</strong>: Selecciona el modo de inferencia (Imagen o Video) y carga el archivo correspondiente.
+                        </li>
+                        <li>
+                            <strong>Realizar Inferencia</strong>: Haz clic en el botón "Realizar inferencia" para procesar la imagen o video.
+                        </li>
+                        <li>
+                            <strong>Ver Resultados</strong>: Los resultados de la inferencia se mostrarán en la pantalla, incluyendo el conteo de motocicletas detectadas.
+                        </li>
+                        <li>
+                            <strong>Descargar Video Procesado</strong>: Si has cargado un video, podrás descargar el video procesado con las detecciones resaltadas.
+                        </li>
+                    </ol>
+                </section>
+            </div>
         """,
         unsafe_allow_html=True
     )
