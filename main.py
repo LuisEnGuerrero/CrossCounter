@@ -12,43 +12,51 @@ import plotly.graph_objects as go
 # Configuración inicial de la página de Streamlit
 st.set_page_config(page_title="AI·MotorCycle CrossCounter TalentoTECH", layout="wide")
 
+# Función para convertir imagen a base64
+def get_base64_image(image_path):
+    with open(image_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
+
+# Ruta de la imagen del logo
+logo_path = "logox512.jpg"
+logo_base64 = get_base64_image(logo_path)
+
 # Crear un contenedor para el header
 header_container = st.container()
 
 with header_container:
-
     # HTML y CSS para el header
     st.markdown(
-        """
+        f"""
         <style>
-        .header {
+        .header {{
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 10px 20px;
             background-color: #f8f9fa;
             border-bottom: 2px solid #dee2e6;
-        }
-        .header img {
+        }}
+        .header img {{
             width: 100px;
-        }
-        .header h1 {
+        }}
+        .header h1 {{
             margin: 0;
             font-size: 24px;
             color: #343a40;
-        }
-        .nav {
+        }}
+        .nav {{
             display: flex;
             gap: 20px;
-        }
-        .nav a {
+        }}
+        .nav a {{
             text-decoration: none;
             color: #007bff;
             font-size: 18px;
-        }
+        }}
         </style>
         <div class="header">
-            <img src="media/logox512.jpg" alt="Logo">
+            <img src="data:image/jpeg;base64,{logo_base64}" alt="Logo">
             <h1>AI·MotorCycle CrossCounter TalentoTECH</h1>
             <div class="nav">
                 <a href="#inicio">Inicio</a>
