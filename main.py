@@ -78,6 +78,9 @@ if inference_mode == "Imagen":
             st.write(f"Total de motocicletas detectadas: {motorcycle_count}")
             st.image(image_with_boxes, caption="Imagen con detecciones", use_container_width=True)
 
+            # Eliminar el archivo temporal
+            os.remove(temp_image_path)
+
 # Sección para inferencia de video
 elif inference_mode == "Video":
     st.subheader("Cargar un video")
@@ -145,6 +148,10 @@ elif inference_mode == "Video":
 
                 # Descargar el video procesado
                 st.markdown(f"[Descargar video procesado]({temp_video_output.name})")
+
+                # Eliminar el archivo temporal
+                os.remove(temp_video_path)
+                os.remove(temp_video_output.name)
 
 # Gráfico de estadísticas
 st.header("Estadísticas de Conteo de Motocicletas")
