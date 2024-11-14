@@ -49,6 +49,7 @@ st.markdown(
         .header img {{
             width: 100px;
             height: auto;
+            padding-right: 5px;
         }}
 
         /* Título */
