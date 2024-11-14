@@ -18,7 +18,7 @@ def get_base64_image(image_path):
         return base64.b64encode(img_file.read()).decode()
 
 # Ruta de la imagen del logo
-logo_path = "logox512.jpg"
+logo_path = "media/logox512.jpg"
 logo_base64 = get_base64_image(logo_path)
 
 # Crear un contenedor para el header
