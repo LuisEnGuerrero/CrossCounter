@@ -177,7 +177,12 @@ elif period == "Año":
 if statistics:
     # Convertir estadísticas a DataFrame para su uso en gráficos
     data = pd.DataFrame(statistics)
-    data["_id"] = data["_id"].apply(lambda x: f"{x['day']} - {x['hour']}h" if period == "Día" else f"{x['month']} - {x['year']}" if period == "Mes" else f"{x['year']}")
+    if period == "Día":
+        data["_id"] = data["_id"].apply(lambda x: f"{x['day']} - {x['hour']}h" if 'hour' in x else f"{x['day']}")
+    elif period == "Mes":
+        data["_id"] = data["_id"].apply(lambda x: f"{x['month']} - {x['year']}")
+    elif period == "Año":
+        data["_id"] = data["_id"].apply(lambda x: f"{x['year']}")
     data = data.rename(columns={"total_motos": "Cantidad de Motocicletas", "_id": "Fecha y Hora"})
     data = data.set_index("Fecha y Hora")
 
@@ -187,4 +192,3 @@ if statistics:
     st.write(data)
 else:
     st.write("No hay datos de estadísticas disponibles.")
-    
