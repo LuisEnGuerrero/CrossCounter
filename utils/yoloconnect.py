@@ -104,7 +104,7 @@ def get_video_inference(video_path: str, fps: int = 5):
             st.image(frame, channels="BGR", caption=f"Frame {frame_count}")
 
             # Guardar los resultados en MongoDB
-            save_inference_result(results)
+            # save_inference_result(results)
 
         # Escribir el frame procesado en el video de salida
         out.write(frame)
