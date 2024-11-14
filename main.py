@@ -142,8 +142,8 @@ elif inference_mode == "Video":
                     # Añadir el nombre de la aplicación y el contador de motos encontradas
                     app_name = "AI MotorCycle CrossCounter TalentoTECH"
                     motos_text = f"Motos encontradas: {total_motorcycle_count}"
-                    cv2.putText(frame, app_name, (10, height - 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
-                    cv2.putText(frame, motos_text, (10, height - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+                    cv2.putText(frame, app_name, (10, height - 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 111, 0), 2)
+                    cv2.putText(frame, motos_text, (10, height - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
                     # Mostrar el frame procesado
                     image_container.image(frame, channels="BGR", caption=f"Frame {frame_count}")
