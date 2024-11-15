@@ -109,7 +109,7 @@ st.markdown(
         /* Acerca de - Tarjetas de equipo */
         .team-container {{
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 20px;
             margin-top: 30px;
         }}
@@ -133,6 +133,7 @@ st.markdown(
             border-radius: 50%;
             object-fit: cover;
             margin-bottom: 15px;
+            background-color: #ddd; /* Fondo gris claro para cuando no cargue la imagen */
         }}
 
         .team-card h3 {{
