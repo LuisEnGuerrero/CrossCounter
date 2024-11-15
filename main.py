@@ -108,7 +108,6 @@ with header_container:
 
             /* Secciones */
             section {{
-                padding: 50px 20px;
                 margin: 20px auto;
                 max-width: 1200px;
                 border-radius: 10px;
