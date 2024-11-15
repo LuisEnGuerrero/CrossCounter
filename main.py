@@ -477,15 +477,7 @@ with content_container:
         readme_content = readme_file.read()
 
     # Seccion de "readme"
-    st.markdown(
-        """
-        <div id="readme">
-            <h3>Información Técnica</h3>
-            <p>
-                Para obtener más información sobre el proyecto, consulta el archivo README.md:
-            </p>
-            <pre>{readme_content}</pre>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+
+    st.markdown("### Información Técnica")
+    st.markdown("*Consulta el archivo 'README.md' para más detalles:*")
+    st.markdown(readme_content)  # Renderiza Markdown directamente
