@@ -31,85 +31,94 @@ logo_base64 = get_base64_image(logo_path)
 st.markdown(
     f"""
         <style>
-        /* Estilo del Header */
+        /* Estilos Globales */
+        body {{
+            font-family: Arial, sans-serif;
+            background-color: #041033; /* Fondo oscuro general */
+            color: #f7f9fa; /* Texto claro */
+            margin: 0;
+            padding: 0;
+        }}
+
+        h2, h3, p {{
+            margin: 0;
+            padding: 0;
+        }}
+
+        /* Header */
         .header {{
-            position: sticky; /* Mantiene el header visible al hacer scroll */
+            position: sticky;
             top: 0;
             z-index: 1000;
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 15px 20px;
-            background-color: #041033ff;
-            border-bottom: 2px solid #f7f9faff;
+            background-color: #041033;
+            border-bottom: 2px solid #f7f9fa;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }}
 
-        /* Logo */
         .header img {{
             width: 100px;
             height: auto;
             padding-right: 15px;
         }}
 
-        /* Título */
         .header h1 {{
             margin: 0;
             font-size: 24px;
-            color: #f7f9faff;
-            font-family: Arial, sans-serif;
+            color: #f7f9fa;
         }}
 
-        /* Navegación */
         .nav {{
             display: flex;
             gap: 20px;
         }}
 
-        /* Links de Navegación */
         .nav a {{
             text-decoration: none;
-            color: #f7f9faff;
+            color: #f7f9fa;
             font-size: 18px;
-            font-family: Arial, sans-serif;
             padding: 10px;
             border-radius: 4px;
             transition: background-color 0.3s, color 0.3s;
         }}
 
         .nav a:hover {{
-            background-color: #f7f9faff;
-            color: #041033ff;
+            background-color: #f7f9fa;
+            color: #041033;
         }}
 
-          /* Estilo general para secciones */
+        /* Secciones */
         section {{
             padding: 50px 20px;
             margin: 20px auto;
             max-width: 1200px;
             border-radius: 10px;
-            background-color: #f7f9fa;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #041033;
+            color: #f7f9fa;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }}
 
         section h2 {{
             text-align: center;
             font-size: 28px;
-            color: #041033ff;
+            color: #f7f9fa;
             margin-bottom: 20px;
         }}
 
         section p {{
             font-size: 18px;
             line-height: 1.6;
-            color: #333;
+            color: #f7f9fa;
             text-align: justify;
         }}
 
-        /* Acerca de - Tarjetas de equipo */
+        /* Tarjetas de Equipo */
         .team-container {{
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Adaptable a pantallas pequeñas */
             gap: 20px;
             margin-top: 30px;
         }}
@@ -118,13 +127,15 @@ st.markdown(
             text-align: center;
             padding: 20px;
             border-radius: 10px;
-            background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
+            background-color: #1b2735;
+            color: #f7f9fa;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
         }}
 
         .team-card:hover {{
             transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
         }}
 
         .team-card img {{
@@ -133,26 +144,26 @@ st.markdown(
             border-radius: 50%;
             object-fit: cover;
             margin-bottom: 15px;
-            background-color: #ddd; /* Fondo gris claro para cuando no cargue la imagen */
+            background-color: #ddd; /* Fondo para cuando no cargue la imagen */
         }}
 
         .team-card h3 {{
             font-size: 20px;
-            color: #041033ff;
+            color: #f7f9fa;
             margin: 0 0 10px;
         }}
 
         .team-card p {{
             font-size: 16px;
-            color: #666;
+            color: #a8c0ff;
             margin: 0;
         }}
 
-        /* Documentación - Lista ordenada */
+        /* Documentación */
         #documentacion ol {{
             padding-left: 40px;
             font-size: 18px;
-            color: #333;
+            color: #f7f9fa;
             line-height: 1.8;
         }}
 
@@ -161,10 +172,10 @@ st.markdown(
         }}
 
         #documentacion li strong {{
-            color: #041033ff;
+            color: #a8c0ff;
         }}
 
-        /* Diseño Responsivo */
+        /* Responsividad */
         @media (max-width: 768px) {{
             .header {{
                 flex-direction: column;
@@ -175,14 +186,18 @@ st.markdown(
                 flex-direction: column;
                 gap: 10px;
                 width: 100%;
-                align-items: flex-start;
             }}
 
             .nav a {{
                 width: 100%;
             }}
+
+            .team-container {{
+                grid-template-columns: repeat(1, 1fr);
+            }}
         }}
         </style>
+
 
         <div class="header">
             <img src="data:image/jpeg;base64,{logo_base64}" alt="Logo">
