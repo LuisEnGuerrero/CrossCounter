@@ -259,12 +259,16 @@ with header_container:
     )
 
     
-# Crear un contenedor para el contenido principal con márgenes
-content_container = st.container()
+    # Crear un contenedor para el contenido principal con márgenes
+    content_container = st.container()
 
 with content_container:
     # Seleccionar modo de inferencia: Imagen o Video
     inference_mode = st.sidebar.selectbox("Selecciona el modo de inferencia", ("Imagen", "Video"))
+
+    # Mostrar la imagen del logo en la barra lateral
+    st.sidebar.image(logo_path, use_column_width=True)
+
 
     # Sección para inferencia de imágenes
     if inference_mode == "Imagen":
