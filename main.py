@@ -13,8 +13,6 @@ import base64
 # Configuración inicial de la página de Streamlit
 st.set_page_config(page_title="AI·MotorCycle CrossCounter TalentoTECH", layout="wide")
 
-st.markdown('<div id="top"></div>', unsafe_allow_html=True) # Anchor para volver arriba
-
 # Función para convertir imagen a base64
 def get_base64_image(image_path):
     with open(image_path, "rb") as img_file:
@@ -37,6 +35,8 @@ Jeisson_base64 = get_base64_image(Jeisson_path)
 
 # Crear un contenedor para el header
 header_container = st.container()
+
+st.markdown('<div id="top"></div>', unsafe_allow_html=True) # Anchor para volver arriba
 
 with header_container:
 # HTML y CSS para el header
