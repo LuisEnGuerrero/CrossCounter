@@ -400,7 +400,7 @@ with content_container:
         st.write("No hay datos de estadísticas disponibles.")
 
 
-    # Secciones de "Acerca de" y "Documentación"
+    # Seccion de "Acerca de"
     st.markdown(
         """
             <div id="acerca-de">
@@ -410,7 +410,13 @@ with content_container:
                         Nuestro proyecto <strong>AI·MotorCycle CrossCounter TalentoTECH</strong> utiliza inteligencia artificial para detectar y contar motocicletas en videos, 
                         proporcionando datos valiosos para mejorar la seguridad y eficiencia del tráfico.
                     </p>
+        """,
+        unsafe_allow_html=True
+    )
 
+    # Seccion de "tarjetas"
+    st.markdown(
+        """
                     <div class="team-container">
                         <div class="team-card">
                             <img src="media\Enrique.jpg" alt="Luis Enrique Guerrero">
@@ -434,7 +440,13 @@ with content_container:
                         </div>
                     </div>
             </div>
+        """,
+        unsafe_allow_html=True
+    )
 
+    # Seccion de "Documentación"
+    st.markdown(
+        """
             <div id="documentacion">
                 <section>
                     <h2>Documentación</h2>
