@@ -202,7 +202,7 @@ with header_container:
                 left: 50%; /* Centra horizontalmente */
                 transform: translateX(-50%); /* Ajusta la posición para centrar */
                 right: 20px;
-                background-color: #041033;
+                background-color: none;
                 color: #f7f9fa;
                 border: none;
                 padding: 10px 20px;
@@ -211,7 +211,8 @@ with header_container:
                 font-size: 16px;
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
                 transition: background-color 0.3s ease;
-                text: center;
+                text-decoration: none;
+                text-align: center;
             }}
 
             .back-to-top:hover {{
