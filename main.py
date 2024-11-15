@@ -139,7 +139,7 @@ with header_container:
             /* Tarjetas de Equipo */
             .team-container {{
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Adaptable a pantallas pequeñas */
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Adaptable a pantallas pequeñas */
                 gap: 20px;
                 margin-top: 30px;
             }}
@@ -199,6 +199,8 @@ with header_container:
             .back-to-top {{
                 position: fixed;
                 bottom: 20px;
+                left: 50%; /* Centra horizontalmente */
+                transform: translateX(-50%); /* Ajusta la posición para centrar */
                 right: 20px;
                 background-color: #041033;
                 color: #f7f9fa;
