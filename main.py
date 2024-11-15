@@ -462,6 +462,7 @@ with content_container:
                         Nuestro proyecto <strong>AI·MotorCycle CrossCounter TalentoTECH</strong> utiliza inteligencia artificial para detectar y contar motocicletas en videos, 
                         proporcionando datos valiosos para mejorar la seguridad y eficiencia del tráfico.
                     </p>
+            </div>
         """,
         unsafe_allow_html=True
     )
@@ -533,4 +534,4 @@ with content_container:
     st.markdown("### Información Técnica")
     st.markdown("*Consulta el archivo 'README.md' para más detalles:*")
     st.markdown(readme_content)  # Renderiza Markdown directamente
-    st.markdown(""""<button class="back-to-top" onclick="window.scrollTo({{ top: 0, behavior: 'smooth' }});">Volver arriba</button>""", unsafe_allow_html=True)
+    st.markdown(f"""<button class="back-to-top" onclick="window.scrollTo({{ top: 0, behavior: 'smooth' }});">Volver arriba</button>""", unsafe_allow_html=True)
