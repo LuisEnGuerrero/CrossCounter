@@ -470,13 +470,19 @@ with content_container:
                             <strong>Descargar Video Procesado</strong>: Si has cargado un video, podrás descargar el video procesado con las detecciones resaltadas.
                         </li>
                     </ol>
-                    <h3>Información Técnica</h3>
-                    <p>
-                        Para obtener más información sobre el proyecto, consulta el archivo README.md:
-                    </p>
-                    <pre>{readme_content}</pre>
                 </section>
             </div>
+        """,
+        unsafe_allow_html=True
+    )
+    # Seccion de "Documentación"
+    st.markdown(
+        """
+            <h3>Información Técnica</h3>
+            <p>
+                Para obtener más información sobre el proyecto, consulta el archivo README.md:
+            </p>
+            <pre>{readme_content}</pre>
         """,
         unsafe_allow_html=True
     )
