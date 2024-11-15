@@ -33,10 +33,10 @@ Jeisson_path = os.path.join(os.path.dirname(__file__), "media", "Jeisson.jpg")
 Jeisson_base64 = get_base64_image(Jeisson_path)
 
 
+st.markdown('<div id="top"></div>', unsafe_allow_html=True) # Anchor para volver arriba
+
 # Crear un contenedor para el header
 header_container = st.container()
-
-st.markdown('<div id="top"></div>', unsafe_allow_html=True) # Anchor para volver arriba
 
 with header_container:
 # HTML y CSS para el header
