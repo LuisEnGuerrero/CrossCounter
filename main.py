@@ -213,6 +213,7 @@ with header_container:
                 transition: background-color 0.3s ease;
                 text-decoration: none;
                 text-align: center;
+                z-index: 1000;
             }}
 
             .back-to-top:hover {{
@@ -506,7 +507,7 @@ with content_container:
                     <p>Gestor de Recursos y Analista de Datos</p>
                 </div>
             </div>
-            <a href="#top" class="back-to-top">↑ /­▄▬▀▬▄\ ↑</a>
+            <a href="#top" class="back-to-top">↑ /­VOLVER\ ↑</a>
         """,
         unsafe_allow_html=True
     )
