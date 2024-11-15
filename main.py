@@ -443,7 +443,7 @@ with content_container:
 
     # Seccion de "tarjetas"
     st.markdown(
-        """
+        f"""
                     <div class="team-container">
                         <div class="team-card">
                             <img src="data:image/jpeg;base64,{logo_base64}" alt="Luis Enrique Guerrero">
