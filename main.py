@@ -404,7 +404,6 @@ with content_container:
     st.markdown(
         """
             <div id="acerca-de">
-                <section>
                     <h2>Acerca de</h2>
                     <p>
                         Somos <strong>TechRoads Innovators</strong>, un equipo dedicado a desarrollar soluciones innovadoras para el monitoreo y análisis de tráfico. 
@@ -434,7 +433,6 @@ with content_container:
                             <p>Gestor de Recursos y Analista de Datos</p>
                         </div>
                     </div>
-                </section>
             </div>
 
             <div id="documentacion">
