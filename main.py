@@ -428,7 +428,7 @@ with content_container:
     st.header("Estadísticas de Conteo de Motocicletas")
 
     # Seleccionar el periodo para las estadísticas
-    period = st.sidebar.selectbox("Selecciona el periodo para las estadísticas", ("Día", "Mes", "Año"))
+    period = st.sidebar.selectbox("Selecciona el periodo a mostrar", ("Día", "Mes", "Año"))
 
     # Obtener estadísticas según el periodo seleccionado
     if period == "Día":
