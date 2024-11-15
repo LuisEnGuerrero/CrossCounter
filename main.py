@@ -13,6 +13,7 @@ import base64
 # Configuración inicial de la página de Streamlit
 st.set_page_config(page_title="AI·MotorCycle CrossCounter TalentoTECH", layout="wide")
 
+st.markdown('<div id="top"></div>', unsafe_allow_html=True) # Anchor para volver arriba
 
 # Función para convertir imagen a base64
 def get_base64_image(image_path):
@@ -138,7 +139,7 @@ with header_container:
             /* Tarjetas de Equipo */
             .team-container {{
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax((200px, 1fr)); /* Adaptable a pantallas pequeñas */
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Adaptable a pantallas pequeñas */
                 gap: 20px;
                 margin-top: 30px;
             }}
@@ -208,6 +209,11 @@ with header_container:
                 font-size: 16px;
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
                 transition: background-color 0.3s ease;
+            }}
+
+            .back-to-top:hover {{
+                background-color: #f7f9fa;
+                color: #041033;
             }}
 
 
@@ -492,7 +498,7 @@ with content_container:
                     <p>Gestor de Recursos y Analista de Datos</p>
                 </div>
             </div>
-            <button class="back-to-top" onclick="window.scrollTo({{ top: 0, behavior: 'smooth' }});">Volver arriba</button>
+            <a href="#top" class="back-to-top">Volver arriba</a>
         """,
         unsafe_allow_html=True
     )
@@ -520,7 +526,7 @@ with content_container:
                     </ol>
                 </section>
             </div>
-            <button class="back-to-top" onclick="window.scrollTo({{ top: 0, behavior: 'smooth' }});">Volver arriba</button>
+            <a href="#top" class="back-to-top">Volver arriba</a>
         """,
         unsafe_allow_html=True
     )
@@ -534,4 +540,4 @@ with content_container:
     st.markdown("### Información Técnica")
     st.markdown("*Consulta el archivo 'README.md' para más detalles:*")
     st.markdown(readme_content)  # Renderiza Markdown directamente
-    st.markdown(f"""<button class="back-to-top" onclick="window.scrollTo({{ top: 0, behavior: 'smooth' }});">Volver arriba</button>""", unsafe_allow_html=True)
+    st.markdown(f"""<a href="#top" class="back-to-top">Volver arriba</a>""", unsafe_allow_html=True)
