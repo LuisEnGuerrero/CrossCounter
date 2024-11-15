@@ -115,6 +115,17 @@ with header_container:
                 text-align: justify;
             }}
 
+            .acerca-de {{
+                padding: 50px 20px;
+                margin: 20px auto;
+                max-width: 1200px;
+                border-radius: 10px;
+                background-color: #041033;
+                color: #f7f9fa;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            }}
+
+
             /* Tarjetas de Equipo */
             .team-container {{
                 display: grid;
@@ -419,7 +430,7 @@ with content_container:
     # Seccion de "Acerca de"
     st.markdown(
         """
-            <div id="acerca-de">
+            <div class="acerca-de">
                     <h2>Acerca de</h2>
                     <p>
                         Somos <strong>TechRoads Innovators</strong>, un equipo dedicado a desarrollar soluciones innovadoras para el monitoreo y análisis de tráfico. 
