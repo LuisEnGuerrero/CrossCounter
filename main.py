@@ -24,193 +24,193 @@ logo_path = os.path.join(os.path.dirname(__file__), "media", "logox512.jpg")
 logo_base64 = get_base64_image(logo_path)
 
 # Crear un contenedor para el header
-# header_container = st.container()
+header_container = st.container()
 
-# with header_container:
+with header_container:
 # HTML y CSS para el header
-st.markdown(
-    f"""
-        <style>
-        /* Estilos Globales */
-        body {{
-            font-family: Arial, sans-serif;
-            background-color: #041033; /* Fondo oscuro general */
-            color: #f7f9fa; /* Texto claro */
-            margin: 0;
-            padding: 0;
-        }}
+    st.markdown(
+        f"""
+            <style>
+            /* Estilos Globales */
+            body {{
+                font-family: Arial, sans-serif;
+                background-color: #041033; /* Fondo oscuro general */
+                color: #f7f9fa; /* Texto claro */
+                margin: 0;
+                padding: 0;
+            }}
 
-        h2, h3, p {{
-            margin: 0;
-            padding: 0;
-        }}
+            h2, h3, p {{
+                margin: 0;
+                padding: 0;
+            }}
 
-        /* Header */
-        .header {{
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 20px;
-            background-color: #041033;
-            border-bottom: 2px solid #f7f9fa;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }}
-
-        .header img {{
-            width: 100px;
-            height: auto;
-            padding-right: 15px;
-        }}
-
-        .header h1 {{
-            margin: 0;
-            font-size: 24px;
-            color: #f7f9fa;
-        }}
-
-        .nav {{
-            display: flex;
-            gap: 20px;
-        }}
-
-        .nav a {{
-            text-decoration: none;
-            color: #f7f9fa;
-            font-size: 18px;
-            padding: 10px;
-            border-radius: 4px;
-            transition: background-color 0.3s, color 0.3s;
-        }}
-
-        .nav a:hover {{
-            background-color: #f7f9fa;
-            color: #041033;
-        }}
-
-        /* Secciones */
-        section {{
-            padding: 50px 20px;
-            margin: 20px auto;
-            max-width: 1200px;
-            border-radius: 10px;
-            background-color: #041033;
-            color: #f7f9fa;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }}
-
-        section h2 {{
-            text-align: center;
-            font-size: 28px;
-            color: #f7f9fa;
-            margin-bottom: 20px;
-        }}
-
-        section p {{
-            font-size: 18px;
-            line-height: 1.6;
-            color: #f7f9fa;
-            text-align: justify;
-        }}
-
-        /* Tarjetas de Equipo */
-        .team-container {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Adaptable a pantallas pequeñas */
-            gap: 20px;
-            margin-top: 30px;
-        }}
-
-        .team-card {{
-            text-align: center;
-            padding: 20px;
-            border-radius: 10px;
-            background-color: #1b2735;
-            color: #f7f9fa;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }}
-
-        .team-card:hover {{
-            transform: scale(1.05);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-        }}
-
-        .team-card img {{
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 15px;
-            background-color: #ddd; /* Fondo para cuando no cargue la imagen */
-        }}
-
-        .team-card h3 {{
-            font-size: 20px;
-            color: #f7f9fa;
-            margin: 0 0 10px;
-        }}
-
-        .team-card p {{
-            font-size: 16px;
-            color: #a8c0ff;
-            margin: 0;
-        }}
-
-        /* Documentación */
-        #documentacion ol {{
-            padding-left: 40px;
-            font-size: 18px;
-            color: #f7f9fa;
-            line-height: 1.8;
-        }}
-
-        #documentacion li {{
-            margin-bottom: 10px;
-        }}
-
-        #documentacion li strong {{
-            color: #a8c0ff;
-        }}
-
-        /* Responsividad */
-        @media (max-width: 768px) {{
+            /* Header */
             .header {{
-                flex-direction: column;
-                align-items: flex-start;
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 15px 20px;
+                background-color: #041033;
+                border-bottom: 2px solid #f7f9fa;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            }}
+
+            .header img {{
+                width: 100px;
+                height: auto;
+                padding-right: 15px;
+            }}
+
+            .header h1 {{
+                margin: 0;
+                font-size: 24px;
+                color: #f7f9fa;
             }}
 
             .nav {{
-                flex-direction: column;
-                gap: 10px;
-                width: 100%;
+                display: flex;
+                gap: 20px;
             }}
 
             .nav a {{
-                width: 100%;
+                text-decoration: none;
+                color: #f7f9fa;
+                font-size: 18px;
+                padding: 10px;
+                border-radius: 4px;
+                transition: background-color 0.3s, color 0.3s;
             }}
 
+            .nav a:hover {{
+                background-color: #f7f9fa;
+                color: #041033;
+            }}
+
+            /* Secciones */
+            section {{
+                padding: 50px 20px;
+                margin: 20px auto;
+                max-width: 1200px;
+                border-radius: 10px;
+                background-color: #041033;
+                color: #f7f9fa;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            }}
+
+            section h2 {{
+                text-align: center;
+                font-size: 28px;
+                color: #f7f9fa;
+                margin-bottom: 20px;
+            }}
+
+            section p {{
+                font-size: 18px;
+                line-height: 1.6;
+                color: #f7f9fa;
+                text-align: justify;
+            }}
+
+            /* Tarjetas de Equipo */
             .team-container {{
-                grid-template-columns: repeat(1, 1fr);
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Adaptable a pantallas pequeñas */
+                gap: 20px;
+                margin-top: 30px;
             }}
-        }}
-        </style>
+
+            .team-card {{
+                text-align: center;
+                padding: 20px;
+                border-radius: 10px;
+                background-color: #1b2735;
+                color: #f7f9fa;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                transition: transform 0.3s, box-shadow 0.3s;
+            }}
+
+            .team-card:hover {{
+                transform: scale(1.05);
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+            }}
+
+            .team-card img {{
+                width: 120px;
+                height: 120px;
+                border-radius: 50%;
+                object-fit: cover;
+                margin-bottom: 15px;
+                background-color: #ddd; /* Fondo para cuando no cargue la imagen */
+            }}
+
+            .team-card h3 {{
+                font-size: 20px;
+                color: #f7f9fa;
+                margin: 0 0 10px;
+            }}
+
+            .team-card p {{
+                font-size: 16px;
+                color: #a8c0ff;
+                margin: 0;
+            }}
+
+            /* Documentación */
+            #documentacion ol {{
+                padding-left: 40px;
+                font-size: 18px;
+                color: #f7f9fa;
+                line-height: 1.8;
+            }}
+
+            #documentacion li {{
+                margin-bottom: 10px;
+            }}
+
+            #documentacion li strong {{
+                color: #a8c0ff;
+            }}
+
+            /* Responsividad */
+            @media (max-width: 768px) {{
+                .header {{
+                    flex-direction: column;
+                    align-items: flex-start;
+                }}
+
+                .nav {{
+                    flex-direction: column;
+                    gap: 10px;
+                    width: 100%;
+                }}
+
+                .nav a {{
+                    width: 100%;
+                }}
+
+                .team-container {{
+                    grid-template-columns: repeat(1, 1fr);
+                }}
+            }}
+            </style>
 
 
-        <div class="header">
-            <img src="data:image/jpeg;base64,{logo_base64}" alt="Logo">
-            <h1>AI·MotorCycle CrossCounter TalentoTECH</h1>
-            <div class="nav">
-                <a href="#inicio">Inicio</a>
-                <a href="#acerca-de">Acerca·de</a>
-                <a href="#documentacion">Documentación</a>
+            <div class="header">
+                <img src="data:image/jpeg;base64,{logo_base64}" alt="Logo">
+                <h1>AI·MotorCycle CrossCounter TalentoTECH</h1>
+                <div class="nav">
+                    <a href="#inicio">Inicio</a>
+                    <a href="#acerca-de">Acerca·de</a>
+                    <a href="#documentacion">Documentación</a>
+                </div>
             </div>
-        </div>
-    """,
-    unsafe_allow_html=True
-)
+        """,
+        unsafe_allow_html=True
+    )
 
     
 # Crear un contenedor para el contenido principal con márgenes
