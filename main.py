@@ -139,7 +139,7 @@ with header_container:
             /* Tarjetas de Equipo */
             .team-container {{
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Adaptable a pantallas pequeñas */
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Adaptable a pantallas pequeñas */
                 gap: 20px;
                 margin-top: 30px;
             }}
@@ -211,6 +211,7 @@ with header_container:
                 font-size: 16px;
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
                 transition: background-color 0.3s ease;
+                text: center;
             }}
 
             .back-to-top:hover {{
@@ -528,7 +529,6 @@ with content_container:
                     </ol>
                 </section>
             </div>
-            <a href="#top" class="back-to-top">Volver arriba</a>
         """,
         unsafe_allow_html=True
     )
@@ -542,4 +542,4 @@ with content_container:
     st.markdown("### Información Técnica")
     st.markdown("*Consulta el archivo 'README.md' para más detalles:*")
     st.markdown(readme_content)  # Renderiza Markdown directamente
-    st.markdown(f"""<a href="#top" class="back-to-top">Volver arriba</a>""", unsafe_allow_html=True)
+    # st.markdown(f"""<a href="#top" class="back-to-top">Volver arriba</a>""", unsafe_allow_html=True)
