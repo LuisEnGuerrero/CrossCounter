@@ -138,7 +138,7 @@ with header_container:
             /* Tarjetas de Equipo */
             .team-container {{
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(2, 1fr)); /* Adaptable a pantallas pequeñas */
+                grid-template-columns: repeat(auto-fit, minmax((250px, 1fr)); /* Adaptable a pantallas pequeñas */
                 gap: 20px;
                 margin-top: 30px;
             }}
@@ -228,7 +228,6 @@ with header_container:
                     <a href="#documentacion">Documentación</a>
                 </div>
             </div>
-            <button class="back-to-top" onclick="window.scrollTo({{ top: 0, behavior: 'smooth' }});">Volver arriba</button>
         """,
         unsafe_allow_html=True
     )
@@ -477,6 +476,7 @@ with content_container:
                         </div>
                     </div>
             </div>
+            <button class="back-to-top" onclick="window.scrollTo({{ top: 0, behavior: 'smooth' }});">Volver arriba</button>
         """,
         unsafe_allow_html=True
     )
@@ -504,6 +504,7 @@ with content_container:
                     </ol>
                 </section>
             </div>
+            <button class="back-to-top" onclick="window.scrollTo({{ top: 0, behavior: 'smooth' }});">Volver arriba</button>
         """,
         unsafe_allow_html=True
     )
@@ -517,3 +518,4 @@ with content_container:
     st.markdown("### Información Técnica")
     st.markdown("*Consulta el archivo 'README.md' para más detalles:*")
     st.markdown(readme_content)  # Renderiza Markdown directamente
+    st.markdown(""""<button class="back-to-top" onclick="window.scrollTo({{ top: 0, behavior: 'smooth' }});">Volver arriba</button>""", unsafe_allow_html=True)
