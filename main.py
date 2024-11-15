@@ -83,9 +83,13 @@ with header_container:
                 color: #f7f9fa;
             }}
 
+            /* Estilos de la barra de navegación */
             .css-1d391kg {{
-                background-color: #041033;
-                }} /* Cambiar el color de fondo de la barra lateral */
+                background-color: #041033 !important;
+            }}
+            .css-1d391kg .css-1v3fvcr {{
+                color: #f7f9fa !important;
+            }}
 
             .nav {{
                 display: flex;
