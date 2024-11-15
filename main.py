@@ -473,7 +473,7 @@ with content_container:
         st.write("No hay datos de estadísticas disponibles.")
 
     # Mostrar la imagen TalentoTECH en la barra lateral
-    st.sidebar.image({{'media\TTechWhide.jpg'}}, use_column_width=True)
+    st.sidebar.image({{'media/TTechWhide.jpg'}}, use_column_width=True)
 
     # Seccion de "Acerca de"
     st.markdown(
