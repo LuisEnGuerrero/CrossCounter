@@ -442,10 +442,13 @@ with content_container:
             try:
                 yt = YouTube(youtube_url)
                 stream = yt.streams.filter(progressive=True, file_extension='mp4').first()
-                with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video_file:
-                    stream.download(output_path=os.path.dirname(temp_video_file.name), filename=os.path.basename(temp_video_file.name))
-                    temp_video_path = temp_video_file.name
-                    st.write(f"Video descargado temporalmente en: {temp_video_path}")
+                if stream is None:
+                    st.error("No se encontró un stream adecuado para el video.")
+                else:
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video_file:
+                        stream.download(output_path=os.path.dirname(temp_video_file.name), filename=os.path.basename(temp_video_file.name))
+                        temp_video_path = temp_video_file.name
+                        st.write(f"Video descargado temporalmente en: {temp_video_path}")
 
                 # Realizar inferencia en el video descargado
                 if st.button("Realizar inferencia en video de YouTube"):
