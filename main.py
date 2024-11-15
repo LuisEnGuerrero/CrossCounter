@@ -53,7 +53,7 @@ with header_container:
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                padding: 15px 20px;
+                padding: 15px 20px 20px;
                 background-color: #041033;
                 border-bottom: 2px solid #f7f9fa;
                 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
