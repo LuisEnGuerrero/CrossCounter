@@ -22,6 +22,15 @@ def get_base64_image(image_path):
 # Ruta de la imagen del logo
 logo_path = os.path.join(os.path.dirname(__file__), "media", "logox512.jpg")
 logo_base64 = get_base64_image(logo_path)
+Enrique_path = os.path.join(os.path.dirname(__file__), "media", "Enrique.jpg")
+Enrique_base64 = get_base64_image(Enrique_path)
+Alex_path = os.path.join(os.path.dirname(__file__), "media", "Alex.jpg")
+Alex_base64 = get_base64_image(Alex_path)
+Adriana_path = os.path.join(os.path.dirname(__file__), "media", "AdrianaJeisson")
+Adriana_base64 = get_base64_image(Adriana_path)
+Jeisson_path = os.path.join(os.path.dirname(__file__), "media", "Jeisson.jpg")
+Jeisson_base64 = get_base64_image(Jeisson_path)
+
 
 # Crear un contenedor para el header
 header_container = st.container()
@@ -129,7 +138,7 @@ with header_container:
             /* Tarjetas de Equipo */
             .team-container {{
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Adaptable a pantallas pequeñas */
+                grid-template-columns: repeat(auto-fit, minmax(2, 1fr)); /* Adaptable a pantallas pequeñas */
                 gap: 20px;
                 margin-top: 30px;
             }}
@@ -219,6 +228,7 @@ with header_container:
                     <a href="#documentacion">Documentación</a>
                 </div>
             </div>
+            <button class="back-to-top" onclick="window.scrollTo({{ top: 0, behavior: 'smooth' }});">Volver arriba</button>
         """,
         unsafe_allow_html=True
     )
@@ -446,22 +456,22 @@ with content_container:
         f"""
                     <div class="team-container">
                         <div class="team-card">
-                            <img src="data:image/jpeg;base64,{logo_base64}" alt="Luis Enrique Guerrero">
+                            <img src="data:image/jpeg;base64,{Enrique_base64}" alt="Luis Enrique Guerrero">
                             <h3>Luis Enrique Guerrero</h3>
                             <p>Ingeniero de Infraestructura y Desarrollo Fullstack</p>
                         </div>
                         <div class="team-card">
-                            <img src="data:image/jpeg;base64,{logo_base64}" alt="Alex García">
+                            <img src="data:image/jpeg;base64,{Alex_base64}" alt="Alex García">
                             <h3>Alex García</h3>
                             <p>Líder de Proyecto y Especialista en Machine Learning</p>
                         </div>
                         <div class="team-card">
-                            <img src="data:image/jpeg;base64,{logo_base64}" alt="Adriana Garay">
+                            <img src="data:image/jpeg;base64,{Adriana_base64}" alt="Adriana Garay">
                             <h3>Adriana Garay</h3>
                             <p>Coordinadora de Presentaciones y Gestión de Datos</p>
                         </div>
                         <div class="team-card">
-                            <img src="data:image/jpeg;base64,{logo_base64}" alt="Jeisson Poveda">
+                            <img src="data:image/jpeg;base64,{Jeisson_base64}" alt="Jeisson Poveda">
                             <h3>Jeisson Poveda</h3>
                             <p>Gestor de Recursos y Analista de Datos</p>
                         </div>
