@@ -412,7 +412,6 @@ with content_container:
                         proporcionando datos valiosos para mejorar la seguridad y eficiencia del tráfico.
                     </p>
 
-                    <!-- Tarjetas del Equipo -->
                     <div class="team-container">
                         <div class="team-card">
                             <img src="media\Enrique.jpg" alt="Luis Enrique Guerrero">
