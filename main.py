@@ -9,6 +9,8 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import base64
+from pytube import YouTube
+
 
 # Configuración inicial de la página de Streamlit
 st.set_page_config(page_title="AI·MotorCycle CrossCounter TalentoTECH", layout="wide")
@@ -274,7 +276,7 @@ with header_container:
 
 with content_container:
     # Seleccionar modo de inferencia: Imagen o Video
-    inference_mode = st.sidebar.selectbox("Selecciona el modo de inferencia", ("Imagen", "Video"))
+    inference_mode = st.sidebar.selectbox("Selecciona el modo de inferencia", ("Imagen", "Video", "YouTube"))
 
     # Mostrar la imagen del logo en la barra lateral
     st.sidebar.image(logo_path, use_column_width=True)
@@ -427,6 +429,107 @@ with content_container:
                         os.remove(temp_video_path)
                         os.remove(temp_video_output.name)
 
+
+# Sección para inferencia de YouTube
+    elif inference_mode == "YouTube":
+        st.subheader("Ingresar URL de YouTube")
+        
+        # Ingresar URL de YouTube
+        youtube_url = st.text_input("Ingresa la URL del video de YouTube")
+
+        if youtube_url:
+            # Descargar el video de YouTube
+            try:
+                yt = YouTube(youtube_url)
+                stream = yt.streams.filter(progressive=True, file_extension='mp4').first()
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video_file:
+                    stream.download(output_path=os.path.dirname(temp_video_file.name), filename=os.path.basename(temp_video_file.name))
+                    temp_video_path = temp_video_file.name
+                    st.write(f"Video descargado temporalmente en: {temp_video_path}")
+
+                # Realizar inferencia en el video descargado
+                if st.button("Realizar inferencia en video de YouTube"):
+                    with st.spinner("Realizando inferencia en el video..."):
+                        cap = cv2.VideoCapture(temp_video_path)
+                        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+                        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+                        
+                        # Crear un archivo temporal para el video de salida
+                        temp_video_output = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
+                        out = cv2.VideoWriter(temp_video_output.name, fourcc, 30, (width, height))  # Cambiar a 30 fps para hacer el video 6 veces más rápido
+
+                        frame_count = 0
+                        total_motorcycle_count = 0
+
+                        # Crear un contenedor para las imágenes
+                        image_container = st.empty()
+
+                        while cap.isOpened():
+                            ret, frame = cap.read()
+                            if not ret:
+                                break
+
+                            # Procesar solo un frame de cada ciento uno
+                            if frame_count % 101 == 0:
+                                # Realizar inferencia en el frame
+                                results = get_image_inference(frame)
+                                motorcycle_count = 0
+                                for prediction in results:
+                                    if prediction['name'] == 'motorcycle':
+                                        x, y, w, h = prediction['xmin'], prediction['ymin'], prediction['xmax'] - prediction['xmin'], prediction['ymax'] - prediction['ymin']
+                                        confidence = prediction['confidence']
+                                        motorcycle_count += 1
+                                        
+                                        # Dibuja el rectángulo en torno a la detección
+                                        top_left = (x, y)
+                                        bottom_right = (x + w, y + h)
+                                        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                                        cv2.putText(frame, f"{confidence:.2f}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+                                # Actualizar el contador total de motos encontradas
+                                total_motorcycle_count += motorcycle_count
+
+                                # Guardar los resultados en MongoDB
+                                save_inference_result(results)
+
+                            # Añadir el nombre de la aplicación y el contador de motos encontradas en todos los frames
+                            app_name = "AI MotorCycle CrossCounter TalentoTECH"
+                            motos_text = f"Motos encontradas: {total_motorcycle_count}"
+                            cv2.putText(frame, app_name, (10, height - 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+                            cv2.putText(frame, motos_text, (10, height - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+
+                            # Mostrar el frame procesado
+                            image_container.image(frame, channels="BGR", caption=f"Frame {frame_count}")
+
+                            # Escribir el frame procesado en el video de salida
+                            out.write(frame)
+                            frame_count += 1
+
+                        cap.release()
+                        out.release()
+
+                        st.success("Inferencia en video completada.")
+
+                        # Proporcionar un botón de descarga para el video procesado
+                        with open(temp_video_output.name, "rb") as file:
+                            btn = st.download_button(
+                                label="Descargar video procesado",
+                                data=file,
+                                file_name="video_procesado.mp4",
+                                mime="video/mp4"
+                            )
+
+                        # Eliminar los archivos temporales después de la descarga
+                        if btn:
+                            os.remove(temp_video_path)
+                            os.remove(temp_video_output.name)
+
+            except Exception as e:
+                st.error(f"Error al descargar el video: {e}")
+
+        
+
     # Gráfico de estadísticas
     st.header("Estadísticas de Conteo de Motocicletas")
 
@@ -575,7 +678,7 @@ with content_container:
     st.markdown(
         f"""
         <div style="text-align: center; margin: 20px 0;">
-            <img src="media\TTechWhide.jpg" alt="Logo" style="width: 150px;">
+            <img src="media/TTechWhide.jpg" alt="Logo Talento TECH" style="width: 150px;">
         </div>
         """,
         unsafe_allow_html=True
