@@ -530,6 +530,7 @@ with content_container:
 
             except Exception as e:
                 st.error(f"Error al descargar el video: {e}")
+                st.error(f"Detalles del error: {str(e)}")
 
         
 
