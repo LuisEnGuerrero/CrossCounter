@@ -445,10 +445,6 @@ with content_container:
         unsafe_allow_html=True
     )
 
-    # Leer el contenido del archivo README.md y mostrarlo en la sección de Documentación
-    with open("README.md", "r") as readme_file:
-        readme_content = readme_file.read()
-
     # Seccion de "Documentación"
     st.markdown(
         """
@@ -475,14 +471,21 @@ with content_container:
         """,
         unsafe_allow_html=True
     )
-    # Seccion de "Documentación"
+
+    # Leer el contenido del archivo README.md y mostrarlo en la sección de Documentación
+    with open("README.md", "r") as readme_file:
+        readme_content = readme_file.read()
+
+    # Seccion de "readme"
     st.markdown(
         """
+        <div id="readme">
             <h3>Información Técnica</h3>
             <p>
                 Para obtener más información sobre el proyecto, consulta el archivo README.md:
             </p>
             <pre>{readme_content}</pre>
+        </div>
         """,
         unsafe_allow_html=True
     )
