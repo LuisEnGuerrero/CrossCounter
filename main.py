@@ -419,22 +419,22 @@ with content_container:
         """
                     <div class="team-container">
                         <div class="team-card">
-                            <img src="media\Enrique.jpg" alt="Luis Enrique Guerrero">
+                            <img src="data:image/jpeg;base64,{logo_base64}" alt="Luis Enrique Guerrero">
                             <h3>Luis Enrique Guerrero</h3>
                             <p>Ingeniero de Infraestructura y Desarrollo Fullstack</p>
                         </div>
                         <div class="team-card">
-                            <img src="media\Alex.jpg" alt="Alex García">
+                            <img src="data:image/jpeg;base64,{logo_base64}" alt="Alex García">
                             <h3>Alex García</h3>
                             <p>Líder de Proyecto y Especialista en Machine Learning</p>
                         </div>
                         <div class="team-card">
-                            <img src="media\Arenita_Mejillas.jpg" alt="Adriana Garay">
+                            <img src="data:image/jpeg;base64,{logo_base64}" alt="Adriana Garay">
                             <h3>Adriana Garay</h3>
                             <p>Coordinadora de Presentaciones y Gestión de Datos</p>
                         </div>
                         <div class="team-card">
-                            <img src="media\Jeisson.jpg" alt="Jeisson Poveda">
+                            <img src="data:image/jpeg;base64,{logo_base64}" alt="Jeisson Poveda">
                             <h3>Jeisson Poveda</h3>
                             <p>Gestor de Recursos y Analista de Datos</p>
                         </div>
