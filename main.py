@@ -523,6 +523,16 @@ with content_container:
         unsafe_allow_html=True
     )
 
+    # Agregar la imagen del logo como separador
+    st.markdown(
+        f"""
+        <div style="text-align: center; margin: 20px 0;">
+            <img src="data:image/jpeg;base64,{logo_base64}" alt="Logo" style="width: 150px;">
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
     # Seccion de "Documentación"
     st.markdown(
         """
