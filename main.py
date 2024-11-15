@@ -570,3 +570,13 @@ with content_container:
     st.markdown("*Consulta el archivo 'README.md' para más detalles:*")
     st.markdown(readme_content)  # Renderiza Markdown directamente
     # st.markdown(f"""<a href="#top" class="back-to-top">Volver arriba</a>""", unsafe_allow_html=True)
+
+    # Agregar la imagen TalentoTECH como FINAL
+    st.markdown(
+        f"""
+        <div style="text-align: center; margin: 20px 0;">
+            <img src="media\TTechWhide.jpg" alt="Logo" style="width: 150px;">
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
