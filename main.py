@@ -502,7 +502,7 @@ with content_container:
                     <p>Gestor de Recursos y Analista de Datos</p>
                 </div>
             </div>
-            <a href="#top" class="back-to-top">Volver arriba</a>
+            <a href="#top" class="back-to-top">↑ /­▄▬▀▬▄\ ↑</a>
         """,
         unsafe_allow_html=True
     )
