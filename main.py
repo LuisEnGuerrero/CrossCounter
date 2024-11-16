@@ -10,12 +10,12 @@ import plotly.express as px
 import plotly.graph_objects as go
 import base64
 from pytube import YouTube
+import yt_dlp
 import qrcode
 from io import BytesIO
 from google_auth_oauthlib.flow import InstalledAppFlow
+from utils.testtube import is_valid_youtube_url, download_youtube_video
 
-# Obtener la API de YouTube desde los secretos de Streamlit Cloud
-YOUTUBE_API_KEY = st.secrets["YOUTUBE"]["YOUTUBE_API_KEY"]
 
 # Configuración inicial de la página de Streamlit
 st.set_page_config(page_title="AI·MotorCycle CrossCounter TalentoTECH", layout="wide")
@@ -435,67 +435,69 @@ with content_container:
                         os.remove(temp_video_output.name)
 
 
-# Sección para inferencia de YouTube
+    # Sección para inferencia de YouTube
     elif inference_mode == "YouTube":
         st.subheader("Ingresar URL de YouTube")
-        
+
         # Ingresar URL de YouTube
         youtube_url = st.text_input("Ingresa la URL del video de YouTube")
 
+        # Verificar la URL de YouTube
         if youtube_url:
-            # Generar un código QR para la URL de autenticación
-            qr = qrcode.QRCode(
-                version=1,
-                error_correction=qrcode.constants.ERROR_CORRECT_L,
-                box_size=10,
-                border=4,
-            )
-            qr.add_data(youtube_url)
-            qr.make(fit=True)
+            is_valid, message = is_valid_youtube_url(youtube_url)
 
-            img = qr.make_image(fill='black', back_color='white')
-            buf = BytesIO()
-            img.save(buf)
-            img_b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+            if is_valid:
+                st.success(message)
 
-            st.markdown(
-                f"""
-                <div style="text-align: center;">
-                    <p>Escanea el siguiente código QR para ver el video en YouTube:</p>
-                    <img src="data:image/png;base64,{img_b64}" alt="QR Code">
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+                # Generar código QR para el video
+                qr = qrcode.QRCode(
+                    version=1,
+                    error_correction=qrcode.constants.ERROR_CORRECT_L,
+                    box_size=8,
+                    border=2,
+                )
+                qr.add_data(youtube_url)
+                qr.make(fit=True)
 
-            # Descargar el video de YouTube
-            if st.button("Descargar y realizar inferencia en video de YouTube"):
-                try:
-                    yt = YouTube(youtube_url)
-                    stream = yt.streams.filter(progressive=True, file_extension='mp4').first()
-                    if stream is None:
-                        st.error("No se encontró un stream adecuado para el video.")
-                    else:
-                        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video_file:
-                            stream.download(output_path=os.path.dirname(temp_video_file.name), filename=os.path.basename(temp_video_file.name))
-                            temp_video_path = temp_video_file.name
+                img = qr.make_image(fill="black", back_color="white")
+                buf = BytesIO()
+                img.save(buf)
+                img_b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+
+                st.markdown(
+                    f"""
+                    <div style="text-align: center;">
+                        <p>Escanea el siguiente código QR para ver el video en YouTube:</p>
+                        <img src="data:image/png;base64,{img_b64}" alt="QR Code">
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+
+                # Descargar y realizar inferencia en el video
+                if st.button("Descargar y realizar inferencia en video de YouTube"):
+                    try:
+                        with st.spinner("Descargando video de YouTube..."):
+                            temp_video_path = download_youtube_video(youtube_url)
                             st.write(f"Video descargado temporalmente en: {temp_video_path}")
 
-                            # Realizar inferencia en el video descargado
+                        # Realizar inferencia en el video descargado
                         with st.spinner("Realizando inferencia en el video..."):
                             cap = cv2.VideoCapture(temp_video_path)
                             width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
                             height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-                            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-                            
-                            # Crear un archivo temporal para el video de salida
-                            temp_video_output = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
-                            out = cv2.VideoWriter(temp_video_output.name, fourcc, 30, (width, height))  # Cambiar a 30 fps para hacer el video 6 veces más rápido
+                            fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+
+                            # Crear un archivo temporal para el video procesado
+                            temp_video_output = tempfile.NamedTemporaryFile(
+                                delete=False, suffix=".mp4"
+                            )
+                            out = cv2.VideoWriter(
+                                temp_video_output.name, fourcc, 30, (width, height)
+                            )
 
                             frame_count = 0
                             total_motorcycle_count = 0
-
-                            # Crear un contenedor para las imágenes
                             image_container = st.empty()
 
                             while cap.isOpened():
@@ -503,65 +505,93 @@ with content_container:
                                 if not ret:
                                     break
 
-                                # Procesar solo un frame de cada ciento uno
+                                # Procesar solo algunos frames
                                 if frame_count % 101 == 0:
-                                    # Realizar inferencia en el frame
                                     results = get_image_inference(frame)
                                     motorcycle_count = 0
+
                                     for prediction in results:
-                                        if prediction['name'] == 'motorcycle':
-                                            x, y, w, h = prediction['xmin'], prediction['ymin'], prediction['xmax'] - prediction['xmin'], prediction['ymax'] - prediction['ymin']
-                                            confidence = prediction['confidence']
+                                        if prediction["name"] == "motorcycle":
+                                            x, y = prediction["xmin"], prediction["ymin"]
+                                            w, h = (
+                                                prediction["xmax"] - x,
+                                                prediction["ymax"] - y,
+                                            )
+                                            confidence = prediction["confidence"]
                                             motorcycle_count += 1
-                                            
-                                            # Dibuja el rectángulo en torno a la detección
-                                            top_left = (x, y)
-                                            bottom_right = (x + w, y + h)
-                                            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                                            cv2.putText(frame, f"{confidence:.2f}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-                                    # Actualizar el contador total de motos encontradas
+                                            # Dibujar detecciones
+                                            cv2.rectangle(
+                                                frame,
+                                                (x, y),
+                                                (x + w, y + h),
+                                                (0, 255, 0),
+                                                2,
+                                            )
+                                            cv2.putText(
+                                                frame,
+                                                f"{confidence:.2f}",
+                                                (x, y - 10),
+                                                cv2.FONT_HERSHEY_SIMPLEX,
+                                                0.5,
+                                                (0, 255, 0),
+                                                2,
+                                            )
+
                                     total_motorcycle_count += motorcycle_count
-
-                                    # Guardar los resultados en MongoDB
                                     save_inference_result(results)
 
-                                # Añadir el nombre de la aplicación y el contador de motos encontradas en todos los frames
+                                # Añadir texto al frame
                                 app_name = "AI MotorCycle CrossCounter TalentoTECH"
                                 motos_text = f"Motos encontradas: {total_motorcycle_count}"
-                                cv2.putText(frame, app_name, (10, height - 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
-                                cv2.putText(frame, motos_text, (10, height - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+                                cv2.putText(
+                                    frame,
+                                    app_name,
+                                    (10, height - 50),
+                                    cv2.FONT_HERSHEY_SIMPLEX,
+                                    1,
+                                    (255, 0, 0),
+                                    2,
+                                )
+                                cv2.putText(
+                                    frame,
+                                    motos_text,
+                                    (10, height - 20),
+                                    cv2.FONT_HERSHEY_SIMPLEX,
+                                    1,
+                                    (255, 0, 0),
+                                    2,
+                                )
 
-                                # Mostrar el frame procesado
-                                image_container.image(frame, channels="BGR", caption=f"Frame {frame_count}")
-
-                                # Escribir el frame procesado en el video de salida
+                                image_container.image(
+                                    frame, channels="BGR", caption=f"Frame {frame_count}"
+                                )
                                 out.write(frame)
                                 frame_count += 1
 
                             cap.release()
                             out.release()
 
-                            st.success("Inferencia en video completada.")
+                        st.success("Inferencia en video completada.")
 
-                            # Proporcionar un botón de descarga para el video procesado
-                            with open(temp_video_output.name, "rb") as file:
-                                btn = st.download_button(
-                                    label="Descargar video procesado",
-                                    data=file,
-                                    file_name="video_procesado.mp4",
-                                    mime="video/mp4"
-                                )
+                        # Botón de descarga para el video procesado
+                        with open(temp_video_output.name, "rb") as file:
+                            btn = st.download_button(
+                                label="Descargar video procesado",
+                                data=file,
+                                file_name="video_procesado.mp4",
+                                mime="video/mp4",
+                            )
 
-                            # Eliminar los archivos temporales después de la descarga
-                            if btn:
-                                os.remove(temp_video_path)
-                                os.remove(temp_video_output.name)
+                        # Eliminar archivos temporales
+                        if btn:
+                            os.remove(temp_video_path)
+                            os.remove(temp_video_output.name)
 
-                except Exception as e:
-                    st.error(f"Error al descargar el video: {e}")
-                    st.error(f"Detalles del error: {str(e)}")
-
+                    except Exception as e:
+                        st.error(f"Error durante el procesamiento: {e}")
+            else:
+                st.error(message)
        
 
     # Gráfico de estadísticas
