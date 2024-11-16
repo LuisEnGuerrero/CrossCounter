@@ -14,6 +14,8 @@ import qrcode
 from io import BytesIO
 from google_auth_oauthlib.flow import InstalledAppFlow
 
+# Obtener la API de YouTube desde los secretos de Streamlit Cloud
+YOUTUBE_API_KEY = st.secrets["YOUTUBE"]["YOUTUBE_API_KEY"]
 
 # Configuración inicial de la página de Streamlit
 st.set_page_config(page_title="AI·MotorCycle CrossCounter TalentoTECH", layout="wide")
@@ -441,14 +443,6 @@ with content_container:
         youtube_url = st.text_input("Ingresa la URL del video de YouTube")
 
         if youtube_url:
-            # Configuración de OAuth 2.0
-            SCOPES = ["https://www.googleapis.com/auth/youtube.readonly"]
-            CLIENT_SECRETS_FILE = "client_secret.json"  # Asegúrate de tener este archivo en tu directorio
-
-            # Crear el flujo de OAuth 2.0
-            flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
-            auth_url, _ = flow.authorization_url(prompt='consent')
-
             # Generar un código QR para la URL de autenticación
             qr = qrcode.QRCode(
                 version=1,
@@ -456,7 +450,7 @@ with content_container:
                 box_size=10,
                 border=4,
             )
-            qr.add_data(auth_url)
+            qr.add_data(youtube_url)
             qr.make(fit=True)
 
             img = qr.make_image(fill='black', back_color='white')
@@ -467,23 +461,17 @@ with content_container:
             st.markdown(
                 f"""
                 <div style="text-align: center;">
-                    <p>Escanea el siguiente código QR para autenticarte:</p>
+                    <p>Escanea el siguiente código QR para ver el video en YouTube:</p>
                     <img src="data:image/png;base64,{img_b64}" alt="QR Code">
                 </div>
                 """,
                 unsafe_allow_html=True
             )
 
-            # Descargar el video de YouTube después de la autenticación
+            # Descargar el video de YouTube
             if st.button("Descargar y realizar inferencia en video de YouTube"):
                 try:
-                    # Completar el flujo de OAuth 2.0
-                    flow.fetch_token(authorization_response=st.text_input("Ingresa la URL de redirección después de la autenticación"))
-
-                    # Crear objeto YouTube con las credenciales obtenidas
-                    credentials = flow.credentials
-                    yt = YouTube(youtube_url, credentials=credentials)
-
+                    yt = YouTube(youtube_url)
                     stream = yt.streams.filter(progressive=True, file_extension='mp4').first()
                     if stream is None:
                         st.error("No se encontró un stream adecuado para el video.")
@@ -492,7 +480,6 @@ with content_container:
                             stream.download(output_path=os.path.dirname(temp_video_file.name), filename=os.path.basename(temp_video_file.name))
                             temp_video_path = temp_video_file.name
                             st.write(f"Video descargado temporalmente en: {temp_video_path}")
-
 
                             # Realizar inferencia en el video descargado
                         with st.spinner("Realizando inferencia en el video..."):
