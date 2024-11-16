@@ -182,7 +182,7 @@ def download_youtube_video_with_yt_dlp(url):
         raise RuntimeError(f"Error al descargar el video: {e}")
     
 
-def calculate_segment_duration(video_path, max_size_mb=300):
+def calculate_segment_duration(video_path, max_size_mb=200):
     """
     Calcula la duración recomendada de los segmentos en función del bitrate del video.
 

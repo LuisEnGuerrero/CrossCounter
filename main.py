@@ -481,7 +481,7 @@ with content_container:
 
                     # Dividir el video en segmentos utilizando MoviePy
                     with st.spinner("Dividiendo video en segmentos..."):
-                        segment_duration = calculate_segment_duration(temp_video_path, max_size_mb=300)
+                        segment_duration = calculate_segment_duration(temp_video_path, max_size_mb=200)
                         output_dir = tempfile.mkdtemp()
                         segments = split_video_into_segments(temp_video_path, segment_duration, output_dir)
 
@@ -533,7 +533,7 @@ with content_container:
                                                 frame,
                                                 (x, y),
                                                 (x + w, y + h),
-                                                (0, 255, 0),
+                                                (255, 0, 0),
                                                 2,
                                             )
                                             cv2.putText(
@@ -541,8 +541,8 @@ with content_container:
                                                 f"{confidence:.2f}",
                                                 (x, y - 10),
                                                 cv2.FONT_HERSHEY_SIMPLEX,
-                                                0.5,
-                                                (0, 255, 0),
+                                                0.4,
+                                                (255, 0, 0),
                                                 2,
                                             )
 
@@ -758,4 +758,14 @@ with content_container:
 
 
     # Agregar la imagen TalentoTECH como FINAL
-    st.markdown.image('media/TTechWhide.jpg', use_column_width=True)
+    # st.markdown.image('media/TTechWhide.jpg', use_column_width=True)
+
+    # Agregar la imagen del logo como separador
+    st.markdown(
+        f"""
+        <div style="text-align: center; margin: 20px 0;">
+            <img src="data:image/jpeg;base64,{logo_base64}" alt="Logo" style="width: 250px;">
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
