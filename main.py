@@ -10,6 +10,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 import base64
 from pytube import YouTube
+import qrcode
+from io import BytesIO
 
 
 # Configuración inicial de la página de Streamlit
@@ -438,20 +440,48 @@ with content_container:
         youtube_url = st.text_input("Ingresa la URL del video de YouTube")
 
         if youtube_url:
-            # Descargar el video de YouTube
-            try:
-                yt = YouTube(youtube_url)
-                stream = yt.streams.filter(progressive=True, file_extension='mp4').first()
-                if stream is None:
-                    st.error("No se encontró un stream adecuado para el video.")
-                else:
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video_file:
-                        stream.download(output_path=os.path.dirname(temp_video_file.name), filename=os.path.basename(temp_video_file.name))
-                        temp_video_path = temp_video_file.name
-                        st.write(f"Video descargado temporalmente en: {temp_video_path}")
+            # Crear objeto YouTube con autenticación OAuth
+            yt = YouTube(youtube_url, use_oauth=True, allow_oauth_cache=True)
+            
+            # Generar un código QR para la URL de autenticación
+            auth_url = yt.oauth_url
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_L,
+                box_size=10,
+                border=4,
+            )
+            qr.add_data(auth_url)
+            qr.make(fit=True)
 
-                # Realizar inferencia en el video descargado
-                if st.button("Realizar inferencia en video de YouTube"):
+            img = qr.make_image(fill='black', back_color='white')
+            buf = BytesIO()
+            img.save(buf)
+            img_b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+
+            st.markdown(
+                f"""
+                <div style="text-align: center;">
+                    <p>Escanea el siguiente código QR para autenticarte:</p>
+                    <img src="data:image/png;base64,{img_b64}" alt="QR Code">
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            # Descargar el video de YouTube después de la autenticación
+            if st.button("Descargar y realizar inferencia en video de YouTube"):
+                try:
+                    stream = yt.streams.filter(progressive=True, file_extension='mp4').first()
+                    if stream is None:
+                        st.error("No se encontró un stream adecuado para el video.")
+                    else:
+                        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video_file:
+                            stream.download(output_path=os.path.dirname(temp_video_file.name), filename=os.path.basename(temp_video_file.name))
+                            temp_video_path = temp_video_file.name
+                            st.write(f"Video descargado temporalmente en: {temp_video_path}")
+
+                        # Realizar inferencia en el video descargado
                     with st.spinner("Realizando inferencia en el video..."):
                         cap = cv2.VideoCapture(temp_video_path)
                         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -528,11 +558,11 @@ with content_container:
                             os.remove(temp_video_path)
                             os.remove(temp_video_output.name)
 
-            except Exception as e:
-                st.error(f"Error al descargar el video: {e}")
-                st.error(f"Detalles del error: {str(e)}")
+                except Exception as e:
+                    st.error(f"Error al descargar el video: {e}")
+                    st.error(f"Detalles del error: {str(e)}")
 
-        
+       
 
     # Gráfico de estadísticas
     st.header("Estadísticas de Conteo de Motocicletas")
