@@ -14,7 +14,7 @@ import yt_dlp
 import qrcode
 from io import BytesIO
 from google_auth_oauthlib.flow import InstalledAppFlow
-from utils.testtube import is_valid_youtube_url, download_youtube_video, download_youtube_video_with_yt_dlp, get_video_info, split_video, verificar_ffmpeg
+from utils.testtube import is_valid_youtube_url, calculate_segment_duration, download_youtube_video_with_yt_dlp, get_video_info, split_video_into_segments
 
 
 # Configuración inicial de la página de Streamlit
@@ -442,14 +442,15 @@ with content_container:
         # Ingresar URL de YouTube
         youtube_url = st.text_input("Ingresa la URL del video de YouTube")
 
-        # Verificar la URL de YouTube
-        if youtube_url:
+        if youtube_url and not is_valid_youtube_url(youtube_url):
+            st.error("La URL proporcionada no es válida. Por favor, ingresa una URL de YouTube válida.")
 
+        if youtube_url:
             # Generar código QR para el video
             qr = qrcode.QRCode(
                 version=1,
                 error_correction=qrcode.constants.ERROR_CORRECT_L,
-                box_size=8,
+                box_size=7,
                 border=2,
             )
             qr.add_data(youtube_url)
@@ -473,33 +474,25 @@ with content_container:
             # Descargar y realizar inferencia en el video
             if st.button("Descargar y realizar inferencia en video de YouTube"):
                 try:
+                    # Descarga el video de YouTube
                     with st.spinner("Descargando video de YouTube..."):
-                        # Descargar el video de YouTube
                         temp_video_path = download_youtube_video_with_yt_dlp(youtube_url)
-                        st.write(f"Video descargado temporalmente en: {temp_video_path}")
-                        verificar_ffmpeg(temp_video_path)
+                        st.write(f"Video descargado en: {temp_video_path}")
 
+                    # Dividir el video en segmentos utilizando MoviePy
+                    with st.spinner("Dividiendo video en segmentos..."):
+                        segment_duration = calculate_segment_duration(temp_video_path, max_size_mb=300)
+                        output_dir = tempfile.mkdtemp()
+                        segments = split_video_into_segments(temp_video_path, segment_duration, output_dir)
 
-                    # Obtener información del video
-                    video_info = get_video_info(temp_video_path, is_youtube=False)
-                    st.write(f"Duración del video: {video_info['duration']} segundos")
-                    st.write(f"Tamaño del video: {video_info['filesize']:.2f} MB")
+                        st.write(f"Video dividido en {len(segments)} segmentos.")
 
-                    # Dividir el video si es necesario
-                    if video_info["filesize"] > 300:
-                        st.warning("El video es grande. Dividiéndolo en partes...")
-                        output_dir = tempfile.mkdtemp()  # Directorio temporal para las partes
-                        parts = split_video(temp_video_path, output_dir, max_size_mb=300)
-                        st.write(f"El video se dividió en {len(parts)} partes.")
-                    else:
-                        parts = [temp_video_path]  # Si no es necesario dividirlo
-
-                    # Realizar inferencia en cada parte
+                    # Realizar inferencia en cada segmento
                     total_motorcycle_count = 0
-                    for i, part in enumerate(parts):
-                        st.write(f"Procesando parte {i + 1} de {len(parts)}...")
-                        with st.spinner(f"Procesando parte {i + 1}..."):
-                            cap = cv2.VideoCapture(part)
+                    for i, segment in enumerate(segments):
+                        st.write(f"Procesando segmento {i + 1} de {len(segments)}...")
+                        with st.spinner(f"Realizando inferencia en el segmento {i + 1}..."):            
+                            cap = cv2.VideoCapture(segment)
                             width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
                             height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
                             fourcc = cv2.VideoWriter_fourcc(*"mp4v")
@@ -606,8 +599,7 @@ with content_container:
 
                 except Exception as e:
                     st.error(f"Error durante el procesamiento: {e}")
-        else:
-            st.error("Por favor, ingresa una URL válida de YouTube.")
+
 
 
     # Gráfico de estadísticas
@@ -763,14 +755,7 @@ with content_container:
     st.markdown("### Información Técnica")
     st.markdown("*Consulta el archivo 'README.md' para más detalles:*")
     st.markdown(readme_content)  # Renderiza Markdown directamente
-    # st.markdown(f"""<a href="#top" class="back-to-top">Volver arriba</a>""", unsafe_allow_html=True)
+
 
     # Agregar la imagen TalentoTECH como FINAL
-    st.markdown(
-        f"""
-        <div style="text-align: center; margin: 20px 0;">
-            <img src="media/TTechWhide.jpg" alt="Logo Talento TECH" style="width: 150px;">
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    st.markdown.image('media/TTechWhide.jpg', use_column_width=True)
