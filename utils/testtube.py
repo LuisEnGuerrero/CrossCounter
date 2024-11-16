@@ -38,7 +38,7 @@ def get_youtube_video_info(youtube_url):
     if response["items"]:
         video_info = response["items"][0]
         title = video_info["snippet"]["title"]
-        description = video_info["snippet"]["description"]
+        # description = video_info["snippet"]["description"]
         duration = video_info["contentDetails"]["duration"]
         view_count = video_info["statistics"]["viewCount"]
         
@@ -47,7 +47,7 @@ def get_youtube_video_info(youtube_url):
         
         return {
             "title": title,
-            "description": description,
+            # "description": description,
             "duration_seconds": duration_seconds,
             "view_count": view_count,
         }
@@ -74,7 +74,7 @@ def parse_duration(duration):
 
 
 # Función para dividir el video en segmentos
-def process_video_segments(youtube_url, max_size_mb=300):
+def process_video_segments(youtube_url, max_size_mb=200):
     st.write("Obteniendo información del video...")
     video_info = get_youtube_video_info(youtube_url)
     
@@ -134,7 +134,7 @@ def process_video_segments(youtube_url, max_size_mb=300):
                                 motorcycle_count += 1
 
                                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                                cv2.putText(frame, f"{confidence:.2f}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.3, (0, 255, 0), 2)
+                                cv2.putText(frame, f"{confidence:.2f}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.3, (255, 0, 0), 2)
 
                         total_motorcycle_count += motorcycle_count
                         save_inference_result(results)
@@ -211,13 +211,13 @@ def process_full_video(video_path):
                         motorcycle_count += 1
 
                         # Dibujar el rectángulo y la confianza en el frame
-                        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                        cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
                         cv2.putText(
                             frame,
                             f"{confidence:.2f}",
                             (x, y - 10),
                             cv2.FONT_HERSHEY_SIMPLEX,
-                            0.5,
+                            0.3,
                             (0, 255, 0),
                             2,
                         )
@@ -243,7 +243,7 @@ def process_full_video(video_path):
                 (10, height - 20),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 1,
-                (255, 0, 0),
+                (0, 255, 0),
                 2,
             )
 

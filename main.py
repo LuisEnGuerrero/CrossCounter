@@ -28,8 +28,6 @@ def get_base64_image(image_path):
 # Ruta de la imagen del logo
 logo_path = os.path.join(os.path.dirname(__file__), "media", "logox512.jpg")
 logo_base64 = get_base64_image(logo_path)
-#TTech_path = os.path.join(os.path.dirname(__file__), "media", "TTechWhide.jpg")
-#TTech_base64 = get_base64_image(TTech_path)
 Enrique_path = os.path.join(os.path.dirname(__file__), "media", "Enrique.jpg")
 Enrique_base64 = get_base64_image(Enrique_path)
 Alex_path = os.path.join(os.path.dirname(__file__), "media", "Alex.jpg")
