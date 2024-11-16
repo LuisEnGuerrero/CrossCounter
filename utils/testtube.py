@@ -1,4 +1,6 @@
 import streamlit as st
+from utils.yoloconnect import get_image_inference
+from mongodb import save_inference_result
 from pytube import YouTube
 import yt_dlp
 from yt_dlp.utils import DownloadError
@@ -12,9 +14,262 @@ import subprocess
 import shutil
 import cv2
 from moviepy.video.io.VideoFileClip import VideoFileClip
+import googleapiclient.discovery
+import googleapiclient.errors
+import isodate
+
 
 # Obtener la API de YouTube desde los secretos de Streamlit Cloud
 YOUTUBE_API_KEY = st.secrets["YOUTUBE"]["YOUTUBE_API_KEY"]
+
+
+# Función para obtener información del video desde la API de YouTube
+def get_youtube_video_info(youtube_url):
+    video_id = youtube_url.split("v=")[-1]  # Extraemos el ID del video de la URL
+    youtube = googleapiclient.discovery.build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
+    
+    request = youtube.videos().list(
+        part="snippet,contentDetails,statistics",
+        id=video_id
+    )
+    
+    response = request.execute()
+    
+    if response["items"]:
+        video_info = response["items"][0]
+        title = video_info["snippet"]["title"]
+        description = video_info["snippet"]["description"]
+        duration = video_info["contentDetails"]["duration"]
+        view_count = video_info["statistics"]["viewCount"]
+        
+        # Duración en segundos (convertir el formato ISO 8601)
+        duration_seconds = parse_duration(duration)
+        
+        return {
+            "title": title,
+            "description": description,
+            "duration_seconds": duration_seconds,
+            "view_count": view_count,
+        }
+    else:
+        return None
+
+
+def estimate_video_size_in_mb(duration_seconds, bitrate_mbps=5):
+    """
+    Estima el tamaño del video en MB basado en la duración y un bitrate promedio.
+    :param duration_seconds: Duración del video en segundos.
+    :param bitrate_mbps: Tasa de bits promedio en Mbps (por defecto, 5 Mbps para HD).
+    :return: Tamaño estimado en MB.
+    """
+    # Convertimos el bitrate a bits por segundo y calculamos el tamaño
+    size_in_mb = (bitrate_mbps * duration_seconds) / 8  # Dividimos por 8 para pasar de bits a bytes
+    return size_in_mb
+
+
+# Función para convertir duración en formato ISO 8601 a segundos
+def parse_duration(duration):
+    duration_obj = isodate.parse_duration(duration)
+    return int(duration_obj.total_seconds())
+
+
+# Función para dividir el video en segmentos
+def process_video_segments(youtube_url, max_size_mb=300):
+    st.write("Obteniendo información del video...")
+    video_info = get_youtube_video_info(youtube_url)
+    
+    if not video_info:
+        st.error("No se pudo obtener información del video. Verifica la URL.")
+        return
+
+    duration_seconds = video_info["duration_seconds"]
+    video_size = estimate_video_size_in_mb(duration_seconds)
+    
+    st.write(f"Tamaño estimado del video: {video_size:.2f} MB")    # Inicializar contador total de motocicletas
+    total_motorcycle_count = 0
+
+    # Si el tamaño del video es mayor a max_size_mb, lo dividimos
+    if video_size > max_size_mb:
+        st.write(f"El video es grande ({video_size:.2f} MB). Se procederá a dividirlo en segmentos.")
+        
+        # Dividir el video en segmentos
+        segment_duration = calculate_segment_duration(youtube_url, max_size_mb)
+        output_dir = tempfile.mkdtemp()
+        segments = split_video_into_segments(youtube_url, segment_duration, output_dir)
+
+        st.write(f"Video dividido en {len(segments)} segmentos.")
+        processed_segments = []
+
+        # Realizar inferencia en cada segmento
+        for i, segment in enumerate(segments):
+            st.write(f"Procesando segmento {i + 1} de {len(segments)}...")
+            with st.spinner(f"Realizando inferencia en el segmento {i + 1}..."):
+                cap = cv2.VideoCapture(segment)
+                width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+                height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+
+                temp_part_output = tempfile.NamedTemporaryFile(delete=False, suffix=f"_part_{i + 1}.mp4")
+                out = cv2.VideoWriter(temp_part_output.name, fourcc, 30, (width, height))
+
+                frame_count = 0
+                image_container = st.empty()
+
+                while cap.isOpened():
+                    ret, frame = cap.read()
+                    if not ret:
+                        break
+
+                    if frame_count % 30 == 0:  # Cambia a un valor más razonable, como 30 frames
+                        results = get_image_inference(frame)
+                        motorcycle_count = 0
+
+                        for prediction in results:
+                            if prediction["name"] == "motorcycle":
+                                x = int(prediction["xmin"])
+                                y = int(prediction["ymin"])
+                                w = int(prediction["xmax"] - x)
+                                h = int(prediction["ymax"] - y)
+                                confidence = prediction["confidence"]
+                                motorcycle_count += 1
+
+                                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                                cv2.putText(frame, f"{confidence:.2f}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.3, (0, 255, 0), 2)
+
+                        total_motorcycle_count += motorcycle_count
+                        save_inference_result(results)
+
+                    # Añadir texto al frame
+                    app_name = "AI MotorCycle CrossCounter TalentoTECH"
+                    motos_text = f"Motos encontradas: {total_motorcycle_count}"
+                    cv2.putText(frame, app_name, (10, height - 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+                    cv2.putText(frame, motos_text, (10, height - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+
+                    image_container.image(frame, channels="BGR", caption=f"Frame {frame_count}")
+                    out.write(frame)
+                    frame_count += 1
+
+                cap.release()
+                out.release()
+
+                # Guardar cada segmento procesado
+                # processed_segments.append(temp_part_output.name)
+
+                # Eliminar el archivo temporal del segmento original
+                os.remove(segment)
+
+        st.success("Inferencia en video completada.")
+        st.write(f"Total de motos encontradas: {total_motorcycle_count}")
+        return processed_segments
+
+    else:
+        # Si el video es pequeño, se procesa entero
+        st.write(f"El video tiene un tamaño adecuado ({video_size:.2f} MB). Procesando completo...")
+        return process_full_video(youtube_url)
+
+
+
+# Función para realizar la inferencia en el video completo
+def process_full_video(video_path):
+    st.write("Procesando video completo...")
+    cap = cv2.VideoCapture(video_path)
+
+    # Configuración del video de salida
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
+
+    # Crear un archivo temporal para el video procesado
+    temp_output = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
+    out = cv2.VideoWriter(temp_output.name, fourcc, fps, (width, height))
+
+    frame_count = 0
+    total_motorcycle_count = 0
+    image_container = st.empty()
+
+    with st.spinner("Realizando inferencia en el video completo..."):
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+            # Procesar solo algunos frames (para optimización)
+            if frame_count % 101 == 0:
+                results = get_image_inference(frame)
+                motorcycle_count = 0
+
+                # Dibujar detecciones y contar motocicletas
+                for prediction in results:
+                    if prediction["name"] == "motorcycle":
+                        x, y = prediction["xmin"], prediction["ymin"]
+                        w, h = (
+                            prediction["xmax"] - x,
+                            prediction["ymax"] - y,
+                        )
+                        confidence = prediction["confidence"]
+                        motorcycle_count += 1
+
+                        # Dibujar el rectángulo y la confianza en el frame
+                        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                        cv2.putText(
+                            frame,
+                            f"{confidence:.2f}",
+                            (x, y - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            0.5,
+                            (0, 255, 0),
+                            2,
+                        )
+
+                total_motorcycle_count += motorcycle_count
+                save_inference_result(results)
+
+            # Añadir texto al frame
+            app_name = "AI MotorCycle CrossCounter TalentoTECH"
+            motos_text = f"Motos encontradas: {total_motorcycle_count}"
+            cv2.putText(
+                frame,
+                app_name,
+                (10, height - 50),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (255, 0, 0),
+                2,
+            )
+            cv2.putText(
+                frame,
+                motos_text,
+                (10, height - 20),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (255, 0, 0),
+                2,
+            )
+
+            # Mostrar el frame procesado y escribir en el video de salida
+            image_container.image(frame, channels="BGR", caption=f"Frame {frame_count}")
+            out.write(frame)
+            frame_count += 1
+
+    cap.release()
+    out.release()
+
+    st.success("Inferencia en video completada.")
+    st.write(f"Total de motos encontradas: {total_motorcycle_count}")
+
+    # Botón de descarga para el video procesado
+    with open(temp_output.name, "rb") as file:
+        st.download_button(
+            label="Descargar video procesado",
+            data=file,
+            file_name="video_procesado_completo.mp4",
+            mime="video/mp4",
+        )
+
+    # Eliminar archivo temporal después de la descarga
+    os.remove(temp_output.name)
+
 
 
 def is_valid_youtube_url(youtube_url):

@@ -97,7 +97,7 @@ def get_video_inference(video_path: str, fps: int = 5):
                     top_left = (x, y)
                     bottom_right = (x + w, y + h)
                     cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                    cv2.putText(frame, f"{confidence:.2f}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                    cv2.putText(frame, f"{confidence:.2f}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.3, (0, 255, 0), 2)
 
             # Mostrar el frame procesado
             st.image(frame, channels="BGR", caption=f"Frame {frame_count}")
