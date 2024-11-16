@@ -1,12 +1,38 @@
 import streamlit as st
+from pytube import YouTube
+import yt_dlp
 import validators
 import requests
 import tempfile
-from pytube import YouTube
-
+import os
 
 # Obtener la API de YouTube desde los secretos de Streamlit Cloud
 YOUTUBE_API_KEY = st.secrets["YOUTUBE"]["YOUTUBE_API_KEY"]
+
+
+def download_youtube_video_with_yt_dlp(url):
+    """
+    Descarga un video de YouTube usando yt_dlp y devuelve la ruta al archivo descargado.
+    """
+    try:
+        # Crear un directorio temporal para la descarga
+        temp_dir = tempfile.mkdtemp()
+        
+        # Opciones de descarga
+        ydl_opts = {
+            'format': 'mp4/bestvideo+bestaudio/best',  # Descargar en el mejor formato disponible
+            'outtmpl': os.path.join(temp_dir, '%(title)s.%(ext)s'),  # Ruta de salida
+            'noplaylist': True,  # Asegurarse de descargar solo un video
+        }
+        
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info_dict = ydl.extract_info(url, download=True)
+            video_path = ydl.prepare_filename(info_dict)
+        
+        return video_path  # Ruta del video descargado
+    except Exception as e:
+        raise RuntimeError(f"Error al descargar el video: {e}")
+
 
 
 def is_valid_youtube_url(youtube_url):

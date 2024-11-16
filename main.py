@@ -14,7 +14,7 @@ import yt_dlp
 import qrcode
 from io import BytesIO
 from google_auth_oauthlib.flow import InstalledAppFlow
-from utils.testtube import is_valid_youtube_url, download_youtube_video
+from utils.testtube import is_valid_youtube_url, download_youtube_video, download_youtube_video_with_yt_dlp
 
 
 # Configuración inicial de la página de Streamlit
@@ -475,11 +475,13 @@ with content_container:
                 )
 
                 # Descargar y realizar inferencia en el video
+                # Reemplazar en el flujo principal
                 if st.button("Descargar y realizar inferencia en video de YouTube"):
                     try:
                         with st.spinner("Descargando video de YouTube..."):
-                            temp_video_path = download_youtube_video(youtube_url)
+                            temp_video_path = download_youtube_video_with_yt_dlp(youtube_url)  # Usar yt_dlp
                             st.write(f"Video descargado temporalmente en: {temp_video_path}")
+
 
                         # Realizar inferencia en el video descargado
                         with st.spinner("Realizando inferencia en el video..."):
