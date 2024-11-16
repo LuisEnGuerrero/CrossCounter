@@ -450,7 +450,7 @@ with content_container:
 
                     if video_info:
                         st.write(f"**Título del video:** {video_info['title']}")
-                        st.write(f"**Descripción:** {video_info['description']}")
+                        # st.write(f"**Descripción:** {video_info['description']}")
                         st.write(f"**Duración:** {video_info['duration_seconds']} segundos")
                         st.write(f"**Cantidad de vistas:** {video_info['view_count']}")
 
