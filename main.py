@@ -355,7 +355,6 @@ with content_container:
                 temp_video_file.write(uploaded_video.read())
                 temp_video_path = temp_video_file.name
                 st.write(f"Video guardado temporalmente en: {temp_video_path}")
-                verificar_ffmpeg(temp_video_path)
 
             # Realizar inferencia en el video
             if st.button("Realizar inferencia en video"):
@@ -478,6 +477,8 @@ with content_container:
                         # Descargar el video de YouTube
                         temp_video_path = download_youtube_video_with_yt_dlp(youtube_url)
                         st.write(f"Video descargado temporalmente en: {temp_video_path}")
+                        verificar_ffmpeg(temp_video_path)
+
 
                     # Obtener información del video
                     video_info = get_video_info(temp_video_path, is_youtube=False)
