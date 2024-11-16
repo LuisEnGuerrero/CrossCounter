@@ -14,7 +14,7 @@ import yt_dlp
 import qrcode
 from io import BytesIO
 from google_auth_oauthlib.flow import InstalledAppFlow
-from utils.testtube import is_valid_youtube_url, download_youtube_video, download_youtube_video_with_yt_dlp
+from utils.testtube import is_valid_youtube_url, download_youtube_video, download_youtube_video_with_yt_dlp, get_video_info, split_video
 
 
 # Configuración inicial de la página de Streamlit
@@ -471,126 +471,142 @@ with content_container:
             )
 
             # Descargar y realizar inferencia en el video
-            # Reemplazar en el flujo principal
             if st.button("Descargar y realizar inferencia en video de YouTube"):
                 try:
                     with st.spinner("Descargando video de YouTube..."):
-                        temp_video_path = download_youtube_video_with_yt_dlp(youtube_url)  # Usar yt_dlp
+                        # Descargar el video de YouTube
+                        temp_video_path = download_youtube_video_with_yt_dlp(youtube_url)
                         st.write(f"Video descargado temporalmente en: {temp_video_path}")
 
+                    # Obtener información del video
+                    video_info = get_video_info(temp_video_path, is_youtube=False)
+                    st.write(f"Duración del video: {video_info['duration']} segundos")
+                    st.write(f"Tamaño del video: {video_info['filesize']:.2f} MB")
 
-                    # Realizar inferencia en el video descargado
-                    with st.spinner("Realizando inferencia en el video..."):
-                        cap = cv2.VideoCapture(temp_video_path)
-                        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-                        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-                        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+                    # Dividir el video si es necesario
+                    if video_info["filesize"] > 300:
+                        st.warning("El video es grande. Dividiéndolo en partes...")
+                        output_dir = tempfile.mkdtemp()  # Directorio temporal para las partes
+                        parts = split_video(temp_video_path, output_dir, max_size_mb=300)
+                        st.write(f"El video se dividió en {len(parts)} partes.")
+                    else:
+                        parts = [temp_video_path]  # Si no es necesario dividirlo
 
-                        # Crear un archivo temporal para el video procesado
-                        temp_video_output = tempfile.NamedTemporaryFile(
-                            delete=False, suffix=".mp4"
-                        )
-                        out = cv2.VideoWriter(
-                            temp_video_output.name, fourcc, 30, (width, height)
-                        )
+                    # Realizar inferencia en cada parte
+                    total_motorcycle_count = 0
+                    for i, part in enumerate(parts):
+                        st.write(f"Procesando parte {i + 1} de {len(parts)}...")
+                        with st.spinner(f"Procesando parte {i + 1}..."):
+                            cap = cv2.VideoCapture(part)
+                            width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+                            height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                            fourcc = cv2.VideoWriter_fourcc(*"mp4v")
 
-                        frame_count = 0
-                        total_motorcycle_count = 0
-                        image_container = st.empty()
-
-                        while cap.isOpened():
-                            ret, frame = cap.read()
-                            if not ret:
-                                break
-
-                            # Procesar solo algunos frames
-                            if frame_count % 101 == 0:
-                                results = get_image_inference(frame)
-                                motorcycle_count = 0
-
-                                for prediction in results:
-                                    if prediction["name"] == "motorcycle":
-                                        x, y = prediction["xmin"], prediction["ymin"]
-                                        w, h = (
-                                            prediction["xmax"] - x,
-                                            prediction["ymax"] - y,
-                                        )
-                                        confidence = prediction["confidence"]
-                                        motorcycle_count += 1
-
-                                        # Dibujar detecciones
-                                        cv2.rectangle(
-                                            frame,
-                                            (x, y),
-                                            (x + w, y + h),
-                                            (0, 255, 0),
-                                            2,
-                                        )
-                                        cv2.putText(
-                                            frame,
-                                            f"{confidence:.2f}",
-                                            (x, y - 10),
-                                            cv2.FONT_HERSHEY_SIMPLEX,
-                                            0.5,
-                                            (0, 255, 0),
-                                            2,
-                                        )
-
-                                total_motorcycle_count += motorcycle_count
-                                save_inference_result(results)
-
-                            # Añadir texto al frame
-                            app_name = "AI MotorCycle CrossCounter TalentoTECH"
-                            motos_text = f"Motos encontradas: {total_motorcycle_count}"
-                            cv2.putText(
-                                frame,
-                                app_name,
-                                (10, height - 50),
-                                cv2.FONT_HERSHEY_SIMPLEX,
-                                1,
-                                (255, 0, 0),
-                                2,
+                            # Crear un archivo temporal para la parte procesada
+                            temp_part_output = tempfile.NamedTemporaryFile(
+                                delete=False, suffix=f"_part_{i + 1}.mp4"
                             )
-                            cv2.putText(
-                                frame,
-                                motos_text,
-                                (10, height - 20),
-                                cv2.FONT_HERSHEY_SIMPLEX,
-                                1,
-                                (255, 0, 0),
-                                2,
+                            out = cv2.VideoWriter(
+                                temp_part_output.name, fourcc, 30, (width, height)
                             )
 
-                            image_container.image(
-                                frame, channels="BGR", caption=f"Frame {frame_count}"
-                            )
-                            out.write(frame)
-                            frame_count += 1
+                            frame_count = 0
+                            image_container = st.empty()
 
-                        cap.release()
-                        out.release()
+                            while cap.isOpened():
+                                ret, frame = cap.read()
+                                if not ret:
+                                    break
+
+                                # Procesar solo algunos frames
+                                if frame_count % 101 == 0:
+                                    results = get_image_inference(frame)
+                                    motorcycle_count = 0
+
+                                    for prediction in results:
+                                        if prediction["name"] == "motorcycle":
+                                            x, y = prediction["xmin"], prediction["ymin"]
+                                            w, h = (
+                                                prediction["xmax"] - x,
+                                                prediction["ymax"] - y,
+                                            )
+                                            confidence = prediction["confidence"]
+                                            motorcycle_count += 1
+
+                                            # Dibujar detecciones
+                                            cv2.rectangle(
+                                                frame,
+                                                (x, y),
+                                                (x + w, y + h),
+                                                (0, 255, 0),
+                                                2,
+                                            )
+                                            cv2.putText(
+                                                frame,
+                                                f"{confidence:.2f}",
+                                                (x, y - 10),
+                                                cv2.FONT_HERSHEY_SIMPLEX,
+                                                0.5,
+                                                (0, 255, 0),
+                                                2,
+                                            )
+
+                                    total_motorcycle_count += motorcycle_count
+                                    save_inference_result(results)
+
+                                # Añadir texto al frame
+                                app_name = "AI MotorCycle CrossCounter TalentoTECH"
+                                motos_text = f"Motos encontradas: {total_motorcycle_count}"
+                                cv2.putText(
+                                    frame,
+                                    app_name,
+                                    (10, height - 50),
+                                    cv2.FONT_HERSHEY_SIMPLEX,
+                                    1,
+                                    (255, 0, 0),
+                                    2,
+                                )
+                                cv2.putText(
+                                    frame,
+                                    motos_text,
+                                    (10, height - 20),
+                                    cv2.FONT_HERSHEY_SIMPLEX,
+                                    1,
+                                    (255, 0, 0),
+                                    2,
+                                )
+
+                                image_container.image(
+                                    frame, channels="BGR", caption=f"Frame {frame_count}"
+                                )
+                                out.write(frame)
+                                frame_count += 1
+
+                            cap.release()
+                            out.release()
 
                     st.success("Inferencia en video completada.")
+                    st.write(f"Total de motos encontradas: {total_motorcycle_count}")
 
                     # Botón de descarga para el video procesado
-                    with open(temp_video_output.name, "rb") as file:
+                    with open(temp_part_output.name, "rb") as file:
                         btn = st.download_button(
                             label="Descargar video procesado",
                             data=file,
-                            file_name="video_procesado.mp4",
+                            file_name=f"video_procesado_parte_{i + 1}.mp4",
                             mime="video/mp4",
                         )
 
                     # Eliminar archivos temporales
                     if btn:
                         os.remove(temp_video_path)
-                        os.remove(temp_video_output.name)
+                        os.remove(temp_part_output.name)
 
                 except Exception as e:
                     st.error(f"Error durante el procesamiento: {e}")
         else:
             st.error("Por favor, ingresa una URL válida de YouTube.")
-       
+            
 
     # Gráfico de estadísticas
     st.header("Estadísticas de Conteo de Motocicletas")
