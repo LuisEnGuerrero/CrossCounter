@@ -1,6 +1,6 @@
 import streamlit as st
 from utils.yoloconnect import get_image_inference
-from mongodb import save_inference_result
+from utils.mongodb import save_inference_result
 from pytube import YouTube
 import yt_dlp
 from yt_dlp.utils import DownloadError
