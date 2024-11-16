@@ -529,22 +529,10 @@ with content_container:
                                             motorcycle_count += 1
 
                                             # Dibujar detecciones
-                                            cv2.rectangle(
-                                                frame,
-                                                (x, y),
-                                                (x + w, y + h),
-                                                (255, 0, 0),
-                                                2,
-                                            )
-                                            cv2.putText(
-                                                frame,
-                                                f"{confidence:.2f}",
-                                                (x, y - 10),
-                                                cv2.FONT_HERSHEY_SIMPLEX,
-                                                0.4,
-                                                (255, 0, 0),
-                                                2,
-                                            )
+                                            top_left = (x, y)
+                                            bottom_right = (x + w, y + h)
+                                            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                                            cv2.putText(frame, f"{confidence:.2f}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.3, (0, 255, 0), 2)
 
                                     total_motorcycle_count += motorcycle_count
                                     save_inference_result(results)
