@@ -7,9 +7,25 @@ import tempfile
 import os
 import math
 import subprocess
+import ffmpeg
 
 # Obtener la API de YouTube desde los secretos de Streamlit Cloud
 YOUTUBE_API_KEY = st.secrets["YOUTUBE"]["YOUTUBE_API_KEY"]
+
+def verificar_ffmpeg(temp_video_path):
+    """
+    Verifica si FFmpeg está instalado y accesible en el sistema.
+    """
+    # Suponiendo que ya tienes un archivo de video descargado en alguna variable o ruta, como temp_video_path
+    if 'temp_video_path' in locals() and os.path.exists(temp_video_path):
+        try:
+            # Intentar hacer una prueba en el archivo de video descargado
+            ffmpeg.probe(temp_video_path)  # Verifica que FFmpeg puede acceder al archivo
+            st.write("FFmpeg está instalado y funcionando correctamente.")
+        except ffmpeg.Error as e:
+            st.error(f"Error al ejecutar FFmpeg en el archivo: {e}")
+    else:
+        st.error("No se encontró un archivo de video válido para procesar.")
 
 
 def download_youtube_video_with_yt_dlp(url):

@@ -14,7 +14,7 @@ import yt_dlp
 import qrcode
 from io import BytesIO
 from google_auth_oauthlib.flow import InstalledAppFlow
-from utils.testtube import is_valid_youtube_url, download_youtube_video, download_youtube_video_with_yt_dlp, get_video_info, split_video
+from utils.testtube import is_valid_youtube_url, download_youtube_video, download_youtube_video_with_yt_dlp, get_video_info, split_video, verificar_ffmpeg
 
 
 # Configuración inicial de la página de Streamlit
@@ -355,6 +355,7 @@ with content_container:
                 temp_video_file.write(uploaded_video.read())
                 temp_video_path = temp_video_file.name
                 st.write(f"Video guardado temporalmente en: {temp_video_path}")
+                verificar_ffmpeg(temp_video_path)
 
             # Realizar inferencia en el video
             if st.button("Realizar inferencia en video"):
@@ -606,7 +607,7 @@ with content_container:
                     st.error(f"Error durante el procesamiento: {e}")
         else:
             st.error("Por favor, ingresa una URL válida de YouTube.")
-            
+
 
     # Gráfico de estadísticas
     st.header("Estadísticas de Conteo de Motocicletas")
