@@ -29,18 +29,15 @@ YOUTUBE_API_KEY = st.secrets["YOUTUBE"]["YOUTUBE_API_KEY"]
 
 # Cargar estilos CSS
 def load_css(file_path):
-    with open(file_path, "r", encoding="utf-8") as file:
+    with open(file_path) as file:
         st.markdown(f"<style>{file.read()}</style>", unsafe_allow_html=True)
 
 # Mostrar introducción
 def load_markdown(file_path):
-    with open(file_path) as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         return file.read()
 
 load_css("views/styles.css")
-
-intro_content = load_markdown("views/intro.md")
-st.markdown(intro_content)
 
 # Renderizar secciones principales
 st.markdown(anchor_html(), unsafe_allow_html=True)
@@ -188,6 +185,10 @@ st.markdown(about_section_html(), unsafe_allow_html=True)
 
 # Sección del Equipo
 st.markdown(team_section_html(), unsafe_allow_html=True)
+
+# Sección de Introducción
+intro_content = load_markdown("views/intro.md")
+st.markdown(intro_content)
 
 # Sección de Documentación
 st.markdown(documentation_html(), unsafe_allow_html=True)
