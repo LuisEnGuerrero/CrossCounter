@@ -110,7 +110,7 @@ elif inference_mode == "Video":
             results = process_video(temp_path)
 
             # Guardar en MongoDB
-            save_inference_result({
+            save_inference_result_image({
                 "type": "video",
                 "inference_id": results.get("inference_id", "unknown"),
                 "motorcycle_count": results.get("total_motos", 0),
@@ -169,7 +169,7 @@ elif inference_mode == "YouTube":
                             results = process_video(segment)
 
                             # Guardar resultados parciales
-                            save_inference_result({
+                            save_inference_result_image({
                                 "type": "youtube_segment",
                                 "inference_id": results.get("inference_id", "unknown"),
                                 "motorcycle_count": results.get("total_motos", 0),
