@@ -73,7 +73,7 @@ if inference_mode == "Imagen":
             inference_id = datetime.now().isoformat()  # Genera una marca de tiempo única
             save_inference_result_image({
                 "type": "image",
-                "inference_id": detections.get("inference_id", "unknown"),
+                "inference_id": detections.get(inference_id, "unknown"),
                 "motorcycle_count": len(detections["predictions"]),
             })
 
