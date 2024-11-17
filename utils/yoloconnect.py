@@ -2,6 +2,7 @@ import streamlit as st
 from ultralytics import YOLO
 import cv2
 from PIL import Image
+from utils.helpers import update_progress
 import tempfile
 
 # Cargar el modelo YOLOv8
@@ -43,7 +44,7 @@ def get_image_inference(image_path):
     
     return detections
 
-def get_video_inference(video_path):
+def get_video_inference(video_path, frame_interval=99, total_frames=None):
     """
     Realiza inferencia en un video utilizando el modelo YOLO entrenado localmente.
     
@@ -66,35 +67,43 @@ def get_video_inference(video_path):
 
     out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
     total_motorcycle_count = 0
+    frame_count = 0
 
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
 
-        # Convertir frame a formato PIL para la inferencia
-        img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        if frame_count % frame_interval == 0:
+            # Convertir frame a formato PIL para la inferencia
+            img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
 
-        # Realizar inferencia en el frame
-        results = model(img)
+            # Realizar inferencia en el frame
+            results = model(img)
 
-        for result in results:
-            frame_motorcycle_count = 0
-            for box in result.boxes:
-                cls = result.names[int(box.cls[0])]
-                if cls == "motorcycle":
-                    conf = box.conf[0]
-                    x_min, y_min, x_max, y_max = map(int, box.xyxy[0].tolist())
-                    # Dibujar detección en el frame
-                    cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
-                    cv2.putText(frame, f"{cls} {conf:.2f}", (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                    frame_motorcycle_count += 1
+            for result in results:
+                frame_motorcycle_count = 0
+                for box in result.boxes:
+                    cls = result.names[int(box.cls[0])]
+                    if cls == "motorcycle":
+                        conf = box.conf[0]
+                        x_min, y_min, x_max, y_max = map(int, box.xyxy[0].tolist())
+                        # Dibujar detección en el frame
+                        cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+                        cv2.putText(frame, f"{cls} {conf:.2f}", (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                        frame_motorcycle_count += 1
 
-            # Acumular el conteo total de motocicletas
-            total_motorcycle_count += frame_motorcycle_count
+                # Acumular el conteo total de motocicletas
+                total_motorcycle_count += frame_motorcycle_count
 
         # Escribir el frame procesado en el video de salida
         out.write(cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
+
+        if total_frames:
+            update_progress(frame_count, total_frames)
+
+        frame_count += 1
+
 
     cap.release()
     out.release()
