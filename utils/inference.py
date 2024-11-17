@@ -12,6 +12,7 @@ except Exception as e:
     st.error(f"Error al cargar el modelo: {e}")
     st.stop()
 
+
 def process_image(image_path):
     """
     Procesa una imagen con el modelo YOLOv8.
@@ -22,9 +23,6 @@ def process_image(image_path):
     Returns:
         dict: Resultados de las detecciones en formato esperado.
     """
-    # Cargar el modelo YOLO
-    model = YOLO("models/best.pt")  # Cambia según tu modelo
-
     # Realizar la inferencia
     results = model(image_path)
 
@@ -32,13 +30,16 @@ def process_image(image_path):
     detections = []
     for result in results:
         for box in result.boxes:
+            # Asegurarse de que las coordenadas se convierten correctamente
+            st.write("recibimos box.xyxy: ", box.xyxy) # box.xyxy: tensor([[  0.0000,  63.0000,  99.0000,  99.0000]])
+            xyxy = box.xyxy[0].cpu().numpy()  # Obtener el array del primer elemento
             detections.append({
                 "name": result.names[int(box.cls)],
                 "confidence": float(box.conf),
-                "xmin": int(box.xyxy[0].cpu().numpy()),  # Convertir tensor a escalar
-                "ymin": int(box.xyxy[1].cpu().numpy()),  # Convertir tensor a escalar
-                "xmax": int(box.xyxy[2].cpu().numpy()),  # Convertir tensor a escalar
-                "ymax": int(box.xyxy[3].cpu().numpy()),  # Convertir tensor a escalar
+                "xmin": int(xyxy[0]),  # Extraer xmin
+                "ymin": int(xyxy[1]),  # Extraer ymin
+                "xmax": int(xyxy[2]),  # Extraer xmax
+                "ymax": int(xyxy[3]),  # Extraer ymax
             })
 
     return {"predictions": detections}
@@ -54,9 +55,6 @@ def process_video(video_path):
     Returns:
         dict: Resultados de las detecciones en el video.
     """
-    # Cargar el modelo YOLO
-    model = YOLO("models/best.pt")  # Cambia según tu modelo
-
     # Realizar la inferencia
     results = model(video_path)
 

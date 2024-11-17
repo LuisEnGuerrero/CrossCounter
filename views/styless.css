@@ -140,7 +140,7 @@ div[data-testid="stMetricValue"] {
 /* Botón de volver */
 .back-to-top {
     position: fixed;
-    bottom: 20px;
+    bottom: 10px;
     left: 50%; /* Centra horizontalmente */
     transform: translateX(-50%); /* Ajusta la posición para centrar */
     text-align: center;
@@ -152,10 +152,14 @@ div[data-testid="stMetricValue"] {
     text-decoration: none;
     border-radius: 5px;
     width: fit-content;
+    transition: 30ms;
+    z-index: 1000;
 }
 
 .back-to-top:hover {
-    background-color: #0056b3;
+    background-color: #041033;
+    border-bottom: 2px solid #f7f9fa;
+    color: #f7f9fa;
 }
 
 /* Documentación */
