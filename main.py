@@ -68,6 +68,7 @@ if inference_mode == "Imagen":
             image_with_boxes = draw_detections(original_image, detections)
 
             # Guardar en MongoDB
+            st.write(detections) # identificar el formato de las detecciones
             save_inference_result_image({
                 "type": "image",
                 "inference_id": detections.get("inference_id", "unknown"),

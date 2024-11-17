@@ -14,22 +14,27 @@ try:
 except Exception as e:
     st.error(f"Error al conectar con MongoDB: {e}")
 
-def save_inference_result_image(inference_id, motorcycle_count):
+def save_inference_result_image(data):
     """
-    Guarda los resultados de una inferencia en una imagen en MongoDB.
-    
+    Guarda los resultados de inferencia de imagen en MongoDB.
+
     Args:
-        inference_id (str): Identificador único de la inferencia.
-        motorcycle_count (int): Número total de motocicletas detectadas.
+        data (dict): Contiene los datos de la inferencia, incluyendo:
+            - type: Tipo de inferencia ('image')
+            - inference_id: Identificador de la inferencia
+            - motorcycle_count: Cantidad de motocicletas detectadas
     """
-    document = {
-        "timestamp": datetime.now(),
-        "type": "image",
-        "inference_id": inference_id,
-        "motorcycle_count": motorcycle_count,
-    }
-    collection.insert_one(document)
-    print(f"Resultado de inferencia (imagen) guardado en MongoDB con ID {document['_id']}")
+    # Conexión a MongoDB
+    from pymongo import MongoClient
+    import streamlit as st
+
+    client = MongoClient(st.secrets["MONGO_URI"])
+    db = client["motorcycle_detection"]
+    collection = db["detections"]
+
+    # Insertar los datos
+    collection.insert_one(data)
+    st.success(f"Resultado de inferencia guardado en MongoDB con ID {data.get('inference_id')}")
 
 def save_inference_result_video(inference_id, motorcycle_count_per_frame):
     """
