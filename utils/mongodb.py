@@ -24,14 +24,6 @@ def save_inference_result_image(data):
             - inference_id: Identificador de la inferencia
             - motorcycle_count: Cantidad de motocicletas detectadas
     """
-    # Conexión a MongoDB
-    from pymongo import MongoClient
-    import streamlit as st
-
-    client = MongoClient(st.secrets["MONGO_URI"])
-    db = client["motorcycle_detection"]
-    collection = db["detections"]
-
     # Insertar los datos
     collection.insert_one(data)
     st.success(f"Resultado de inferencia guardado en MongoDB con ID {data.get('inference_id')}")

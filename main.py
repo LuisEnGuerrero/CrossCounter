@@ -65,7 +65,7 @@ if inference_mode == "Imagen":
 
             # Dibujar detecciones
             original_image = Image.open(temp_path)
-            image_with_boxes = draw_detections(original_image, detections)
+            image_with_boxes = draw_detections(original_image, detections["predictions"])
 
             # Guardar en MongoDB
             st.write(detections) # identificar el formato de las detecciones
@@ -75,6 +75,7 @@ if inference_mode == "Imagen":
                 "motorcycle_count": len(detections["predictions"]),
             })
 
+            # Mostrar la imagen procesada
             st.image(
                 image_with_boxes,
                 caption="Imagen con detecciones",

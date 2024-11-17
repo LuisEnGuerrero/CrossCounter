@@ -84,7 +84,7 @@ div[data-testid="stMetricValue"] {
 
 .acerca-de h2 {
     text-align: center;
-    color: #007bff;
+    color: #327fba;
 }
 
 .acerca-de p {
@@ -140,13 +140,13 @@ div[data-testid="stMetricValue"] {
 /* Botón de volver */
 .back-to-top {
     position: fixed;
-    bottom: 10px;
+    bottom: 5px;
     left: 50%; /* Centra horizontalmente */
     transform: translateX(-50%); /* Ajusta la posición para centrar */
     text-align: center;
     margin: 20px auto;
     padding: 10px 15px;
-    background-color: #007bff;
+    background-color: #327fba;
     color: white;
     font-weight: bold;
     text-decoration: none;
@@ -158,7 +158,7 @@ div[data-testid="stMetricValue"] {
 
 .back-to-top:hover {
     background-color: #041033;
-    border-bottom: 2px solid #f7f9fa;
+    border-bottom: 2px solid #327fba;
     color: #f7f9fa;
 }
 
@@ -174,7 +174,7 @@ div[data-testid="stMetricValue"] {
 }
 
 #documentacion h2 {
-    color: #007bff;
+    color: #327fba;
     text-align: center;
 }
 
@@ -258,5 +258,5 @@ footer {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: #327fba;
 }

@@ -1,10 +1,17 @@
+import streamlit as st
 from ultralytics import YOLO
 import cv2
 from PIL import Image
 import tempfile
 
-# Cargar el modelo YOLOv8 desde el archivo entrenado
-model = YOLO("models/best.pt")  # Asegúrate de que esta ruta sea correcta
+# Cargar el modelo YOLOv8
+model_path = "models/best.pt"
+try:
+    model = YOLO(model_path, verbose=False)
+    # st.write("Modelo cargado correctamente!")
+except Exception as e:
+    st.error(f"Error al cargar el modelo: {e}")
+    st.stop()
 
 def get_image_inference(image_path):
     """
