@@ -7,7 +7,11 @@ from utils.visualization import show_statistics, draw_detections
 from utils.inference import process_image, process_video
 from utils.mongodb import save_inference_result
 from pathlib import Path
+from pytube import YouTube
+from yt_dlp import YoutubeDL
+from dotenv import dotenv_values
 import os
+from PIL import Image
 
 # Configuración de la página
 st.set_page_config(
@@ -15,6 +19,13 @@ st.set_page_config(
     layout="wide",
     page_icon="🛵",
 )
+
+# Cargar configuraciones de API
+config = dotenv_values(".env")  # Cambiar según el entorno
+YOUTUBE_API_KEY = config.get("YOUTUBE_API_KEY")
+
+# Obtener la API de YouTube desde los secretos de Streamlit Cloud
+YOUTUBE_API_KEY = st.secrets["YOUTUBE"]["YOUTUBE_API_KEY"]
 
 # Cargar estilos CSS
 def load_css(file_path):
@@ -44,10 +55,10 @@ st.markdown(header_html(), unsafe_allow_html=True)
 
 # Selección de modo de inferencia
 inference_mode = st.sidebar.selectbox(
-    "Selecciona el modo de inferencia", ("Imagen", "Video")
+    "Selecciona el modo de inferencia", ("Imagen", "Video", "YouTube")
 )
 
-# Inferencia de Imágenes
+# Inferencia en imágenes
 if inference_mode == "Imagen":
     st.markdown(logo_separator_html(), unsafe_allow_html=True)
     st.subheader("Cargar una Imagen")
@@ -81,6 +92,7 @@ if inference_mode == "Imagen":
             )
             st.success(f"Inferencia completada. Total de motocicletas detectadas: {len(detections['predictions'])}")
 
+
 # Inferencia de Videos
 elif inference_mode == "Video":
     st.markdown(logo_separator_html(), unsafe_allow_html=True)
@@ -111,6 +123,68 @@ elif inference_mode == "Video":
                     f"[Descargar video procesado]({results['processed_video_path']})",
                     unsafe_allow_html=True
                 )
+
+
+# Inferencia en videos de YouTube
+elif inference_mode == "YouTube":
+    st.markdown(logo_separator_html(), unsafe_allow_html=True)
+    st.subheader("Procesar un Video de YouTube")
+    youtube_url = st.text_input("Ingrese la URL del video de YouTube:")
+
+    if youtube_url:
+        with st.spinner("Obteniendo información del video..."):
+            try:
+                # Obtener información básica del video
+                yt = YouTube(youtube_url)
+                st.write(f"**Título:** {yt.title}")
+                st.write(f"**Duración:** {yt.length // 60} minutos {yt.length % 60} segundos")
+                st.write(f"**Autor:** {yt.author}")
+
+                # Decidir inferencia directa o segmentada
+                if yt.filesize_approx <= 200 * 1024 * 1024:  # Inferencia directa
+                    st.info("El video es menor a 200MB. Se procesará directamente.")
+                    temp_path = Path(f"temp_youtube.mp4")
+                    yt.streams.get_highest_resolution().download(filename=temp_path)
+
+                    # Procesar el video directamente
+                    results = process_video(temp_path)
+
+                    # Mostrar resultados
+                    st.success(f"Inferencia completada. Total de motocicletas detectadas: {results.get('total_motos', 0)}")
+                    if "processed_video_path" in results:
+                        st.markdown(
+                            f"[Descargar video procesado]({results['processed_video_path']})",
+                            unsafe_allow_html=True
+                        )
+
+                else:  # Segmentación del video
+                    st.warning("El video es mayor a 200MB. Será segmentado y procesado por partes.")
+                    ydl_opts = {"format": "best", "outtmpl": "segment_%(part)d.mp4"}
+                    with YoutubeDL(ydl_opts) as ydl:
+                        ydl.download([youtube_url])
+
+                    segment_paths = sorted(Path(".").glob("segment_*.mp4"))
+                    for segment in segment_paths:
+                        with st.spinner(f"Procesando segmento: {segment.name}"):
+                            results = process_video(segment)
+
+                            # Guardar resultados parciales
+                            save_inference_result({
+                                "type": "youtube_segment",
+                                "inference_id": results.get("inference_id", "unknown"),
+                                "motorcycle_count": results.get("total_motos", 0),
+                            })
+                            os.remove(segment)
+
+                    st.success("Segmentos procesados. Descarga el último segmento procesado:")
+                    if "processed_video_path" in results:
+                        st.markdown(
+                            f"[Descargar video procesado]({results['processed_video_path']})",
+                            unsafe_allow_html=True
+                        )
+            except Exception as e:
+                st.error(f"Error procesando el video de YouTube: {e}")
+
 
 # Sección de Estadísticas
 st.header("Estadísticas de Conteo de Motocicletas")
