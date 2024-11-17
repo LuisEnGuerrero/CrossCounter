@@ -4,7 +4,13 @@ from pathlib import Path
 import os
 import cv2
 from PIL import Image
-from utils.helpers import update_progress, download_youtube_video, segment_video, display_youtube_info
+from utils.helpers import (
+    update_progress, 
+    download_youtube_video, 
+    segment_video, 
+    display_youtube_info, 
+    generate_inference_id,
+    )
 import tempfile
 
 
@@ -59,6 +65,7 @@ def process_video(video_path, frame_interval=99, total_frames=None):
     Returns:
         dict: Incluye la ruta al video procesado y conteo total de detecciones.
     """
+    inference_id = generate_inference_id()  # Generar ID único
     temp_output = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
     output_path = temp_output.name
 
@@ -71,6 +78,10 @@ def process_video(video_path, frame_interval=99, total_frames=None):
     out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
     total_motorcycle_count = 0
     frame_count = 0
+
+    # Crear barra de progreso única
+    progress_bar = st.progress(0)
+
 
     while cap.isOpened():
         ret, frame = cap.read()
@@ -112,6 +123,7 @@ def process_video(video_path, frame_interval=99, total_frames=None):
     out.release()
 
     return {
+        "inference_id": inference_id,
         "processed_video_path": output_path,
         "total_motos": total_motorcycle_count,
     }

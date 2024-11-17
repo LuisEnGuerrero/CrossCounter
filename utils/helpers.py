@@ -4,6 +4,7 @@ from yt_dlp import YoutubeDL
 from pathlib import Path
 import os
 from googleapiclient.discovery import build
+from datetime import datetime
 
 
 # Obtener la API de YouTube desde los secretos de Streamlit Cloud
@@ -111,7 +112,7 @@ def display_youtube_info(youtube_url):
     }
 
 
-def update_progress(processed_frames, total_frames):
+def update_progress(bar, processed_frames, total_frames):
     """
     Actualiza la barra de progreso en Streamlit.
 
@@ -120,8 +121,20 @@ def update_progress(processed_frames, total_frames):
         total_frames (int): Total de frames en el video.
     """
     progress = int((processed_frames / total_frames) * 100)
-    st.progress(progress)
+    bar.progress(progress)
+
 
     # Limpiar la barra al finalizar
     if progress == 100:
         st.empty()
+
+# función para generar un ID de inferencia único
+def generate_inference_id():
+    """
+    Genera un ID único basado en la fecha y hora actual.
+
+    Returns:
+        str: ID único en formato ISO 8601.
+    """
+    return datetime.now().isoformat()
+
