@@ -37,6 +37,8 @@ def load_markdown(file_path):
     with open(file_path, "r", encoding="utf-8") as file:
         return file.read()
 
+load_css("views/styles.css")
+
 intro_content = load_markdown("views/intro.md")
 st.markdown(intro_content)
 
