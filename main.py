@@ -34,7 +34,7 @@ def load_css(file_path):
 
 # Mostrar introducción
 def load_markdown(file_path):
-    with open(file_path, "r", encoding="utf-8") as file:
+    with open(file_path) as file:
         return file.read()
 
 load_css("views/styles.css")
