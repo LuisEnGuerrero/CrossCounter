@@ -117,6 +117,7 @@ elif inference_mode == "Video":
                 "inference_id": results.get("inference_id", "unknown"),
                 "motorcycle_count": results.get("total_motos", 0),
             })
+            
 
             # Mostrar enlace de descarga del video procesado
             st.success(f"Inferencia completada. Total de motocicletas detectadas: {results.get('total_motos', 0)}")
@@ -138,7 +139,6 @@ elif inference_mode == "YouTube":
                 info = display_youtube_info(youtube_url)
                 st.write(f"**Título:** {info['title']}")
                 st.write(f"**Duración:** {info['duration'] // 60} minutos {info['duration'] % 60} segundos")
-                st.write(f"**Autor:** {info['author']}")
 
                 with st.spinner("Procesando el video de YouTube..."):
                     results = process_youtube_video(youtube_url)
