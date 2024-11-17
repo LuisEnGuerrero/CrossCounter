@@ -438,37 +438,45 @@ def download_youtube_video_with_yt_dlp(url):
         raise RuntimeError(f"Error al descargar el video: {e}")
     
 
-def calculate_segment_duration(video_path, max_size_mb=200):
+
+def calculate_segment_duration(youtube_url, max_size_mb=200):
     """
-    Calcula la duración recomendada de los segmentos en función del bitrate del video.
+    Calcula la duración recomendada de los segmentos en función del bitrate del video de YouTube.
 
     Args:
-        video_path (str): Ruta al archivo de video.
+        youtube_url (str): URL del video de YouTube.
         max_size_mb (int): Tamaño máximo permitido por segmento en MB.
 
     Returns:
         int: Duración recomendada de cada segmento en segundos.
     """
     try:
-        # Usar cv2 para capturar propiedades del video
-        cap = cv2.VideoCapture(video_path)
-        if not cap.isOpened():
-            raise RuntimeError("No se pudo abrir el video para obtener información.")
+        # Extraer el ID del video de la URL
+        video_id = youtube_url.split("v=")[-1].split("&")[0] if "v=" in youtube_url else youtube_url.split("/")[-1]
 
-        # Obtener el bitrate (bits por segundo)
-        bitrate = cap.get(cv2.CAP_PROP_BITRATE)  # Bitrate en bits/segundo
-        if bitrate <= 0:
-            raise RuntimeError("No se pudo obtener el bitrate del video.")
+        # Crear cliente de la API de YouTube
+        youtube = googleapiclient.discovery.build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
 
-        # Convertir el bitrate a MB/s
-        bitrate_mb_per_second = bitrate / (8 * 1024 * 1024)  # De bits/s a MB/s
+        # Consultar detalles del video
+        request = youtube.videos().list(part="contentDetails,statistics", id=video_id)
+        response = request.execute()
 
-        # Calcular la duración máxima en segundos para no superar el tamaño máximo
+        # Verificar si el video existe
+        if not response["items"]:
+            raise RuntimeError("No se encontró el video en YouTube.")
+
+        video_info = response["items"][0]
+        duration_iso = video_info["contentDetails"]["duration"]  # Duración en formato ISO 8601
+        duration_seconds = parse_duration(duration_iso)  # Convertir ISO 8601 a segundos
+
+        # Suponemos un bitrate promedio para YouTube si no está disponible (2 Mbps como referencia)
+        bitrate_mb_per_second = 2 / 8  # Convertir Mbps a MB/s
+
+        # Calcular la duración máxima por segmento para no superar el tamaño máximo
         max_duration = max_size_mb / bitrate_mb_per_second
 
-        cap.release()
-        return int(max_duration)  # Redondear a segundos enteros
+        return min(int(max_duration), duration_seconds)  # Redondear y limitar a la duración total del video
 
     except Exception as e:
         raise RuntimeError(f"Error al calcular la duración del segmento: {e}")
-    
+
