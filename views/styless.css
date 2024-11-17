@@ -1,90 +1,101 @@
-/* Estilos Globales */
-body {{
-    font-family: Arial, sans-serif;
-    background-color: #041033; /* Fondo oscuro general */
-    color: #f7f9fa; /* Texto claro */
-    margin: 0;
-    padding: 0;
-}}
+/* Estilo general para contenedores */
+div[data-testid="stAppViewBlockContainer"] div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stVerticalBlockBorderWrapper"],
+div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stHorizontalBlock"] div[data-testid="column"] div[data-testid="stVerticalBlockBorderWrapper"] {
+    background-color: #041033ff;
+    padding: 10px;
+    border-radius: 15px;
+    box-shadow: 0px 0px 10px rgba(178, 182, 192, 0.3);
+}
 
-/* Header */
-.header {{
+/* Color etiquetas y títulos */
+h1, h2, h3,
+label[data-testid="stMetricLabel"] p {  
+    font-weight: bold;
+    color: #1ea47e;
+}
+
+/* Estilo de valor de métricas */
+div[data-testid="stMetricValue"] {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #82858d;
+}
+
+/* Estilo del encabezado */
+.header {
     text-align: center;
     padding: 20px;
-    background-color: #007bff; /* Fondo azul */
-    color: #ffffff; /* Texto blanco */
-}}
+    background-color: #041033ff;
+    color: white;
+    border-radius: 10px;
+}
 
-.header img {{
+.header img {
     width: 120px;
     margin-bottom: 10px;
-}}
+}
 
-.header h1 {{
+.header h1 {
     font-size: 2.5em;
     margin: 10px 0;
-}}
+}
 
-.header .nav {{
-    margin-top: 10px;
-}}
-
-.header .nav a {{
+.header .nav a {
     margin: 0 15px;
     text-decoration: none;
-    color: #ffffff; /* Texto blanco */
+    color: white;
     font-weight: bold;
-}}
+}
 
-.header .nav a:hover {{
+.header .nav a:hover {
     text-decoration: underline;
-}}
+}
 
-/* Separador del Logo */
-.logo-separator {{
+/* Separador del logo */
+.logo-separator {
     text-align: center;
     margin: 20px 0;
-}}
+}
 
-.logo-separator img {{
+.logo-separator img {
     width: 150px;
-}}
+}
 
 /* Acerca de */
-.acerca-de {{
-    background-color: #ffffff; /* Fondo blanco */
-    color: #041033; /* Texto oscuro */
+.acerca-de {
+    background-color: white;
+    color: #041033;
     border-radius: 10px;
     margin: 20px auto;
     padding: 20px;
     width: 80%;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-}}
+}
 
-.acerca-de h2 {{
+.acerca-de h2 {
     text-align: center;
-    color: #007bff; /* Azul */
-}}
+    color: #007bff;
+}
 
-.acerca-de p {{
+.acerca-de p {
     font-size: 1.1em;
     line-height: 1.6;
     text-align: justify;
-}}
+}
 
-/* Equipo */
-.team-container {{
+/* Tarjetas del equipo */
+.team-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     margin: 20px auto;
     gap: 20px;
     padding: 20px;
-}}
+}
 
-.team-card {{
-    background-color: #ffffff; /* Fondo blanco */
-    color: #041033; /* Texto oscuro */
+.team-card {
+    background-color: white;
+    color: #041033;
     border: 1px solid #ddd;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -92,114 +103,143 @@ body {{
     text-align: center;
     padding: 20px;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-}}
+}
 
-.team-card:hover {{
+.team-card:hover {
     transform: scale(1.05);
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
-}}
+}
 
-.team-card img {{
+.team-card img {
     width: 100px;
     height: 100px;
     border-radius: 50%;
     margin-bottom: 15px;
-}}
+}
 
-.team-card h3 {{
+.team-card h3 {
     font-size: 1.2em;
     margin-bottom: 10px;
-}}
+}
 
-.team-card p {{
+.team-card p {
     font-size: 0.9em;
     color: #555;
-}}
+}
 
-/* Botón de Volver */
-.back-to-top {{
+/* Botón de volver */
+.back-to-top {
     display: block;
     text-align: center;
     margin: 20px auto;
     padding: 10px 15px;
     background-color: #007bff;
-    color: #ffffff;
+    color: white;
     font-weight: bold;
     text-decoration: none;
     border-radius: 5px;
     width: fit-content;
-}}
+}
 
-.back-to-top:hover {{
+.back-to-top:hover {
     background-color: #0056b3;
-}}
+}
 
 /* Documentación */
-#documentacion {{
-    background-color: #f7f9fa; /* Fondo claro */
-    color: #041033; /* Texto oscuro */
+#documentacion {
+    background-color: #f7f9fa;
+    color: #041033;
     padding: 20px;
     border-radius: 10px;
     width: 80%;
     margin: 20px auto;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-}}
+}
 
-#documentacion h2 {{
-    color: #007bff; /* Azul */
+#documentacion h2 {
+    color: #007bff;
     text-align: center;
-}}
+}
 
-#documentacion ol {{
+#documentacion ol {
     font-size: 1em;
     margin: 20px;
     line-height: 1.6;
-}}
+}
 
-#documentacion li {{
+#documentacion li {
     margin-bottom: 10px;
-}}
+}
+
+/* Tablas */
+.dashboardTable {
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    width: 100%;
+}
+
+.dashboardTable thead tr {
+    background-color: #f4f4f9;
+    color: #12bb94;
+    text-align: left;
+}
+
+.dashboardTable th,
+.dashboardTable td {
+    border: none;
+}
+
+.dashboardTable tbody tr {
+    border-bottom: 1px solid #ecedff;
+    background-color: white;
+}
+
+.dashboardTable tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
 
 /* Código QR */
-.qr-section {{
+.qr-section {
     text-align: center;
     margin: 20px auto;
-}}
+}
 
-.qr-section p {{
+.qr-section p {
     margin-bottom: 10px;
     font-size: 1.1em;
-}}
+}
 
-.qr-section img {{
+.qr-section img {
     width: 200px;
-}}
+}
 
 /* Footer */
-footer {{
+footer {
     text-align: center;
     padding: 10px;
     background-color: #041033;
-    color: #f7f9fa;
+    color: white;
     font-size: 12px;
     position: fixed;
     bottom: 0;
     width: 100%;
-}}
+}
 
-/* Scrollbar Personalizado */
-::-webkit-scrollbar {{
+/* Scrollbar */
+::-webkit-scrollbar {
     width: 10px;
-}}
+}
 
-::-webkit-scrollbar-track {{
-    background: #041033; /* Fondo oscuro */
-}}
+::-webkit-scrollbar-track {
+    background: #041033;
+}
 
-::-webkit-scrollbar-thumb {{
+::-webkit-scrollbar-thumb {
     background: #888;
-}}
+}
 
-::-webkit-scrollbar-thumb:hover {{
+::-webkit-scrollbar-thumb:hover {
     background: #555;
-}}
+}
