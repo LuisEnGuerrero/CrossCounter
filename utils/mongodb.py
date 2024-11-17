@@ -1,59 +1,66 @@
-import streamlit as st
 from pymongo import MongoClient
 from datetime import datetime
+import streamlit as st
 
-# Obtener la URI de MongoDB desde los secretos de Streamlit Cloud
-MONGO_URI = st.secrets["MONGO"]["MONGO_URI"]
+# Conexión a MongoDB usando st.secrets
+client = MongoClient(st.secrets["MONGO_URI"])
+db = client["motorcycle_detection"]  # Base de datos
+collection = db["detections"]        # Colección para los resultados de inferencia
 
-# Crear una instancia del cliente de MongoDB
-try:
-    client = MongoClient(MONGO_URI)
-    db = client["motorcycle_detection"]  # Nombre de la base de datos
-    collection = db["detections"]        # Nombre de la colección
-    # st.write("Conexión a MongoDB establecida correctamente.")
-except Exception as e:
-    st.error(f"Error al conectar con MongoDB: {e}")
-
-def save_inference_result(results):
+def save_inference_result_image(inference_id, motorcycle_count):
     """
-    Guarda el resultado de inferencia en MongoDB con la fecha/hora actual.
+    Guarda los resultados de una inferencia en una imagen en MongoDB.
+    
+    Args:
+        inference_id (str): Identificador único de la inferencia.
+        motorcycle_count (int): Número total de motocicletas detectadas.
     """
-    if not isinstance(results, list):
-        st.write("Error: El resultado de inferencia no es una lista.")
-        return
-
-    motorcycle_count = sum(1 for result in results if result.get("name") == "motorcycle")
-
     document = {
-        "timestamp": datetime.now(),  # Fecha y hora de almacenamiento
-        "motorcycle_count": motorcycle_count
+        "timestamp": datetime.now(),
+        "type": "image",
+        "inference_id": inference_id,
+        "motorcycle_count": motorcycle_count,
     }
-
-    # st.write("Guardando en MongoDB:", document)
     collection.insert_one(document)
-    # st.write(f"Resultado de inferencia guardado en MongoDB con ID {document['_id']}")
+    print(f"Resultado de inferencia (imagen) guardado en MongoDB con ID {document['_id']}")
 
-def get_inference_statistics(period="day"):
+def save_inference_result_video(inference_id, motorcycle_count_per_frame):
     """
-    Obtiene estadísticas de conteo de motocicletas, agregando por día, mes o año.
-    """
-    if period == "day":
-        group_id = {"day": {"$dayOfMonth": "$timestamp"}, "month": {"$month": "$timestamp"}, "year": {"$year": "$timestamp"}}
-    elif period == "month":
-        group_id = {"month": {"$month": "$timestamp"}, "year": {"$year": "$timestamp"}}
-    elif period == "year":
-        group_id = {"year": {"$year": "$timestamp"}}
-    else:
-        raise ValueError("Periodo no válido. Debe ser 'day', 'month' o 'year'.")
+    Guarda los resultados de una inferencia en un video en MongoDB.
 
+    Args:
+        inference_id (str): Identificador único de la inferencia.
+        motorcycle_count_per_frame (list[dict]): Lista de conteos por frame. Cada elemento debe incluir:
+            - "timestamp" (datetime): Fecha y hora del frame procesado.
+            - "motorcycle_count" (int): Número total de motocicletas detectadas en ese frame.
+    """
+    for frame_result in motorcycle_count_per_frame:
+        document = {
+            "timestamp": frame_result["timestamp"],
+            "type": "video",
+            "inference_id": inference_id,
+            "motorcycle_count": frame_result["motorcycle_count"],
+        }
+        collection.insert_one(document)
+    print(f"Resultados de inferencia (video) guardados en MongoDB para inference_id {inference_id}")
+
+def get_inference_statistics():
+    """
+    Obtiene estadísticas de detección agrupadas por día y hora.
+
+    Returns:
+        list: Lista de documentos con la cantidad de motocicletas detectadas.
+    """
     pipeline = [
         {
             "$group": {
-                "_id": group_id,
+                "_id": {
+                    "day": {"$dayOfMonth": "$timestamp"},
+                    "hour": {"$hour": "$timestamp"},
+                },
                 "total_motos": {"$sum": "$motorcycle_count"},
-                "average_motos": {"$avg": "$motorcycle_count"}
             }
         },
-        {"$sort": {"_id": 1}}
+        {"$sort": {"_id": 1}},
     ]
     return list(collection.aggregate(pipeline))

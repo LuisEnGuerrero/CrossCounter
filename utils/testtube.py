@@ -142,8 +142,8 @@ def process_video_segments(youtube_url, max_size_mb=200):
                     # Añadir texto al frame
                     app_name = "AI MotorCycle CrossCounter TalentoTECH"
                     motos_text = f"Motos encontradas: {total_motorcycle_count}"
-                    cv2.putText(frame, app_name, (10, height - 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
-                    cv2.putText(frame, motos_text, (10, height - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+                    cv2.putText(frame, app_name, (10, height - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                    cv2.putText(frame, motos_text, (10, height - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
                     image_container.image(frame, channels="BGR", caption=f"Frame {frame_count}")
                     out.write(frame)
@@ -218,7 +218,7 @@ def process_full_video(video_path):
                             f"{confidence:.2f}",
                             (x, y - 10),
                             cv2.FONT_HERSHEY_SIMPLEX,
-                            0.3,
+                            0.4,
                             (0, 255, 0),
                             2,
                         )
@@ -234,7 +234,7 @@ def process_full_video(video_path):
                 app_name,
                 (10, height - 50),
                 cv2.FONT_HERSHEY_SIMPLEX,
-                1,
+                0.5,
                 (0, 255, 0),
                 2,
             )
@@ -243,7 +243,7 @@ def process_full_video(video_path):
                 motos_text,
                 (10, height - 20),
                 cv2.FONT_HERSHEY_SIMPLEX,
-                0.4,
+                0.5,
                 (0, 255, 0),
                 2,
             )
