@@ -2,10 +2,17 @@ from pymongo import MongoClient
 from datetime import datetime
 import streamlit as st
 
-# Conexión a MongoDB usando st.secrets
-client = MongoClient(st.secrets["MONGO_URI"])
-db = client["motorcycle_detection"]  # Base de datos
-collection = db["detections"]        # Colección para los resultados de inferencia
+# Obtener la URI de MongoDB desde los secretos de Streamlit Cloud
+MONGO_URI = st.secrets["MONGO"]["MONGO_URI"]
+
+# Crear una instancia del cliente de MongoDB
+try:
+    client = MongoClient(MONGO_URI)
+    db = client["motorcycle_detection"]  # Nombre de la base de datos
+    collection = db["detections"]        # Nombre de la colección
+    # st.write("Conexión a MongoDB establecida correctamente.")
+except Exception as e:
+    st.error(f"Error al conectar con MongoDB: {e}")
 
 def save_inference_result_image(inference_id, motorcycle_count):
     """

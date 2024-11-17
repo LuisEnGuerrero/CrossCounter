@@ -149,7 +149,7 @@ def team_section_html():
             <p>Gestor de Recursos y Analista de Datos</p>
         </div>
     </div>
-    <a href="#inicio" class="back-to-top">↑ /­VOLVER\ ↑</a>
+    <a href="#inicio" class="back-to-top">↑ ­VOLVER ARRIBA ↑</a>
     """
 
 def documentation_html():
