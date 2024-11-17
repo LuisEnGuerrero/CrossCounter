@@ -23,32 +23,42 @@ div[data-testid="stMetricValue"] {
 
 /* Estilo del encabezado */
 .header {
-    text-align: center;
-    padding: 20px;
-    background-color: #041033ff;
-    color: white;
-    border-radius: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px 20px;
+    background-color: #041033;
+    border-bottom: 2px solid #f7f9fa;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .header img {
-    width: 120px;
-    margin-bottom: 10px;
+    width: 100px;
+    height: auto;
+    padding-right: 15px;
 }
 
 .header h1 {
-    font-size: 2.5em;
-    margin: 10px 0;
+    margin: 0;
+    font-size: 24px;
+    color: #f7f9fa;
 }
 
 .header .nav a {
-    margin: 0 15px;
     text-decoration: none;
-    color: white;
-    font-weight: bold;
+    color: #f7f9fa;
+    font-size: 18px;
+    padding: 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 .header .nav a:hover {
-    text-decoration: underline;
+    background-color: #f7f9fa;
+    color: #041033;
 }
 
 /* Separador del logo */
