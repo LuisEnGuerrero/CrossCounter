@@ -5,7 +5,7 @@ from views.html import (
 )
 from utils.visualization import show_statistics, draw_detections
 from utils.inference import process_image, process_video
-from utils.mongodb import save_inference_result
+from utils.mongodb import save_inference_result_image
 from pathlib import Path
 from pytube import YouTube
 from yt_dlp import YoutubeDL
@@ -79,7 +79,7 @@ if inference_mode == "Imagen":
             image_with_boxes = draw_detections(original_image, detections)
 
             # Guardar en MongoDB
-            save_inference_result({
+            save_inference_result_image({
                 "type": "image",
                 "inference_id": detections.get("inference_id", "unknown"),
                 "motorcycle_count": len(detections["predictions"]),
