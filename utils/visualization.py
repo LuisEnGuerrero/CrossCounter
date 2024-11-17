@@ -40,30 +40,28 @@ def show_statistics():
 
 def draw_detections(image, detections):
     """
-    Dibuja cuadros delimitadores y etiquetas sobre una imagen para las detecciones dadas.
-
+    Dibuja las detecciones en una imagen.
+    
     Args:
-        image (PIL.Image): Imagen original.
-        detections (list): Lista de detecciones con claves:
-            - "name": Nombre de la clase detectada.
-            - "confidence": Confianza de la detección.
-            - "xmin", "ymin", "xmax", "ymax": Coordenadas del cuadro delimitador.
-
+        image (PIL.Image.Image): Imagen en la que se dibujarán las detecciones.
+        detections (list): Lista de detecciones con campos como "name", "confidence", "xmin", "ymin", "xmax", "ymax".
+    
     Returns:
-        PIL.Image: Imagen con las detecciones dibujadas.
+        PIL.Image.Image: Imagen con las detecciones dibujadas.
     """
     draw = ImageDraw.Draw(image)
 
     for detection in detections:
-        name = detection["name"]
-        confidence = detection["confidence"]
-        xmin, ymin, xmax, ymax = detection["xmin"], detection["ymin"], detection["xmax"], detection["ymax"]
-
-        # Dibujar cuadro delimitador
-        draw.rectangle([(xmin, ymin), (xmax, ymax)], outline="red", width=2)
-
-        # Etiqueta con nombre de clase y confianza
-        label = f"{name} {confidence:.2f}"
-        draw.text((xmin, ymin - 10), label, fill="red")
-
+        if isinstance(detection, dict):  # Validar que cada elemento sea un diccionario
+            name = detection.get("name", "unknown")
+            confidence = detection.get("confidence", 0.0)
+            xmin, ymin, xmax, ymax = detection.get("xmin"), detection.get("ymin"), detection.get("xmax"), detection.get("ymax")
+            
+            # Dibujar el rectángulo
+            if xmin is not None and ymin is not None and xmax is not None and ymax is not None:
+                draw.rectangle([xmin, ymin, xmax, ymax], outline="red", width=3)
+                # Añadir etiqueta
+                label = f"{name} ({confidence:.2f})"
+                draw.text((xmin, ymin - 10), label, fill="red")
+    
     return image

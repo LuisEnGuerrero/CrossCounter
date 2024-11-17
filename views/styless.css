@@ -11,7 +11,7 @@ div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stHorizontalBlo
 h1, h2, h3,
 label[data-testid="stMetricLabel"] p {  
     font-weight: bold;
-    color: #1ea47e;
+    color: #fffcfcff;
 }
 
 /* Estilo de valor de métricas */
