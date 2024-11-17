@@ -139,7 +139,10 @@ div[data-testid="stMetricValue"] {
 
 /* Botón de volver */
 .back-to-top {
-    display: block;
+    position: fixed;
+    bottom: 20px;
+    left: 50%; /* Centra horizontalmente */
+    transform: translateX(-50%); /* Ajusta la posición para centrar */
     text-align: center;
     margin: 20px auto;
     padding: 10px 15px;

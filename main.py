@@ -50,7 +50,6 @@ inference_mode = st.sidebar.selectbox(
 
 # Inferencia en imágenes
 if inference_mode == "Imagen":
-    st.markdown(logo_separator_html(), unsafe_allow_html=True)
     st.subheader("Cargar una Imagen")
     uploaded_image = st.file_uploader("Elige una imagen", type=["jpg", "jpeg", "png"])
 
@@ -179,12 +178,14 @@ elif inference_mode == "YouTube":
 # Sección de Estadísticas
 st.header("Estadísticas de Conteo de Motocicletas")
 show_statistics()
+st.markdown(logo_separator_html(), unsafe_allow_html=True)
 
 # Sección 'Acerca de'
 st.markdown(about_section_html(), unsafe_allow_html=True)
 
 # Sección del Equipo
 st.markdown(team_section_html(), unsafe_allow_html=True)
+st.markdown(logo_separator_html(), unsafe_allow_html=True)
 
 # Sección de Introducción
 intro_content = load_markdown("views/intro.md")

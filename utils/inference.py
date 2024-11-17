@@ -14,15 +14,17 @@ except Exception as e:
 
 def process_image(image_path):
     """
-    Procesa una imagen cargada para realizar inferencias con YOLO.
-    Dibuja las detecciones directamente en la imagen.
-    
+    Procesa una imagen con el modelo YOLOv8.
+
     Args:
-        image_file: Archivo de imagen cargado por el usuario.
-    
+        image_path (str): Ruta de la imagen a procesar.
+
     Returns:
-        dict: Contiene la imagen con detecciones y el conteo total de motocicletas.
+        dict: Resultados de las detecciones en formato esperado.
     """
+    # Cargar el modelo YOLO
+    model = YOLO("models/best.pt")  # Cambia según tu modelo
+
     # Realizar la inferencia
     results = model(image_path)
 
@@ -33,15 +35,13 @@ def process_image(image_path):
             detections.append({
                 "name": result.names[int(box.cls)],
                 "confidence": float(box.conf),
-                "xmin": int(box.xyxy[0]),
-                "ymin": int(box.xyxy[1]),
-                "xmax": int(box.xyxy[2]),
-                "ymax": int(box.xyxy[3]),
+                "xmin": int(box.xyxy[0].cpu().numpy()),  # Convertir tensor a escalar
+                "ymin": int(box.xyxy[1].cpu().numpy()),  # Convertir tensor a escalar
+                "xmax": int(box.xyxy[2].cpu().numpy()),  # Convertir tensor a escalar
+                "ymax": int(box.xyxy[3].cpu().numpy()),  # Convertir tensor a escalar
             })
 
     return {"predictions": detections}
-
-from ultralytics import YOLO
 
 
 def process_video(video_path):
@@ -54,22 +54,23 @@ def process_video(video_path):
     Returns:
         dict: Resultados de las detecciones en el video.
     """
-    model = YOLO("models/best.pt")  # Cambiar según tu modelo
+    # Cargar el modelo YOLO
+    model = YOLO("models/best.pt")  # Cambia según tu modelo
 
     # Realizar la inferencia
     results = model(video_path)
 
-    # Estructurar los resultados
+    # Estructurar los resultados en el formato esperado
     detections = []
     for result in results:
         for box in result.boxes:
             detections.append({
                 "name": result.names[int(box.cls)],
                 "confidence": float(box.conf),
-                "xmin": int(box.xyxy[0]),
-                "ymin": int(box.xyxy[1]),
-                "xmax": int(box.xyxy[2]),
-                "ymax": int(box.xyxy[3]),
+                "xmin": int(box.xyxy[0].cpu().numpy()),  # Convertir tensor a escalar
+                "ymin": int(box.xyxy[1].cpu().numpy()),  # Convertir tensor a escalar
+                "xmax": int(box.xyxy[2].cpu().numpy()),  # Convertir tensor a escalar
+                "ymax": int(box.xyxy[3].cpu().numpy()),  # Convertir tensor a escalar
             })
 
     return {"predictions": detections}
