@@ -43,6 +43,7 @@ st.markdown('<div id="top"></div>', unsafe_allow_html=True) # Anchor para volver
 # Crear un contenedor para el header
 header_container = st.container()
 
+
 with header_container:
 # HTML y CSS para el header
     st.markdown(

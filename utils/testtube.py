@@ -160,6 +160,7 @@ def process_video_segments(youtube_url, max_size_mb=200):
 
         st.success("Inferencia en video completada.")
         st.write(f"Total de motos encontradas: {total_motorcycle_count}")
+        st.session_state.clear()
         return processed_segments
 
     else:
@@ -211,7 +212,7 @@ def process_full_video(video_path):
                         motorcycle_count += 1
 
                         # Dibujar el rectángulo y la confianza en el frame
-                        cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
+                        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
                         cv2.putText(
                             frame,
                             f"{confidence:.2f}",
@@ -234,7 +235,7 @@ def process_full_video(video_path):
                 (10, height - 50),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 1,
-                (255, 0, 0),
+                (0, 255, 0),
                 2,
             )
             cv2.putText(
@@ -242,7 +243,7 @@ def process_full_video(video_path):
                 motos_text,
                 (10, height - 20),
                 cv2.FONT_HERSHEY_SIMPLEX,
-                1,
+                0.4,
                 (0, 255, 0),
                 2,
             )
