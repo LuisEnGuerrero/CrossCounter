@@ -72,10 +72,10 @@ if inference_mode == "Imagen":
             # st.write(detections) # identificar el formato de las detecciones
             inference_id = datetime.now().isoformat()  # Genera una marca de tiempo única como ID
             # convertir infecence_id a string
-            inference_id = str(inference_id)
+            # inference_id = str(inference_id)
             save_inference_result_image({
                 "type": "image",
-                "inference_id": detections.get(inference_id),
+                "inference_id": detections.get("inference_id", inference_id),
                 "motorcycle_count": len(detections["predictions"]),
             })
 
