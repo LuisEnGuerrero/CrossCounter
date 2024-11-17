@@ -1,4 +1,3 @@
-<style>
 /* Estilos Globales */
 body {{
     font-family: Arial, sans-serif;
@@ -204,4 +203,3 @@ footer {{
 ::-webkit-scrollbar-thumb:hover {{
     background: #555;
 }}
-</style>

@@ -34,7 +34,9 @@ def load_css(file_path):
 
 st.markdown(
     f"""
+    <style>
         {load_css("views/styless.md")}
+    </style>
     """,
     unsafe_allow_html=True
 )
