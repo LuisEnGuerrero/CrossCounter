@@ -498,10 +498,10 @@ with content_container:
                                     video_size_mb = os.path.getsize(temp_video_path) / (1024 * 1024)
 
                                     # Elegir el método de procesamiento
-                                    if video_size_mb <= 300:
+                                    if video_size_mb <= 200:
                                         process_full_video(temp_video_path)
                                     else:
-                                        process_video_segments(temp_video_path, max_size_mb=300)
+                                        process_video_segments(youtube_url, max_size_mb=200)
 
                                     # Eliminar archivos temporales
                                     os.remove(temp_video_path)
