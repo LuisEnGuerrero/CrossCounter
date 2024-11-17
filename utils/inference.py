@@ -115,7 +115,7 @@ def process_video(video_path, frame_interval=99, total_frames=None):
         out.write(cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
 
         if total_frames:
-            update_progress(frame_count, total_frames)
+            update_progress(progress_bar, frame_count, total_frames)
 
         frame_count += 1
 

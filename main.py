@@ -106,7 +106,7 @@ elif inference_mode == "Video":
             cap.release()
 
             # Crear barra de progreso
-            progress_bar = st.progress(0)
+            # progress_bar = st.progress(0)
 
             # Procesar video
             results = process_video(temp_path, frame_interval=99, total_frames=total_frames)
