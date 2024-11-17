@@ -1,9 +1,16 @@
+import streamlit as st
 from PIL import Image, ImageDraw
 from utils.yoloconnect import get_image_inference, get_video_inference
 from ultralytics import YOLO
 
-# Cargar el modelo YOLO
-model = YOLO("models/best.pt")  # Cambiar según el modelo
+# Cargar el modelo YOLOv8
+model_path = "models/best.pt"
+try:
+    model = YOLO(model_path, verbose=False)
+    # st.write("Modelo cargado correctamente!")
+except Exception as e:
+    st.error(f"Error al cargar el modelo: {e}")
+    st.stop()
 
 def process_image(image_path):
     """
