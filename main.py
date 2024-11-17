@@ -37,7 +37,7 @@ def load_markdown(file_path):
     with open(file_path, "r", encoding="utf-8") as file:
         return file.read()
 
-load_css("views/styles.css")
+load_css("views/styless.css")
 
 # Renderizar secciones principales
 st.markdown(anchor_html(), unsafe_allow_html=True)
