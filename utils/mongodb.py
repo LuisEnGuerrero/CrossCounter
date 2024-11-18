@@ -102,7 +102,7 @@ def get_inference_statistics(level, filters=None):
 
         # Construir la pipeline
         pipeline = []
-        if filters:
+        if filters:  # Agregar filtros si están definidos
             pipeline.append({"$match": filters})
         pipeline.append(group_stage)
         pipeline.append({"$sort": {"_id": 1}})
