@@ -8,34 +8,47 @@ def show_statistics():
     """
     Obtiene estadísticas desde MongoDB y muestra un gráfico en Streamlit.
     """
+    # Selección del nivel de análisis
+    analysis_level = st.sidebar.selectbox("Selecciona el nivel de análisis", ["Día", "Mes", "Año"])
+    filters = {}
+
+    if analysis_level == "Día":
+        selected_day = st.sidebar.date_input("Selecciona el día").strftime("%Y-%m-%d")
+        filters = {"year": int(selected_day[:4]), "month": int(selected_day[5:7]), "day": int(selected_day[8:10])}
+        level = "day"
+    elif analysis_level == "Mes":
+        selected_month = st.sidebar.selectbox("Selecciona el mes", range(1, 13))
+        selected_year = st.sidebar.number_input("Selecciona el año", min_value=2000, max_value=2100, step=1)
+        filters = {"year": selected_year, "month": selected_month}
+        level = "month"
+    else:
+        selected_year = st.sidebar.number_input("Selecciona el año", min_value=2000, max_value=2100, step=1)
+        filters = {"year": selected_year}
+        level = "year"
+
     # Obtener estadísticas desde MongoDB
-    statistics = get_inference_statistics()
+    statistics = get_inference_statistics(level, filters)
 
     if not statistics:
         st.write("No hay datos de estadísticas disponibles.")
         return
 
-    # Convertir estadísticas a DataFrame para su uso en gráficos
+    # Procesar datos en DataFrame
     data = pd.DataFrame(statistics)
-    data["_id"] = data["_id"].apply(lambda x: f"{x['day']} - {x['hour']}h")
-    data = data.rename(columns={"total_motos": "Cantidad de Motocicletas", "_id": "Fecha y Hora"})
-    data = data.set_index("Fecha y Hora")
+    data["_id"] = data["_id"].apply(lambda x: f"{x.get('day', x.get('hour', x.get('month')))}")
+    data = data.rename(columns={"total_motos": "Cantidad de Motocicletas", "_id": "Unidad de Tiempo"})
+    data = data.set_index("Unidad de Tiempo")
 
-    # Crear un gráfico de barras con Plotly
-    fig = go.Figure()
-    fig.add_trace(go.Bar(
-        x=data.index,
-        y=data["Cantidad de Motocicletas"],
-        name="Cantidad de Motocicletas",
-        marker_color="blue"
-    ))
-    fig.update_layout(
-        title="Conteo de Motocicletas Detectadas",
-        xaxis_title="Fecha y Hora",
-        yaxis_title="Cantidad de Motocicletas",
-        template="plotly_white"
-    )
-    st.plotly_chart(fig)
+    # Gráficos
+    st.subheader(f"Estadísticas por {analysis_level}")
+    st.bar_chart(data)
+
+    # Resumen adicional
+    st.subheader(f"Resumen para el nivel: {analysis_level}")
+    st.write(f"**Total de motocicletas detectadas:** {data['Cantidad de Motocicletas'].sum()}")
+    st.write(f"**Promedio de detecciones:** {data['Cantidad de Motocicletas'].mean():.0f}")
+    st.write(f"**Máximo de detecciones:** {data['Cantidad de Motocicletas'].max()} en {data['Cantidad de Motocicletas'].idxmax()}")
+    
 
 
 def draw_detections(image, detections):
