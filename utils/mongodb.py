@@ -1,3 +1,4 @@
+import pandas as pd
 import streamlit as st
 from uuid import uuid4
 from pymongo import MongoClient
@@ -72,7 +73,7 @@ def get_inference_statistics(level, filters=None):
         filters (dict): Filtros adicionales según el nivel ({'year': 2024, 'month': 11, 'day': 4}).
 
     Returns:
-        list: Lista de documentos con estadísticas agrupadas.
+        pd.DataFrame: DataFrame procesado con las estadísticas.
     """
     # Configuración de agrupación por nivel
     group_stage = {
@@ -108,21 +109,44 @@ def get_inference_statistics(level, filters=None):
         },
     }
 
-    pipeline = []
-    if filters:
-        pipeline.append({"$match": filters})  # Filtros como año, mes, día
-    pipeline.append(group_stage[level])  # Agregación por nivel
-    pipeline.append({"$sort": {"_id": 1}})  # Orden cronológico
+    pipeline = [group_stage[level]]
 
-    # Depuración
-    st.write("Pipeline construida:", pipeline)
-
-    # Ejecutar consulta a MongoDB
+    # Ejecutar consulta inicial
     try:
-        return list(collection.aggregate(pipeline))
+        raw_results = list(collection.aggregate(pipeline))
+        st.write("Resultados iniciales:", raw_results)
     except Exception as e:
-        st.error(f"Error en la consulta de estadísticas: {e}")
-        return []
+        st.error(f"Error en la consulta inicial: {e}")
+        return pd.DataFrame()
+
+    # Convertir resultados en DataFrame
+    data = pd.DataFrame(raw_results)
+
+    if "_id" in data.columns:
+        # Descomponer la columna `_id` para facilitar filtros
+        data = pd.concat([data.drop(["_id"], axis=1), pd.json_normalize(data["_id"])], axis=1)
+
+    # Aplicar filtros en pandas
+    if filters:
+        for key, value in filters.items():
+            if key in data:
+                data = data[data[key] == value]
+
+    # Reorganizar el DataFrame
+    if level == "day":
+        data["_id"] = data.apply(lambda x: f"{x['hour']:02}:00", axis=1)
+    elif level == "month":
+        data["_id"] = data.apply(lambda x: f"{x['day']:02}/{x['month']:02}", axis=1)
+    elif level == "year":
+        data["_id"] = data.apply(lambda x: f"{x['month']:02}/{x['year']}", axis=1)
+
+    data = data.rename(columns={"total_motos": "Cantidad de Motocicletas"})
+    data = data.set_index("_id")
+
+    # Log final
+    st.write("DataFrame procesado:", data)
+
+    return data
             
 
 def inspect_mongodb_data(limit=10):
