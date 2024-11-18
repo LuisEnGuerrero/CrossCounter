@@ -14,6 +14,8 @@ from utils.helpers import (
 import tempfile
 import base64
 
+from utils.mongodb import save_inference_result_video
+
 
 
 # Cargar el modelo YOLOv8
@@ -140,7 +142,7 @@ def process_video(video_path, frame_interval=99, total_frames=None):
 
 def process_youtube_video(youtube_url):
     """
-    Procesa un video de YouTube para inferencia.
+    Procesa un video de YouTube y almacena los resultados de inferencia en MongoDB.
 
     Args:
         youtube_url (str): URL del video de YouTube.
@@ -148,29 +150,26 @@ def process_youtube_video(youtube_url):
     Returns:
         dict: Resultados de la inferencia.
     """
+    inference_id = generate_inference_id()
     info = display_youtube_info(youtube_url)
-    video_size = info.get("filesize_approx")  # Obtener tamaño del video de forma segura
+    video_size = info.get("filesize_approx")
 
-    if video_size is not None and video_size <= 200 * 1024 * 1024:
-        # Inferencia directa si el tamaño del video está disponible y es menor a 200MB
+    if video_size and video_size <= 200 * 1024 * 1024:
         temp_path = download_youtube_video(youtube_url)
-        return process_video(temp_path)
-    elif video_size is None:
-        # Si el tamaño no está disponible, mostrar advertencia
-        st.warning("No se pudo determinar el tamaño del video. Procesando como video segmentado.")
+        results = process_video(temp_path)
+
+        # Guardar resultado en MongoDB
+        save_inference_result_video(inference_id, results["frame_data"])
     else:
-        # Inferencia segmentada para videos mayores a 200MB o cuando no se conoce el tamaño
-        st.warning("El video es mayor a 200MB. Será segmentado y procesado por partes.")
+        st.warning("El video será segmentado debido a su tamaño.")
+        temp_path = download_youtube_video(youtube_url, output_path="temp_large.mp4")
+        segment_paths = segment_video(temp_path)
 
-    # Descargar el video completo para segmentación
-    temp_path = download_youtube_video(youtube_url, output_path="temp_large.mp4")
-    segment_paths = segment_video(temp_path)
-    results = []
+        for segment in segment_paths:
+            segment_results = process_video(segment)
+            save_inference_result_video(inference_id, segment_results["frame_data"])
+            os.remove(segment)
 
-    for segment in segment_paths:
-        partial_result = process_video(segment)
-        results.append(partial_result)
-        os.remove(segment)  # Eliminar segmento procesado para liberar espacio
+    return {"inference_id": inference_id, "status": "completed"}
 
-    return results[-1]  # Devuelve el último segmento procesado
     
