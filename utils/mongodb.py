@@ -38,7 +38,7 @@ def save_inference_result_image(data):
 
     # Insertar en MongoDB
     collection.insert_one(data)
-    st.success(f"Resultado de inferencia guardado en MongoDB con ID {data.get('inference_id')}")
+    # st.success(f"Resultado de inferencia guardado en MongoDB con ID {data.get('inference_id')}")
 
 # Función para guardar los resultados de una inferencia de un video en MongoDB
 def save_inference_result_video(inference_id, motorcycle_count_per_frame):

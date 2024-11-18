@@ -111,7 +111,7 @@ if inference_mode == "Imagen":
                 # Eliminar archivo temporal
         try:
             temp_path.unlink()  # Eliminar archivo temporal
-            st.info("Imagen temporal eliminada correctamente.")
+            # st.info("Imagen temporal eliminada correctamente.")
         except FileNotFoundError:
             st.warning("No se encontró la imagen temporal para eliminar.")
         except Exception as e:
