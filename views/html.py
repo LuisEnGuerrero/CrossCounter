@@ -58,6 +58,26 @@ def generate_qr_code(video_url):
     return base64.b64encode(buffered.getvalue()).decode("utf-8")
 
 # HTML de cada sección
+def meta_html():
+    """
+    Metatags para SEO.
+    """
+    return f"""
+    <head>
+        <meta charset="UTF-8">
+        <meta property="og:title" content="AI·MotorCycle CrossCounter TalentoTECH">
+        <meta property="og:description" content="Somos <strong>TechRoads Innovators</strong>, un equipo dedicado a desarrollar soluciones innovadoras para el monitoreo y análisis de tráfico.
+            Nuestro proyecto <strong>AI·MotorCycle CrossCounter TalentoTECH</strong> utiliza inteligencia artificial para detectar y contar motocicletas en videos,
+            proporcionando datos valiosos para mejorar la seguridad y eficiencia del tráfico.">
+        <meta property="og:image" content='URL de la imagen de vista previa'>
+        <meta property="og:url" content="https://crosscounter.streamlit.app/">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="AI·MotorCycle CrossCounter TalentoTECH">
+        <meta name="keywords" content="AI, MotorCycle, CrossCounter, TalentoTECH">
+        <meta name="author" content="TechRoads Innovators">
+    </head>
+    """
+
 def anchor_html():
     """
     Ancla para volver al inicio.
