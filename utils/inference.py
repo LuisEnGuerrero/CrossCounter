@@ -1,3 +1,4 @@
+from datetime import datetime
 import streamlit as st
 from ultralytics import YOLO
 from pathlib import Path
@@ -67,7 +68,7 @@ def process_video(video_path, frame_interval=99, total_frames=None):
         total_frames (int): Total de frames en el video (para mostrar progreso).
 
     Returns:
-        dict: Incluye la ruta al video procesado y conteo total de detecciones.
+        dict: Incluye conteo total de detecciones y conteos por frame.
     """
     inference_id = generate_inference_id()  # Generar ID único
     temp_output = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
@@ -82,10 +83,10 @@ def process_video(video_path, frame_interval=99, total_frames=None):
     out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
     total_motorcycle_count = 0
     frame_count = 0
+    motorcycle_count_per_frame = []
 
     # Crear barra de progreso única
     progress_bar = st.progress(0)
-
 
     while cap.isOpened():
         ret, frame = cap.read()
@@ -113,8 +114,13 @@ def process_video(video_path, frame_interval=99, total_frames=None):
                                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
                         frame_motorcycle_count += 1
 
-                # Acumular el conteo total de motocicletas
-                total_motorcycle_count += frame_motorcycle_count
+            # Acumular resultados por frame
+            motorcycle_count_per_frame.append({
+                "timestamp": datetime.now(),
+                "motorcycle_count": frame_motorcycle_count,
+            })
+
+            total_motorcycle_count += frame_motorcycle_count
 
         # Escribir el frame procesado en el video de salida
         out.write(cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
@@ -127,7 +133,7 @@ def process_video(video_path, frame_interval=99, total_frames=None):
     cap.release()
     out.release()
 
-        # Leer el video procesado como binario
+    # Leer el video procesado como binario
     with open(output_path, "rb") as file:
         video_data = file.read()
         encoded_video = base64.b64encode(video_data).decode()
@@ -137,6 +143,7 @@ def process_video(video_path, frame_interval=99, total_frames=None):
         "processed_video_path": output_path,
         "encoded_video": encoded_video,
         "total_motos": total_motorcycle_count,
+        "motorcycle_count_per_frame": motorcycle_count_per_frame,
     }
 
 

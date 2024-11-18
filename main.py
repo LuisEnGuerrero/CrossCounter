@@ -136,19 +136,14 @@ elif inference_mode == "Video":
             total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
             cap.release()
 
-            # Crear barra de progreso
-            # progress_bar = st.progress(0)
-
             # Procesar video
             results = process_video(temp_path, frame_interval=99, total_frames=total_frames)
 
             # Guardar en MongoDB
-            save_inference_result_video({
-                "type": "video",
-                "inference_id": results.get("inference_id", "unknown"),
-                "motorcycle_count": results.get("total_motos", 0),
-            })
-            
+            save_inference_result_video(
+                inference_id=results["inference_id"],
+                motorcycle_count_per_frame=results["motorcycle_count_per_frame"],
+            )
 
             # Mostrar enlace de descarga del video procesado
             st.success(f"Inferencia completada. Total de motocicletas detectadas: {results.get('total_motos', 0)}")
@@ -160,6 +155,13 @@ elif inference_mode == "Video":
                     mime="video/mp4"
                 )
 
+            # Eliminar archivo temporal
+            try:
+                temp_path.unlink()
+                st.info("Video temporal eliminado correctamente.")
+            except Exception as e:
+                st.error(f"Error al eliminar el archivo temporal: {e}")
+                
 
 # Inferencia en videos de YouTube
 elif inference_mode == "YouTube":
