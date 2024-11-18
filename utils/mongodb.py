@@ -114,7 +114,7 @@ def get_inference_statistics(level, filters=None):
     # Ejecutar consulta inicial
     try:
         raw_results = list(collection.aggregate(pipeline))
-        st.write("Resultados iniciales:", raw_results)
+        # st.write("Resultados iniciales:", raw_results)
     except Exception as e:
         st.error(f"Error en la consulta inicial: {e}")
         return pd.DataFrame()
