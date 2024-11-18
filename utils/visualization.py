@@ -3,28 +3,58 @@ import pandas as pd
 import plotly.graph_objects as go
 from utils.mongodb import get_inference_statistics, inspect_mongodb_data  # Importar desde mongodb.py
 from PIL import Image, ImageDraw
+from datetime import datetime
+
 
 
 def show_statistics():
     """
     Obtiene estadísticas desde MongoDB y muestra gráficos y tablas en Streamlit.
     """
+    # Obtener la fecha actual
+    current_date = datetime.now()
+    default_year = current_date.year
+    default_month = current_date.month
+
     # Selección del nivel de análisis
-    analysis_level = st.sidebar.selectbox("Selecciona el nivel de análisis", ["Día", "Mes", "Año"])
+    analysis_level = st.sidebar.selectbox(
+        "Selecciona el nivel de análisis",
+        ["Día", "Mes", "Año"],
+        index=1  # Seleccionar "Mes" por defecto
+    )
     filters = {}
 
     # Configuración de filtros según nivel
     if analysis_level == "Día":
-        selected_day = st.sidebar.date_input("Selecciona el día").strftime("%Y-%m-%d")
+        selected_day = st.sidebar.date_input(
+            "Selecciona el día", 
+            value=current_date
+        ).strftime("%Y-%m-%d")
         filters = {"year": int(selected_day[:4]), "month": int(selected_day[5:7]), "day": int(selected_day[8:10])}
         level = "day"
     elif analysis_level == "Mes":
-        selected_month = st.sidebar.selectbox("Selecciona el mes", range(1, 13))
-        selected_year = st.sidebar.number_input("Selecciona el año", min_value=2000, max_value=2100, step=1)
+        selected_month = st.sidebar.selectbox(
+            "Selecciona el mes",
+            range(1, 13),
+            index=default_month - 1  # Seleccionar el mes actual por defecto
+        )
+        selected_year = st.sidebar.number_input(
+            "Selecciona el año",
+            min_value=2000,
+            max_value=2100,
+            step=1,
+            value=default_year  # Seleccionar el año actual por defecto
+        )
         filters = {"year": selected_year, "month": selected_month}
         level = "month"
     else:  # Año
-        selected_year = st.sidebar.number_input("Selecciona el año", min_value=2000, max_value=2100, step=1)
+        selected_year = st.sidebar.number_input(
+            "Selecciona el año",
+            min_value=2000,
+            max_value=2100,
+            step=1,
+            value=default_year  # Seleccionar el año actual por defecto
+        )
         filters = {"year": selected_year}
         level = "year"
 
