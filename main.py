@@ -159,7 +159,7 @@ elif inference_mode == "YouTube":
 logo = get_base64_image('media/logox512.jpg')
 
 # Mostrar la imagen del logo en la barra lateral
-st.sidebar.image(logo, use_column_width=True)
+st.sidebar.image(f'{logo}', use_column_width=True)
 
 
 # Sección de Estadísticas
