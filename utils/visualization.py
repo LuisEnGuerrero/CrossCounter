@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
-from utils.mongodb import get_inference_statistics  # Importar desde mongodb.py
+from utils.mongodb import get_inference_statistics, inspect_mongodb_data  # Importar desde mongodb.py
 from PIL import Image, ImageDraw
 
 
@@ -100,3 +100,19 @@ def draw_detections(image, detections):
                 draw.text((xmin, ymin - 10), label, fill="red")
     
     return image
+
+
+def show_inspected_data():
+    """
+    Inspecciona y muestra los datos almacenados en MongoDB en Streamlit.
+    """
+    st.header("Inspección de Datos en MongoDB")
+    documents = inspect_mongodb_data(limit=20)  # Ajusta el límite según sea necesario
+    
+    if not documents:
+        st.write("No se encontraron datos en la base de datos.")
+    else:
+        st.write("Documentos recuperados de MongoDB:")
+        for doc in documents:
+            st.json(doc)  # Muestra cada documento en formato JSON
+

@@ -117,3 +117,28 @@ def get_inference_statistics(level, filters=None):
         st.error(f"Error en la consulta de estadísticas: {e}")
         return []
 
+
+def inspect_mongodb_data(limit=10):
+    """
+    Recupera y muestra los datos almacenados en MongoDB para inspección.
+
+    Args:
+        limit (int): Número máximo de documentos a recuperar.
+
+    Returns:
+        list: Lista de documentos recuperados.
+    """
+    try:
+        # Recuperar los documentos
+        documents = list(collection.find().limit(limit))
+        
+        # Opcional: convertir ObjectId a cadena para evitar problemas de serialización
+        for doc in documents:
+            doc["_id"] = str(doc["_id"])
+        
+        return documents
+    except Exception as e:
+        st.error(f"Error al inspeccionar los datos de MongoDB: {e}")
+        return []
+    
+    

@@ -3,7 +3,7 @@ from views.html import (
     anchor_html, header_html, logo_separator_html,
     qr_code_html, about_section_html, team_section_html, documentation_html, meta_html
 )
-from utils.visualization import show_statistics, draw_detections
+from utils.visualization import show_statistics, draw_detections, show_inspected_data
 from utils.inference import process_image, process_video, process_youtube_video
 from utils.helpers import display_youtube_info
 from utils.mongodb import save_inference_result_image, save_inference_result_video
@@ -167,6 +167,7 @@ elif inference_mode == "YouTube":
 # Sección de Estadísticas
 st.header("Estadísticas de Conteo de Motocicletas")
 show_statistics()
+show_inspected_data() 
 st.markdown(logo_separator_html(), unsafe_allow_html=True)
 
 # Sección 'Acerca de'
