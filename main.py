@@ -167,7 +167,7 @@ elif inference_mode == "YouTube":
 # Sección de Estadísticas
 st.header("Estadísticas de Conteo de Motocicletas")
 show_statistics()
-show_inspected_data() 
+# show_inspected_data() # Mostrar datos almacenados en MongoDB
 st.markdown(logo_separator_html(), unsafe_allow_html=True)
 
 # Sección 'Acerca de'

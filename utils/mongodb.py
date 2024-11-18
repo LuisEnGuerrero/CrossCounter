@@ -115,12 +115,16 @@ def get_inference_statistics(level, filters=None):
     pipeline.append(group_stage[level])
     pipeline.append({"$sort": {"_id": 1}})
 
+    # Log para depuración
+    st.write("Pipeline construida:", pipeline)
+
+    # Ejecutar la agregación
     try:
         return list(collection.aggregate(pipeline))
     except Exception as e:
-        st.error(f"Error al construir el pipeline: {e}")
+        st.error(f"Error en la consulta de estadísticas: {e}")
         return []
-    
+        
 
 def inspect_mongodb_data(limit=10):
     """
