@@ -140,20 +140,28 @@ def process_youtube_video(youtube_url):
         dict: Resultados de la inferencia.
     """
     info = display_youtube_info(youtube_url)
-    video_size = info["filesize_approx"]
+    video_size = info.get("filesize_approx")  # Obtener tamaño del video de forma segura
 
-    if video_size <= 200 * 1024 * 1024:  # Inferencia directa
+    if video_size is not None and video_size <= 200 * 1024 * 1024:
+        # Inferencia directa si el tamaño del video está disponible y es menor a 200MB
         temp_path = download_youtube_video(youtube_url)
         return process_video(temp_path)
-    else:  # Segmentación y procesamiento por partes
-        temp_path = download_youtube_video(youtube_url, output_path="temp_large.mp4")
-        segment_paths = segment_video(temp_path)
-        results = []
+    elif video_size is None:
+        # Si el tamaño no está disponible, mostrar advertencia
+        st.warning("No se pudo determinar el tamaño del video. Procesando como video segmentado.")
+    else:
+        # Inferencia segmentada para videos mayores a 200MB o cuando no se conoce el tamaño
+        st.warning("El video es mayor a 200MB. Será segmentado y procesado por partes.")
 
-        for segment in segment_paths:
-            partial_result = process_video(segment)
-            results.append(partial_result)
-            os.remove(segment)  # Eliminar segmento procesado para liberar espacio
+    # Descargar el video completo para segmentación
+    temp_path = download_youtube_video(youtube_url, output_path="temp_large.mp4")
+    segment_paths = segment_video(temp_path)
+    results = []
 
-        return results[-1]  # Devuelve el último segmento procesado
+    for segment in segment_paths:
+        partial_result = process_video(segment)
+        results.append(partial_result)
+        os.remove(segment)  # Eliminar segmento procesado para liberar espacio
+
+    return results[-1]  # Devuelve el último segmento procesado
     

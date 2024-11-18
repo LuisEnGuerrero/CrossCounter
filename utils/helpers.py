@@ -104,12 +104,19 @@ def display_youtube_info(youtube_url):
     Returns:
         dict: Información del video (título, duración, autor, tamaño aproximado).
     """
-    metadata = get_youtube_video_metadata(youtube_url)
+    yt = YouTube(youtube_url)
+    try:
+        filesize_approx = yt.streams.get_highest_resolution().filesize_approx
+    except AttributeError:
+        filesize_approx = None  # Manejar ausencia de atributo
+
     return {
-        "title": metadata["title"],
-        "duration": int(metadata["duration"]),
-        "video_id": metadata["video_id"],
-    }
+        "title": yt.title,
+        "duration": yt.length,
+        "author": yt.author,
+        "filesize_approx": filesize_approx,    
+        }
+
 
 
 def update_progress(bar, processed_frames, total_frames):

@@ -138,6 +138,7 @@ elif inference_mode == "YouTube":
             try:
                 info = display_youtube_info(youtube_url)
                 st.write(f"**Título:** {info['title']}")
+                st.write(f"**Autor:** {info['author']}")
                 st.write(f"**Duración:** {info['duration'] // 60} minutos {info['duration'] % 60} segundos")
 
                 with st.spinner("Procesando el video de YouTube..."):
