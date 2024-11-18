@@ -152,22 +152,22 @@ def team_section_html():
     <div class="team-container">
         <div class="team-card">
             <img src="data:image/jpeg;base64,{Enrique_base64}" alt="Luis Enrique Guerrero">
-            <h3>Luis Enrique Guerrero</h3>
+            <h3>Luis Enrique Guerrero<br></h3>
             <p>Ingeniero de Infraestructura<br>Desarrollo Fullstack</p>
         </div>
         <div class="team-card">
             <img src="data:image/jpeg;base64,{Alex_base64}" alt="Alex García">
-            <h3>Alex García</h3>
+            <h3>Alex García<br></h3>
             <p>Líder de Proyecto<br>Especialista en Machine Learning</p>
         </div>
         <div class="team-card">
             <img src="data:image/jpeg;base64,{Adriana_base64}" alt="Adriana Garay">
-            <h3>Adriana Garay</h3>
+            <h3>Adriana Garay<br></h3>
             <p>Coordinadora de Presentaciones<br>Gestión de Datos</p>
         </div>
         <div class="team-card">
             <img src="data:image/jpeg;base64,{Jeisson_base64}" alt="Jeisson Poveda">
-            <h3>Jeisson Poveda</h3>
+            <h3>Jeisson Poveda<br></h3>
             <p>Gestor de Recursos<br>Analista de Datos</p>
         </div>
     </div>
