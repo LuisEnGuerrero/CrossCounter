@@ -1,7 +1,7 @@
 import streamlit as st
 from views.html import (
     anchor_html, header_html, logo_separator_html,
-    qr_code_html, about_section_html, team_section_html, documentation_html, logo_base64
+    qr_code_html, about_section_html, team_section_html, documentation_html, get_base64_image
 )
 from utils.visualization import show_statistics, draw_detections
 from utils.inference import process_image, process_video, process_youtube_video
@@ -156,7 +156,7 @@ elif inference_mode == "YouTube":
                 st.error(f"Error procesando el video de YouTube: {e}")
 
 # Asignar a la variable logo, la imagen procesada logo_base64 desde el archivo views/html.py
-logo = logo_base64()
+logo = get_base64_image('media\logox512.jpg')
 
 # Mostrar la imagen del logo en la barra lateral
 st.sidebar.image(logo, use_column_width=True)
