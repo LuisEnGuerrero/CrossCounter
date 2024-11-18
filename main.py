@@ -124,44 +124,54 @@ elif inference_mode == "Video":
     st.subheader("Cargar un Video")
     uploaded_video = st.file_uploader("Elige un video", type=["mp4", "avi", "mov"])
 
+    # Verificar si hay un video procesado previamente
+    if "processed_video" not in st.session_state:
+        st.session_state["processed_video"] = None
+
     if uploaded_video:
-        with st.spinner("Procesando el video..."):
-            # Guardar video temporal
-            temp_path = Path(f"temp_{uploaded_video.name}")
-            with open(temp_path, "wb") as f:
-                f.write(uploaded_video.read())
+        if st.session_state["processed_video"] != uploaded_video.name:
+            with st.spinner("Procesando el video..."):
+                # Guardar video temporal
+                temp_path = Path(f"temp_{uploaded_video.name}")
+                with open(temp_path, "wb") as f:
+                    f.write(uploaded_video.read())
 
-            # Obtener la cantidad total de frames para calcular el progreso
-            cap = cv2.VideoCapture(str(temp_path))
-            total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-            cap.release()
+                # Obtener la cantidad total de frames para calcular el progreso
+                cap = cv2.VideoCapture(str(temp_path))
+                total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+                cap.release()
 
-            # Procesar video
-            results = process_video(temp_path, frame_interval=99, total_frames=total_frames)
+                # Procesar video
+                results = process_video(temp_path, frame_interval=99, total_frames=total_frames)
 
-            # Guardar en MongoDB
-            save_inference_result_video(
-                inference_id=results["inference_id"],
-                motorcycle_count_per_frame=results["motorcycle_count_per_frame"],
-            )
-
-            # Mostrar enlace de descarga del video procesado
-            st.success(f"Inferencia completada. Total de motocicletas detectadas: {results.get('total_motos', 0)}")
-            if "encoded_video" in results:
-                st.download_button(
-                    label="Descargar video procesado",
-                    data=base64.b64decode(results["encoded_video"]),
-                    file_name="video_procesado.mp4",
-                    mime="video/mp4"
+                # Guardar en MongoDB
+                save_inference_result_video(
+                    inference_id=results["inference_id"],
+                    motorcycle_count_per_frame=results["motorcycle_count_per_frame"],
                 )
 
-            # Eliminar archivo temporal
-            try:
-                temp_path.unlink()
-                st.info("Video temporal eliminado correctamente.")
-            except Exception as e:
-                st.error(f"Error al eliminar el archivo temporal: {e}")
-                
+                # Mostrar enlace de descarga del video procesado
+                st.success(f"Inferencia completada. Total de motocicletas detectadas: {results.get('total_motos', 0)}")
+                if "encoded_video" in results:
+                    st.download_button(
+                        label="Descargar video procesado",
+                        data=base64.b64decode(results["encoded_video"]),
+                        file_name="video_procesado.mp4",
+                        mime="video/mp4"
+                    )
+
+                # Actualizar estado
+                st.session_state["processed_video"] = uploaded_video.name
+
+                # Eliminar archivo temporal
+                try:
+                    temp_path.unlink()
+                    st.info("Video temporal eliminado correctamente.")
+                except Exception as e:
+                    st.error(f"Error al eliminar el archivo temporal: {e}")
+        else:
+            st.info("El video ya ha sido procesado. Carga un nuevo video para realizar otra inferencia.")
+            
 
 # Inferencia en videos de YouTube
 elif inference_mode == "YouTube":
