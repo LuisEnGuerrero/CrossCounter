@@ -39,11 +39,17 @@ def show_statistics():
 
     # Transformar el _id en función del nivel de análisis
     if level == "day":
-        data["_id"] = data["_id"].apply(lambda x: f"{x['year']}-{x['month']:02d}-{x['day']:02d} {x['hour']}h")
+        data["_id"] = data["_id"].apply(
+            lambda x: f"{x.get('year', 'N/A')}-{x.get('month', 'N/A'):02d}-{x.get('day', 'N/A'):02d} {x.get('hour', 'N/A')}h"
+        )
     elif level == "month":
-        data["_id"] = data["_id"].apply(lambda x: f"{x['year']}-{x['month']:02d}-{x['day']:02d}")
+        data["_id"] = data["_id"].apply(
+            lambda x: f"{x.get('year', 'N/A')}-{x.get('month', 'N/A'):02d}-{x.get('day', 'N/A'):02d}"
+        )
     elif level == "year":
-        data["_id"] = data["_id"].apply(lambda x: f"{x['year']}-{x['month']:02d}")
+        data["_id"] = data["_id"].apply(
+            lambda x: f"{x.get('year', 'N/A')}-{x.get('month', 'N/A'):02d}"
+        )
 
     data = data.rename(columns={"total_motos": "Cantidad de Motocicletas", "_id": "Unidad de Tiempo"})
     data = data.set_index("Unidad de Tiempo")

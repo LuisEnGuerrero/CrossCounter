@@ -50,6 +50,7 @@ def save_inference_result_video(inference_id, motorcycle_count_per_frame):
         collection.insert_one(document)
     print(f"Resultados de inferencia (video) guardados en MongoDB para inference_id {inference_id}")
 
+
 # Función para obtener las estadísticas de detección
 def get_inference_statistics(level, filters=None):
     """
@@ -111,7 +112,10 @@ def get_inference_statistics(level, filters=None):
         st.write("Pipeline construida:", pipeline)
 
         # Ejecutar y devolver resultados
-        return list(collection.aggregate(pipeline))
+        result = list(collection.aggregate(pipeline))
+        if not result:
+            st.warning("No se encontraron datos para los filtros seleccionados.")
+        return result
     except Exception as e:
         st.error(f"Error al obtener estadísticas: {e}")
         return []
