@@ -49,6 +49,9 @@ inference_mode = st.sidebar.selectbox(
     "Selecciona el modo de inferencia", ("Imagen", "Video", "YouTube")
 )
 
+# Mostrar la imagen del logo en la barra lateral
+st.sidebar.image('media/logox512.jpg', use_column_width=True)
+
 # Inferencia en imágenes
 if inference_mode == "Imagen":
     st.subheader("Cargar una Imagen")
@@ -155,9 +158,6 @@ elif inference_mode == "YouTube":
             except Exception as e:
                 st.error(f"Error procesando el video de YouTube: {e}")
 
-
-# Mostrar la imagen del logo en la barra lateral
-st.sidebar(logo_separator_html(), use_column_width=True)
 
 
 # Sección de Estadísticas
