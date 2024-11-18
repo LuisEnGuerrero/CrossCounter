@@ -104,6 +104,7 @@ def display_youtube_info(youtube_url):
         dict: Información del video (título, duración, autor, tamaño aproximado).
     """
     yt = YoutubeDL().extract_info(youtube_url, download=False)
+    st.write(f"**Data:** {yt}")  
     try:
         filesize_approx = yt.streams.get_highest_resolution().filesize_approx
     except AttributeError:
