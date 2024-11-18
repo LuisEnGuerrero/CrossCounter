@@ -57,65 +57,62 @@ def get_inference_statistics(level, filters=None):
 
     Args:
         level (str): Nivel de análisis ('day', 'month', 'year').
-        value (dict): Filtro adicional según el nivel ({'year': 2024, 'month': 11, 'day': 15}).
+        filters (dict, optional): Filtro adicional según el nivel ({'year': 2024, 'month': 11, 'day': 15}).
 
     Returns:
         list: Lista de documentos con estadísticas agrupadas.
     """
-    # Configurar la agrupación por nivel
-    if level == "day":
-        group_stage = {
-            "$group": {
-                "_id": {
-                    "day": {"$dayOfMonth": "$timestamp"},
-                    "hour": {"$hour": "$timestamp"},
-                },
-                "total_motos": {"$sum": "$motorcycle_count"},
-            }
-        }
-    elif level == "month":
-        group_stage = {
-            "$group": {
-                "_id": {
-                    "month": {"$month": "$timestamp"},
-                    "day": {"$dayOfMonth": "$timestamp"},
-                },
-                "total_motos": {"$sum": "$motorcycle_count"},
-            }
-        }
-    elif level == "year":
-        group_stage = {
-            "$group": {
-                "_id": {
-                    "year": {"$year": "$timestamp"},
-                    "month": {"$month": "$timestamp"},
-                },
-                "total_motos": {"$sum": "$motorcycle_count"},
-            }
-        }
-    else:
-        raise ValueError(f"Nivel de agregación desconocido: {level}")
-
-    # Construir la pipeline de agregación
-    pipeline = []
-    
-    # Validar filtros antes de añadirlos
-    if filters:
-        pipeline.append({"$match": filters})
-    
-    # Añadir etapas agrupación y ordenamiento
-    pipeline.append(group_stage)
-    pipeline.append({"$sort": {"_id": 1}})
-
-    # Depuración: mostrar la pipeline construida
-    st.write("Pipeline construida:", pipeline)
-
-    # Ejecutar la agregación
-    if not pipeline:
-        raise ValueError("La pipeline de agregación está vacía.")
     try:
+        # Configurar la agrupación por nivel
+        if level == "day":
+            group_stage = {
+                "$group": {
+                    "_id": {
+                        "year": {"$year": "$timestamp"},
+                        "month": {"$month": "$timestamp"},
+                        "day": {"$dayOfMonth": "$timestamp"},
+                        "hour": {"$hour": "$timestamp"},
+                    },
+                    "total_motos": {"$sum": "$motorcycle_count"},
+                }
+            }
+        elif level == "month":
+            group_stage = {
+                "$group": {
+                    "_id": {
+                        "year": {"$year": "$timestamp"},
+                        "month": {"$month": "$timestamp"},
+                        "day": {"$dayOfMonth": "$timestamp"},
+                    },
+                    "total_motos": {"$sum": "$motorcycle_count"},
+                }
+            }
+        elif level == "year":
+            group_stage = {
+                "$group": {
+                    "_id": {
+                        "year": {"$year": "$timestamp"},
+                        "month": {"$month": "$timestamp"},
+                    },
+                    "total_motos": {"$sum": "$motorcycle_count"},
+                }
+            }
+        else:
+            raise ValueError(f"Nivel de agregación desconocido: {level}")
+
+        # Construir la pipeline
+        pipeline = []
+        if filters:
+            pipeline.append({"$match": filters})
+        pipeline.append(group_stage)
+        pipeline.append({"$sort": {"_id": 1}})
+
+        # Mostrar pipeline para depuración
+        st.write("Pipeline construida:", pipeline)
+
+        # Ejecutar y devolver resultados
         return list(collection.aggregate(pipeline))
     except Exception as e:
-        st.error(f"Error en la consulta de estadísticas: {e}")
+        st.error(f"Error al obtener estadísticas: {e}")
         return []
 

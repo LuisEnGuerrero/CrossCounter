@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw
 
 def show_statistics():
     """
-    Obtiene estadísticas desde MongoDB y muestra un gráfico en Streamlit.
+    Obtiene estadísticas desde MongoDB y muestra gráficos en Streamlit.
     """
     # Selección del nivel de análisis
     analysis_level = st.sidebar.selectbox("Selecciona el nivel de análisis", ["Día", "Mes", "Año"])
@@ -35,20 +35,40 @@ def show_statistics():
 
     # Procesar datos en DataFrame
     data = pd.DataFrame(statistics)
-    data["_id"] = data["_id"].apply(lambda x: f"{x.get('day', x.get('hour', x.get('month')))}")
+
+    # Transformar el _id en función del nivel de análisis
+    if level == "day":
+        data["_id"] = data["_id"].apply(lambda x: f"{x['year']}-{x['month']:02d}-{x['day']:02d} {x['hour']}h")
+    elif level == "month":
+        data["_id"] = data["_id"].apply(lambda x: f"{x['year']}-{x['month']:02d}-{x['day']:02d}")
+    elif level == "year":
+        data["_id"] = data["_id"].apply(lambda x: f"{x['year']}-{x['month']:02d}")
+
     data = data.rename(columns={"total_motos": "Cantidad de Motocicletas", "_id": "Unidad de Tiempo"})
     data = data.set_index("Unidad de Tiempo")
 
     # Gráficos
     st.subheader(f"Estadísticas por {analysis_level}")
-    st.bar_chart(data)
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=data.index,
+        y=data["Cantidad de Motocicletas"],
+        name="Cantidad de Motocicletas",
+        marker_color="blue"
+    ))
+    fig.update_layout(
+        title="Conteo de Motocicletas Detectadas",
+        xaxis_title="Unidad de Tiempo",
+        yaxis_title="Cantidad de Motocicletas",
+        template="plotly_white"
+    )
+    st.plotly_chart(fig)
 
     # Resumen adicional
-    st.subheader(f"Resumen para el nivel: {analysis_level}")
-    st.write(f"**Total de motocicletas detectadas:** {data['Cantidad de Motocicletas'].sum()}")
-    st.write(f"**Promedio de detecciones:** {data['Cantidad de Motocicletas'].mean():.0f}")
-    st.write(f"**Máximo de detecciones:** {data['Cantidad de Motocicletas'].max()} en {data['Cantidad de Motocicletas'].idxmax()}")
-    
+    st.write("**Resumen de estadísticas:**")
+    st.write(f"- **Total:** {data['Cantidad de Motocicletas'].sum()}")
+    st.write(f"- **Promedio:** {data['Cantidad de Motocicletas'].mean():.2f}")
+    st.write(f"- **Máximo:** {data['Cantidad de Motocicletas'].max()} en {data['Cantidad de Motocicletas'].idxmax()}")    
 
 
 def draw_detections(image, detections):
