@@ -1,7 +1,7 @@
 import streamlit as st
 from views.html import (
     anchor_html, header_html, logo_separator_html,
-    qr_code_html, about_section_html, team_section_html, documentation_html, get_base64_image
+    qr_code_html, about_section_html, team_section_html, documentation_html, meta_html
 )
 from utils.visualization import show_statistics, draw_detections
 from utils.inference import process_image, process_video, process_youtube_video
@@ -41,6 +41,7 @@ def load_markdown(file_path):
 load_css("views/styless.css")
 
 # Renderizar secciones principales
+st.markdown(meta_html(), unsafe_allow_html=True)
 st.markdown(anchor_html(), unsafe_allow_html=True)
 st.markdown(header_html(), unsafe_allow_html=True)
 
