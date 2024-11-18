@@ -10,7 +10,7 @@ def show_statistics():
     Obtiene estadísticas desde MongoDB y muestra gráficos en Streamlit.
     """
     # Selección del nivel de análisis
-    analysis_level = st.sidebar.selectbox("Selecciona el nivel de análisis", ["Todos los datos", "Día", "Mes", "Año"])
+    analysis_level = st.sidebar.selectbox("Selecciona el nivel de análisis", ["Día", "Mes", "Año"])
     filters = {}
     level = "year"  # Predeterminado para la agrupación general
 
@@ -71,11 +71,6 @@ def show_statistics():
     )
     st.plotly_chart(fig)
 
-    # Resumen adicional
-    st.write("**Resumen de estadísticas:**")
-    st.write(f"- **Total:** {data['Cantidad de Motocicletas'].sum()}")
-    st.write(f"- **Promedio:** {data['Cantidad de Motocicletas'].mean():.2f}")
-    st.write(f"- **Máximo:** {data['Cantidad de Motocicletas'].max()} en {data['Cantidad de Motocicletas'].idxmax()}")
 
 
 def draw_detections(image, detections):

@@ -6,7 +6,7 @@ from views.html import (
 from utils.visualization import show_statistics, draw_detections
 from utils.inference import process_image, process_video, process_youtube_video
 from utils.helpers import display_youtube_info
-from utils.mongodb import save_inference_result_image
+from utils.mongodb import save_inference_result_image, save_inference_result_video
 from datetime import datetime
 from pathlib import Path
 import cv2
@@ -117,7 +117,7 @@ elif inference_mode == "Video":
             results = process_video(temp_path, frame_interval=99, total_frames=total_frames)
 
             # Guardar en MongoDB
-            save_inference_result_image({
+            save_inference_result_video({
                 "type": "video",
                 "inference_id": results.get("inference_id", "unknown"),
                 "motorcycle_count": results.get("total_motos", 0),
