@@ -61,6 +61,8 @@ if inference_mode == "Imagen":
     uploaded_image = st.file_uploader("Elige una imagen", type=["jpg", "jpeg", "png"])
 
     if uploaded_image:
+        temp_path = Path(f"temp_{uploaded_image.name}")
+
         with st.spinner("Procesando la imagen..."):
             # Guardar imagen temporal
             temp_path = Path(f"temp_{uploaded_image.name}")
@@ -96,6 +98,16 @@ if inference_mode == "Imagen":
                 use_container_width=True
             )
             st.success(f"Inferencia completada. Total de motocicletas detectadas: {len(detections['predictions'])}")
+
+                # Eliminar archivo temporal
+        try:
+            temp_path.unlink()  # Eliminar archivo temporal
+            st.info("Imagen temporal eliminada correctamente.")
+        except FileNotFoundError:
+            st.warning("No se encontró la imagen temporal para eliminar.")
+        except Exception as e:
+            st.error(f"Error al intentar eliminar la imagen temporal: {e}")
+            
 
 
 # Inferencia de Videos
