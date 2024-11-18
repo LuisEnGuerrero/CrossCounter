@@ -128,8 +128,9 @@ div[data-testid="stMetricValue"] {
 }
 
 .team-card h3 {
-    font-size: 1.2em;
+    font-size: 1.1em;
     margin-bottom: 10px;
+    color: #041033;
 }
 
 .team-card p {
@@ -147,7 +148,7 @@ div[data-testid="stMetricValue"] {
     margin: 20px auto;
     padding: 10px 15px;
     background-color: #327fba;
-    color: white;
+    color: #041033;
     font-weight: bold;
     text-decoration: none;
     border-radius: 5px;
