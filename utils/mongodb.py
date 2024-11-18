@@ -144,7 +144,7 @@ def get_inference_statistics(level, filters=None):
     data = data.set_index("_id")
 
     # Log final
-    st.write("DataFrame procesado:", data)
+    # st.write("DataFrame procesado:", data)
 
     return data
             
