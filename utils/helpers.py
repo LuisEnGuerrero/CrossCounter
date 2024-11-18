@@ -1,5 +1,4 @@
 import streamlit as st
-from pytube import YouTube
 from yt_dlp import YoutubeDL
 from pathlib import Path
 import os
@@ -104,7 +103,7 @@ def display_youtube_info(youtube_url):
     Returns:
         dict: Información del video (título, duración, autor, tamaño aproximado).
     """
-    yt = YouTube(youtube_url)
+    yt = YoutubeDL().extract_info(youtube_url, download=False)
     try:
         filesize_approx = yt.streams.get_highest_resolution().filesize_approx
     except AttributeError:
