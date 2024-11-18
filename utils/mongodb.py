@@ -51,7 +51,7 @@ def save_inference_result_video(inference_id, motorcycle_count_per_frame):
     print(f"Resultados de inferencia (video) guardados en MongoDB para inference_id {inference_id}")
 
 # Función para obtener las estadísticas de detección
-def get_inference_statistics(level="day", value=None):
+def get_inference_statistics(level, filters=None):
     """
     Obtiene estadísticas de detección agrupadas dinámicamente según el nivel seleccionado.
 
@@ -62,42 +62,60 @@ def get_inference_statistics(level="day", value=None):
     Returns:
         list: Lista de documentos con estadísticas agrupadas.
     """
-    match_stage = {}
-    if value:
-        if "year" in value:
-            match_stage["$expr"] = {"$eq": [{"$year": "$timestamp"}, value["year"]]}
-        if "month" in value:
-            match_stage["$expr"] = {"$and": [{"$eq": [{"$year": "$timestamp"}, value["year"]]},
-                                             {"$eq": [{"$month": "$timestamp"}, value["month"]]}]}
-        if "day" in value:
-            match_stage["$expr"] = {"$and": [{"$eq": [{"$year": "$timestamp"}, value["year"]]},
-                                             {"$eq": [{"$month": "$timestamp"}, value["month"]]},
-                                             {"$eq": [{"$dayOfMonth": "$timestamp"}, value["day"]]}]}
-
-    group_stage = {
-        "$group": {
-            "_id": {},
-            "total_motos": {"$sum": "$motorcycle_count"},
-        }
-    }
-
+    # Configurar la agrupación por nivel
     if level == "day":
-        group_stage["_id"] = {
-            "hour": {"$hour": "$timestamp"},
+        group_stage = {
+            "$group": {
+                "_id": {
+                    "day": {"$dayOfMonth": "$timestamp"},
+                    "hour": {"$hour": "$timestamp"},
+                },
+                "total_motos": {"$sum": "$motorcycle_count"},
+            }
         }
     elif level == "month":
-        group_stage["_id"] = {
-            "day": {"$dayOfMonth": "$timestamp"},
+        group_stage = {
+            "$group": {
+                "_id": {
+                    "month": {"$month": "$timestamp"},
+                    "day": {"$dayOfMonth": "$timestamp"},
+                },
+                "total_motos": {"$sum": "$motorcycle_count"},
+            }
         }
     elif level == "year":
-        group_stage["_id"] = {
-            "month": {"$month": "$timestamp"},
+        group_stage = {
+            "$group": {
+                "_id": {
+                    "year": {"$year": "$timestamp"},
+                    "month": {"$month": "$timestamp"},
+                },
+                "total_motos": {"$sum": "$motorcycle_count"},
+            }
         }
+    else:
+        raise ValueError(f"Nivel de agregación desconocido: {level}")
 
+    # Construir la pipeline de agregación
     pipeline = []
-    if match_stage:
-        pipeline.append({"$match": match_stage})
+    
+    # Validar filtros antes de añadirlos
+    if filters:
+        pipeline.append({"$match": filters})
+    
+    # Añadir etapas agrupación y ordenamiento
     pipeline.append(group_stage)
     pipeline.append({"$sort": {"_id": 1}})
-    return list(collection.aggregate(pipeline))
+
+    # Depuración: mostrar la pipeline construida
+    st.write("Pipeline construida:", pipeline)
+
+    # Ejecutar la agregación
+    if not pipeline:
+        raise ValueError("La pipeline de agregación está vacía.")
+    try:
+        return list(collection.aggregate(pipeline))
+    except Exception as e:
+        st.error(f"Error en la consulta de estadísticas: {e}")
+        return []
 

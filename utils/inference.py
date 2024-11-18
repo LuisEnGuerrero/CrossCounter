@@ -12,6 +12,8 @@ from utils.helpers import (
     generate_inference_id,
     )
 import tempfile
+import base64
+
 
 
 # Cargar el modelo YOLOv8
@@ -99,6 +101,7 @@ def process_video(video_path, frame_interval=99, total_frames=None):
             for result in results:
                 for box in result.boxes:
                     cls = result.names[int(box.cls[0])]
+
                     if cls == "motorcycle":
                         conf = box.conf[0]
                         x_min, y_min, x_max, y_max = map(int, box.xyxy[0].tolist())
@@ -122,9 +125,15 @@ def process_video(video_path, frame_interval=99, total_frames=None):
     cap.release()
     out.release()
 
+        # Leer el video procesado como binario
+    with open(output_path, "rb") as file:
+        video_data = file.read()
+        encoded_video = base64.b64encode(video_data).decode()
+
     return {
         "inference_id": inference_id,
         "processed_video_path": output_path,
+        "encoded_video": encoded_video,
         "total_motos": total_motorcycle_count,
     }
 

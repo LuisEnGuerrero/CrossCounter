@@ -13,6 +13,7 @@ import cv2
 from dotenv import dotenv_values
 import os
 from PIL import Image
+import base64
 
 # Configuración de la página
 st.set_page_config(
@@ -125,10 +126,12 @@ elif inference_mode == "Video":
 
             # Mostrar enlace de descarga del video procesado
             st.success(f"Inferencia completada. Total de motocicletas detectadas: {results.get('total_motos', 0)}")
-            if "processed_video_path" in results:
-                st.markdown(
-                    f"[Descargar video procesado]({results['processed_video_path']})",
-                    unsafe_allow_html=True
+            if "encoded_video" in results:
+                st.download_button(
+                    label="Descargar video procesado",
+                    data=base64.b64decode(results["encoded_video"]),
+                    file_name="video_procesado.mp4",
+                    mime="video/mp4"
                 )
 
 
