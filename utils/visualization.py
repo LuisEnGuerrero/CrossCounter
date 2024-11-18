@@ -31,7 +31,7 @@ def show_statistics():
     # Obtener datos del pipeline
     pipeline_results = get_inference_statistics(level, filters)
 
-    if not pipeline_results or len(pipeline_results) == 0:
+    if pipeline_results is None or len(pipeline_results) == 0:
         st.write("No hay datos de estadísticas disponibles.")
         return
 
@@ -39,7 +39,7 @@ def show_statistics():
     try:
         data = pd.DataFrame(pipeline_results)
 
-        # Transformar _id a columnas independientes
+        # Transformar _id a columnas independientes si está presente
         if "_id" in data.columns:
             data = pd.concat([data.drop(columns="_id"), data["_id"].apply(pd.Series)], axis=1)
 
@@ -52,39 +52,30 @@ def show_statistics():
             "total_motos": "Cantidad de Motocicletas"
         })
 
-        # Verificar DataFrame en consola
+        # Verificar si el DataFrame está vacío
+        if data.empty:
+            st.write("No hay datos para mostrar después de procesar el pipeline.")
+            return
+
+        # Mostrar el DataFrame en Streamlit para depuración
         st.write("DataFrame Generado:", data)
+
+        # Mostrar gráficos
+        if level == "day":
+            st.subheader("Estadísticas por Hora")
+            st.bar_chart(data.set_index("Hora")["Cantidad de Motocicletas"])
+
+        elif level == "month":
+            st.subheader("Estadísticas por Día")
+            st.bar_chart(data.set_index("Día")["Cantidad de Motocicletas"])
+
+        elif level == "year":
+            st.subheader("Estadísticas por Mes")
+            st.bar_chart(data.set_index("Mes")["Cantidad de Motocicletas"])
+
     except Exception as e:
         st.error(f"Error procesando los datos: {e}")
         return
-
-    # Mostrar gráficos
-    if level == "day":
-        st.subheader("Estadísticas por Hora")
-        st.bar_chart(data.set_index("Hora")["Cantidad de Motocicletas"])
-
-        st.subheader("Resumen")
-        st.write(f"**Total de motocicletas detectadas:** {data['Cantidad de Motocicletas'].sum()}")
-        st.write(f"**Promedio de detecciones:** {data['Cantidad de Motocicletas'].mean():.0f}")
-        st.write(f"**Máximo de detecciones:** {data['Cantidad de Motocicletas'].max()}")
-
-    elif level == "month":
-        st.subheader("Estadísticas por Día")
-        st.bar_chart(data.set_index("Día")["Cantidad de Motocicletas"])
-
-        st.subheader("Resumen")
-        st.write(f"**Total de motocicletas detectadas:** {data['Cantidad de Motocicletas'].sum()}")
-        st.write(f"**Promedio de detecciones por día:** {data['Cantidad de Motocicletas'].mean():.0f}")
-        st.write(f"**Máximo de detecciones:** {data['Cantidad de Motocicletas'].max()}")
-
-    elif level == "year":
-        st.subheader("Estadísticas por Mes")
-        st.bar_chart(data.set_index("Mes")["Cantidad de Motocicletas"])
-
-        st.subheader("Resumen")
-        st.write(f"**Total de motocicletas detectadas:** {data['Cantidad de Motocicletas'].sum()}")
-        st.write(f"**Promedio de detecciones por mes:** {data['Cantidad de Motocicletas'].mean():.0f}")
-        st.write(f"**Máximo de detecciones:** {data['Cantidad de Motocicletas'].max()}")
 
 
 def draw_detections(image, detections):
