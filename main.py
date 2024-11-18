@@ -1,3 +1,4 @@
+import uuid
 import streamlit as st
 from views.html import (
     anchor_html, header_html, logo_separator_html,
@@ -73,15 +74,19 @@ if inference_mode == "Imagen":
             original_image = Image.open(temp_path)
             image_with_boxes = draw_detections(original_image, detections["predictions"])
 
+            # Generar campos necesarios para guardar en MongoDB
+            inference_id = str(datetime.now().isoformat())  # Marca de tiempo única
+            detection_id = str(uuid.uuid4())  # Generar un ID único para la detección
+            timestamp = datetime.now()  # Fecha y hora de la inferencia
+
             # Guardar en MongoDB
             # st.write(detections) # identificar el formato de las detecciones
-            inference_id = datetime.now().isoformat()  # Genera una marca de tiempo única como ID
-            # convertir infecence_id a string
-            # inference_id = str(inference_id)
             save_inference_result_image({
                 "type": "image",
-                "inference_id": detections.get("inference_id", inference_id),
+                "inference_id": inference_id,
+                "detection_id": detection_id,
                 "motorcycle_count": len(detections["predictions"]),
+                "timestamp": timestamp,
             })
 
             # Mostrar la imagen procesada
