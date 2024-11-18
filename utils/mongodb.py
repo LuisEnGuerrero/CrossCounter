@@ -69,12 +69,12 @@ def get_inference_statistics(level, filters=None):
 
     Args:
         level (str): Nivel de análisis ('day', 'month', 'year').
-        filters (dict): Filtros adicionales según el nivel.
+        filters (dict): Filtros adicionales según el nivel ({'year': 2024, 'month': 11, 'day': 4}).
 
     Returns:
         list: Lista de documentos con estadísticas agrupadas.
     """
-    # Configurar la agrupación
+    # Configuración de agrupación por nivel
     group_stage = {
         "day": {
             "$group": {
@@ -82,9 +82,9 @@ def get_inference_statistics(level, filters=None):
                     "year": {"$year": "$timestamp"},
                     "month": {"$month": "$timestamp"},
                     "day": {"$dayOfMonth": "$timestamp"},
-                    "hour": {"$hour": "$timestamp"},
+                    "hour": {"$hour": "$timestamp"}
                 },
-                "total_motos": {"$sum": "$motorcycle_count"},
+                "total_motos": {"$sum": "$motorcycle_count"}
             }
         },
         "month": {
@@ -92,39 +92,38 @@ def get_inference_statistics(level, filters=None):
                 "_id": {
                     "year": {"$year": "$timestamp"},
                     "month": {"$month": "$timestamp"},
-                    "day": {"$dayOfMonth": "$timestamp"},
+                    "day": {"$dayOfMonth": "$timestamp"}
                 },
-                "total_motos": {"$sum": "$motorcycle_count"},
+                "total_motos": {"$sum": "$motorcycle_count"}
             }
         },
         "year": {
             "$group": {
                 "_id": {
                     "year": {"$year": "$timestamp"},
-                    "month": {"$month": "$timestamp"},
+                    "month": {"$month": "$timestamp"}
                 },
-                "total_motos": {"$sum": "$motorcycle_count"},
+                "total_motos": {"$sum": "$motorcycle_count"}
             }
         },
     }
 
-    # Construir la pipeline
     pipeline = []
     if filters:
-        pipeline.append({"$match": filters})
-    pipeline.append(group_stage[level])
-    pipeline.append({"$sort": {"_id": 1}})
+        pipeline.append({"$match": filters})  # Filtros como año, mes, día
+    pipeline.append(group_stage[level])  # Agregación por nivel
+    pipeline.append({"$sort": {"_id": 1}})  # Orden cronológico
 
-    # Log para depuración
+    # Depuración
     st.write("Pipeline construida:", pipeline)
 
-    # Ejecutar la agregación
+    # Ejecutar consulta a MongoDB
     try:
         return list(collection.aggregate(pipeline))
     except Exception as e:
         st.error(f"Error en la consulta de estadísticas: {e}")
         return []
-        
+            
 
 def inspect_mongodb_data(limit=10):
     """

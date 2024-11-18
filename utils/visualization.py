@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw
 
 def show_statistics():
     """
-    Obtiene estadísticas desde MongoDB y muestra gráficos en Streamlit.
+    Obtiene estadísticas desde MongoDB y muestra gráficos y tablas en Streamlit.
     """
     # Selección del nivel de análisis
     analysis_level = st.sidebar.selectbox("Selecciona el nivel de análisis", ["Día", "Mes", "Año"])
@@ -15,58 +15,54 @@ def show_statistics():
 
     if analysis_level == "Día":
         selected_day = st.sidebar.date_input("Selecciona el día")
-        filters = {
-            "year": selected_day.year,
-            "month": selected_day.month,
-            "day": selected_day.day
-        }
+        filters = {"year": selected_day.year, "month": selected_day.month, "day": selected_day.day}
         level = "day"
     elif analysis_level == "Mes":
         selected_month = st.sidebar.selectbox("Selecciona el mes", range(1, 13))
         selected_year = st.sidebar.number_input("Selecciona el año", min_value=2000, max_value=2100, step=1)
         filters = {"year": int(selected_year), "month": int(selected_month)}
         level = "month"
-    elif analysis_level == "Año":
+    else:  # Año
         selected_year = st.sidebar.number_input("Selecciona el año", min_value=2000, max_value=2100, step=1)
         filters = {"year": int(selected_year)}
         level = "year"
 
-    # Log filtros para depuración
+    # Log filtros generados
     st.write("Filtros generados:", filters)
 
     # Obtener estadísticas desde MongoDB
     statistics = get_inference_statistics(level, filters)
 
-    # Log pipeline y datos obtenidos
-    st.write("Pipeline construida:", statistics)
-
+    # Si no hay datos
     if not statistics:
         st.write("No hay datos de estadísticas disponibles.")
         return
 
-    # Procesar datos en DataFrame
+    # Crear DataFrame
     data = pd.DataFrame(statistics)
+
+    # Procesar IDs para visualización
     if level == "day":
-        data["_id"] = data["_id"].apply(
-            lambda x: f"{x.get('year', 'N/A')}-{x.get('month', 'N/A')}-{x.get('day', 'N/A')} {x.get('hour', 'N/A')}:00"
-        )
+        data["_id"] = data["_id"].apply(lambda x: f"{x['hour']:02}:00")
     elif level == "month":
-        data["_id"] = data["_id"].apply(
-            lambda x: f"{x.get('year', 'N/A')}-{x.get('month', 'N/A')}-{x.get('day', 'N/A')}"
-        )
+        data["_id"] = data["_id"].apply(lambda x: f"{x['day']:02}/{x['month']:02}")
     elif level == "year":
-        data["_id"] = data["_id"].apply(
-            lambda x: f"{x.get('year', 'N/A')}-{x.get('month', 'N/A')}"
-        )
+        data["_id"] = data["_id"].apply(lambda x: f"{x['month']:02}/{x['year']}")
 
     data = data.rename(columns={"total_motos": "Cantidad de Motocicletas", "_id": "Unidad de Tiempo"})
     data = data.set_index("Unidad de Tiempo")
 
-    # Mostrar gráficos
+    # Mostrar gráfico de barras
+    st.subheader(f"Estadísticas por {analysis_level}")
     st.bar_chart(data)
 
-    st.write(f"Total de motocicletas detectadas: {data['Cantidad de Motocicletas'].sum()}")
+    # Mostrar resumen estadístico
+    st.write(f"**Total de motocicletas detectadas:** {data['Cantidad de Motocicletas'].sum()}")
+    st.write(f"**Promedio de detecciones:** {data['Cantidad de Motocicletas'].mean():.2f}")
+    st.write(f"**Máximo de detecciones:** {data['Cantidad de Motocicletas'].max()}")
 
+    # Tabla detallada
+    st.write(data)
 
 
 def draw_detections(image, detections):
