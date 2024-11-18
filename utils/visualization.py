@@ -31,9 +31,9 @@ def show_statistics():
     statistics = get_inference_statistics(level, filters)
 
     # Verificar si el DataFrame está vacío
-    if statistics.empty:
-        st.write("No hay datos de estadísticas disponibles.")
-        return
+    # if statistics.empty:
+    #     st.write("No hay datos de estadísticas disponibles.")
+    #     return
 
     # Procesar datos en DataFrame
     st.subheader(f"Estadísticas por {analysis_level}")
