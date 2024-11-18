@@ -95,29 +95,46 @@ def segment_video(video_path, segment_duration=200, output_dir="segments"):
 
 def display_youtube_info(youtube_url):
     """
-    Muestra información básica de un video de YouTube.
+    Extrae información básica de un video de YouTube utilizando yt_dlp.
 
     Args:
         youtube_url (str): URL del video de YouTube.
 
     Returns:
-        dict: Información del video (título, duración, autor, tamaño aproximado).
+        dict: Información estructurada del video (título, duración, autor, tamaño aproximado).
     """
-    yt = YoutubeDL().extract_info(youtube_url, download=False)
-    st.write(f"**Data:** {yt}")  
     try:
-        filesize_approx = yt.streams.get_highest_resolution().filesize_approx
-    except AttributeError:
-        filesize_approx = None  # Manejar ausencia de atributo
+        # Extraer metadatos del video
+        ydl_opts = {"quiet": True, "dump_single_json": True}
+        with YoutubeDL(ydl_opts) as ydl:
+            yt = ydl.extract_info(youtube_url, download=False)
 
-    return {
-        "title": yt.title,
-        "duration": yt.length,
-        "author": yt.author,
-        "filesize_approx": filesize_approx,    
+        # Manejar datos opcionales
+        title = yt.get("title", "Título no disponible")
+        duration = yt.get("duration", 0)  # Duración en segundos
+        uploader = yt.get("uploader", "Autor no disponible")
+        filesize_approx = None  # Inicializamos en None
+
+        # Obtener el tamaño aproximado del archivo
+        formats = yt.get("formats", [])
+        for fmt in formats:
+            if fmt.get("filesize"):
+                filesize_approx = fmt["filesize"]
+                break
+
+        # Devolver información estructurada
+        return {
+            "title": title,
+            "duration": duration,
+            "author": uploader,
+            "filesize_approx": filesize_approx,
         }
 
-
+    except Exception as e:
+        st.error(f"Error al extraer información del video: {e}")
+        return {}
+    
+    
 
 def update_progress(bar, processed_frames, total_frames):
     """
