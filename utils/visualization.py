@@ -28,83 +28,26 @@ def show_statistics():
         level = "year"
 
     # Log filtros generados
-    st.write("Filtros generados:", filters)
+    # st.write("Filtros generados:", filters)
 
     # Obtener estadísticas desde MongoDB
     statistics = get_inference_statistics(level, filters)
 
-    # Si no hay datos
-    if not statistics:
+    # Verificar si el DataFrame está vacío
+    if statistics.empty:
         st.write("No hay datos de estadísticas disponibles.")
         return
 
-    # Crear DataFrame
-    data = pd.DataFrame(statistics)
-
-    # Procesar IDs para visualización
-    if level == "day":
-        data["_id"] = data["_id"].apply(lambda x: f"{x['hour']:02}:00")
-    elif level == "month":
-        data["_id"] = data["_id"].apply(lambda x: f"{x['day']:02}/{x['month']:02}")
-    elif level == "year":
-        data["_id"] = data["_id"].apply(lambda x: f"{x['month']:02}/{x['year']}")
-
-    data = data.rename(columns={"total_motos": "Cantidad de Motocicletas", "_id": "Unidad de Tiempo"})
-    data = data.set_index("Unidad de Tiempo")
-
-    # Mostrar gráfico de barras
+    # Procesar datos en DataFrame
     st.subheader(f"Estadísticas por {analysis_level}")
-    st.bar_chart(data)
-
-    # Mostrar resumen estadístico
-    st.write(f"**Total de motocicletas detectadas:** {data['Cantidad de Motocicletas'].sum()}")
-    st.write(f"**Promedio de detecciones:** {data['Cantidad de Motocicletas'].mean():.2f}")
-    st.write(f"**Máximo de detecciones:** {data['Cantidad de Motocicletas'].max()}")
-
-    # Tabla detallada
-    st.write(data)
-
-
-def draw_detections(image, detections):
-    """
-    Dibuja las detecciones en una imagen.
     
-    Args:
-        image (PIL.Image.Image): Imagen en la que se dibujarán las detecciones.
-        detections (list): Lista de detecciones con campos como "name", "confidence", "xmin", "ymin", "xmax", "ymax".
+    # Mostrar gráfico de barras
+    st.bar_chart(statistics)
+
+    # Resumen adicional
+    st.subheader(f"Resumen para el nivel: {analysis_level}")
+    st.write(f"**Total de motocicletas detectadas:** {statistics['Cantidad de Motocicletas'].sum()}")
+    st.write(f"**Promedio de detecciones:** {statistics['Cantidad de Motocicletas'].mean():.0f}")
+    st.write(f"**Máximo de detecciones:** {statistics['Cantidad de Motocicletas'].max()} en {statistics['Cantidad de Motocicletas'].idxmax()}")
+
     
-    Returns:
-        PIL.Image.Image: Imagen con las detecciones dibujadas.
-    """
-    draw = ImageDraw.Draw(image)
-
-    for detection in detections:
-        if isinstance(detection, dict):  # Validar que cada elemento sea un diccionario
-            name = detection.get("name", "unknown")
-            confidence = detection.get("confidence", 0.0)
-            xmin, ymin, xmax, ymax = detection.get("xmin"), detection.get("ymin"), detection.get("xmax"), detection.get("ymax")
-            
-            # Dibujar el rectángulo
-            if xmin is not None and ymin is not None and xmax is not None and ymax is not None:
-                draw.rectangle([xmin, ymin, xmax, ymax], outline="red", width=3)
-                # Añadir etiqueta
-                label = f"{name} ({confidence:.2f})"
-                draw.text((xmin, ymin - 10), label, fill="red")
-    
-    return image
-
-
-def show_inspected_data():
-    """
-    Inspecciona y muestra los datos almacenados en MongoDB en Streamlit.
-    """
-    st.header("Inspección de Datos en MongoDB")
-    documents = inspect_mongodb_data(limit=20)  # Ajusta el límite según sea necesario
-    
-    if not documents:
-        st.write("No se encontraron datos en la base de datos.")
-    else:
-        st.write("Documentos recuperados de MongoDB:")
-        for doc in documents:
-            st.json(doc)  # Muestra cada documento en formato JSON
-
