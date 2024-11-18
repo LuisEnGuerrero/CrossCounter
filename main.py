@@ -156,6 +156,10 @@ elif inference_mode == "YouTube":
                 st.error(f"Error procesando el video de YouTube: {e}")
 
 
+# Mostrar la imagen del logo en la barra lateral
+st.sidebar.image(logo_separator_html(), use_column_width=True)
+
+
 # Sección de Estadísticas
 st.header("Estadísticas de Conteo de Motocicletas")
 show_statistics()
