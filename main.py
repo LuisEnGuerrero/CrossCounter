@@ -156,7 +156,7 @@ elif inference_mode == "YouTube":
                 st.error(f"Error procesando el video de YouTube: {e}")
 
 # Asignar a la variable logo, la imagen procesada logo_base64 desde el archivo views/html.py
-logo = get_base64_image('media\logox512.jpg')
+logo = get_base64_image('media/logox512.jpg')
 
 # Mostrar la imagen del logo en la barra lateral
 st.sidebar.image(logo, use_column_width=True)
