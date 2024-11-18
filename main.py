@@ -58,9 +58,18 @@ st.sidebar.image('media/logox512.jpg', use_column_width=True)
 # Inferencia en imágenes
 if inference_mode == "Imagen":
     st.subheader("Cargar una Imagen")
+
+    # Restablecer estado al cambiar de modo de inferencia
+    if "image_uploaded" not in st.session_state:
+        st.session_state.image_uploaded = None  # Inicializar estado
+
+    # Cargar nueva imagen
     uploaded_image = st.file_uploader("Elige una imagen", type=["jpg", "jpeg", "png"])
 
-    if uploaded_image:
+    # Detectar si se cargó una nueva imagen
+    if uploaded_image and uploaded_image != st.session_state.image_uploaded:
+        st.session_state.image_uploaded = uploaded_image  # Actualizar estado con la nueva imagen
+
         temp_path = Path(f"temp_{uploaded_image.name}")
 
         with st.spinner("Procesando la imagen..."):
@@ -107,7 +116,7 @@ if inference_mode == "Imagen":
             st.warning("No se encontró la imagen temporal para eliminar.")
         except Exception as e:
             st.error(f"Error al intentar eliminar la imagen temporal: {e}")
-            
+
 
 
 # Inferencia de Videos
