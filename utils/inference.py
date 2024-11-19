@@ -12,6 +12,7 @@ from utils.helpers import (
     display_youtube_info, 
     generate_inference_id,
     add_watermark_and_counter,
+    get_youtube_video_metadata,
     )
 import tempfile
 import base64
@@ -171,7 +172,7 @@ def process_youtube_video(youtube_url):
         dict: Resultados de la inferencia.
     """
     inference_id = generate_inference_id()
-    info = display_youtube_info(youtube_url)
+    info = get_youtube_video_metadata(youtube_url)
     video_size = info.get("filesize_approx")
 
     if not video_size:
@@ -182,8 +183,22 @@ def process_youtube_video(youtube_url):
         temp_path = download_youtube_video(youtube_url)
         results = process_video(temp_path)
 
+        # Añadir la marca de agua y el contador total al video
+        total_motorcycle_count = results["total_motos"]
+        final_video_path = add_watermark_and_counter(temp_path, total_motorcycle_count)
+        os.remove(temp_path)
+
         # Guardar resultado en MongoDB
         save_inference_result_video(inference_id, results["motorcycle_count_per_frame"])
+
+        # Proporcionar un botón de descarga para el video procesado
+        st.download_button(
+            label="Descargar video procesado",
+            data=open(final_video_path, "rb").read(),
+            file_name="video_procesado.mp4",
+            mime="video/mp4"
+        )
+        os.remove(final_video_path)
     else:
         st.warning("El video será segmentado debido a su tamaño.")
         temp_path = download_youtube_video(youtube_url, output_path="temp_large.mp4")
@@ -210,6 +225,15 @@ def process_youtube_video(youtube_url):
 
         # Guardar resultado en MongoDB
         save_inference_result_video(inference_id, all_frame_data)
+
+        # Proporcionar un botón de descarga para el video procesado
+        st.download_button(
+            label="Descargar video procesado",
+            data=open(final_video_path, "rb").read(),
+            file_name="video_procesado.mp4",
+            mime="video/mp4"
+        )
+        os.remove(final_video_path)
 
     return {"inference_id": inference_id, "status": "completed"}
 
