@@ -11,6 +11,7 @@ from utils.helpers import (
     segment_video, 
     display_youtube_info, 
     generate_inference_id,
+    add_watermark_and_counter,
     )
 import tempfile
 import base64
@@ -173,22 +174,42 @@ def process_youtube_video(youtube_url):
     info = display_youtube_info(youtube_url)
     video_size = info.get("filesize_approx")
 
+    if not video_size:
+        info = display_youtube_info(youtube_url)
+        video_size = info.get("filesize_approx")
+
     if video_size and video_size <= 200 * 1024 * 1024:
         temp_path = download_youtube_video(youtube_url)
         results = process_video(temp_path)
 
         # Guardar resultado en MongoDB
-        save_inference_result_video(inference_id, results["frame_data"])
+        save_inference_result_video(inference_id, results["motorcycle_count_per_frame"])
     else:
         st.warning("El video será segmentado debido a su tamaño.")
         temp_path = download_youtube_video(youtube_url, output_path="temp_large.mp4")
         segment_paths = segment_video(temp_path)
 
-        for segment in segment_paths:
+        total_motorcycle_count = 0
+        all_frame_data = []
+
+        for segment in segment_paths[:-1]:
             segment_results = process_video(segment)
-            save_inference_result_video(inference_id, segment_results["frame_data"])
+            total_motorcycle_count += segment_results["total_motos"]
+            all_frame_data.extend(segment_results["motorcycle_count_per_frame"])
             os.remove(segment)
+
+        # Procesar el último segmento y añadir la marca de agua
+        last_segment = segment_paths[-1]
+        last_segment_results = process_video(last_segment)
+        total_motorcycle_count += last_segment_results["total_motos"]
+        all_frame_data.extend(last_segment_results["motorcycle_count_per_frame"])
+
+        # Añadir la marca de agua y el contador total al último segmento
+        final_video_path = add_watermark_and_counter(last_segment, total_motorcycle_count)
+        os.remove(last_segment)
+
+        # Guardar resultado en MongoDB
+        save_inference_result_video(inference_id, all_frame_data)
 
     return {"inference_id": inference_id, "status": "completed"}
 
-    

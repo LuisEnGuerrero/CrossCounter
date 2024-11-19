@@ -4,6 +4,7 @@ from pathlib import Path
 import os
 from googleapiclient.discovery import build
 from datetime import datetime
+import cv2
 
 
 # Obtener la API de YouTube desde los secretos de Streamlit Cloud
@@ -161,4 +162,46 @@ def generate_inference_id():
         str: ID único en formato ISO 8601.
     """
     return datetime.now().isoformat()
+
+
+# Añade una marca de agua y un contador total de motocicletas a un video.
+def add_watermark_and_counter(video_path, total_motorcycle_count):
+    """
+    Añade una marca de agua y un contador total de motocicletas a un video.
+
+    Args:
+        video_path (str): Ruta del video.
+        total_motorcycle_count (int): Conteo total de motocicletas detectadas.
+
+    Returns:
+        str: Ruta del video procesado con la marca de agua y el contador.
+    """
+    cap = cv2.VideoCapture(video_path)
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+    output_path = video_path.replace(".mp4", "_watermarked.mp4")
+    out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+
+    app_name = "AI-MotorCycle CrossCounter TalentoTECH"  # Nombre de la aplicación
+
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        # Añadir título y contador total al frame
+        motos_text = f"Motos encontradas: {total_motorcycle_count}"
+        cv2.putText(frame, app_name, (10, height - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        cv2.putText(frame, motos_text, (10, height - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+        # Escribir el frame procesado en el video de salida
+        out.write(frame)
+
+    cap.release()
+    out.release()
+
+    return output_path
 
