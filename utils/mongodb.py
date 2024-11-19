@@ -3,7 +3,7 @@ import pandas as pd
 import streamlit as st
 from uuid import uuid4
 from pymongo import MongoClient
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Obtener la URI de MongoDB desde los secretos de Streamlit Cloud
 MONGO_URI = st.secrets["MONGO"]["MONGO_URI"]
@@ -31,6 +31,10 @@ def save_inference_result_image(data):
             - timestamp: Fecha y hora de la inferencia
             - time: Tiempo de procesamiento de la inferencia
     """
+    # Generar el campo 'time' si no está presente
+    data["time"] = datetime.now(timezone.utc)
+
+
     # Añadir validación de campos necesarios
     required_fields = ["type", "inference_id", "detection_id", "motorcycle_count", "timestamp", "time"]
     for field in required_fields:
