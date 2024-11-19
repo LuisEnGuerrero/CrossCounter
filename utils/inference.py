@@ -76,23 +76,34 @@ def process_video(video_path, frame_interval=99, total_frames=None):
 
     cap = cv2.VideoCapture(video_path)
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    fps = cap.get(cv2.CAP_PROP_FPS)
+
+    # Validar FPS
+    if fps <= 0:
+        raise ValueError("No se pudo obtener los FPS del video.")
+
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
     out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
     total_motorcycle_count = 0
     frame_count = 0
-    motorcycle_count_per_frame = []
 
     # Crear barra de progreso única
     progress_bar = st.progress(0)
+
+    app_name = "AI-MotorCycle CrossCounter TalentoTECH"  # Nombre de la aplicación
+
+    motorcycle_count_per_frame = []
 
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
 
+        frame_motorcycle_count = 0  # Contador de motocicletas por frame
+
+        # Procesar frame solo si cumple con el intervalo
         if frame_count % frame_interval == 0:
             # Convertir frame a formato PIL para la inferencia
             img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
@@ -100,7 +111,6 @@ def process_video(video_path, frame_interval=99, total_frames=None):
             # Realizar inferencia en el frame
             results = model(img)
 
-            frame_motorcycle_count = 0
             for result in results:
                 for box in result.boxes:
                     cls = result.names[int(box.cls[0])]
@@ -114,18 +124,24 @@ def process_video(video_path, frame_interval=99, total_frames=None):
                                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
                         frame_motorcycle_count += 1
 
-            # Acumular resultados por frame
-            motorcycle_count_per_frame.append({
-                "timestamp": datetime.now(),
-                "motorcycle_count": frame_motorcycle_count,
-            })
+        # Actualizar el contador total de motocicletas
+        total_motorcycle_count += frame_motorcycle_count
 
-            total_motorcycle_count += frame_motorcycle_count
+        # Guardar resultados por frame (usar timestamp del video si se desea precisión)
+        motorcycle_count_per_frame.append({
+            "timestamp": cap.get(cv2.CAP_PROP_POS_MSEC),  # Timestamp del frame en milisegundos
+            "motorcycle_count": frame_motorcycle_count,
+        })
+
+        # Añadir título y contador total al frame
+        motos_text = f"Motos encontradas: {total_motorcycle_count}"
+        cv2.putText(frame, app_name, (10, height - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 255, 0), 2)
+        cv2.putText(frame, motos_text, (10, height - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 255, 0), 2)
 
         # Escribir el frame procesado en el video de salida
-        out.write(cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
+        out.write(frame)
 
-        if total_frames:
+        if total_frames and total_frames > 0:
             update_progress(progress_bar, frame_count, total_frames)
 
         frame_count += 1
@@ -145,6 +161,7 @@ def process_video(video_path, frame_interval=99, total_frames=None):
         "total_motos": total_motorcycle_count,
         "motorcycle_count_per_frame": motorcycle_count_per_frame,
     }
+
 
 
 def process_youtube_video(youtube_url):
