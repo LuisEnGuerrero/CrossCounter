@@ -1,3 +1,4 @@
+import streamlit as st
 import pandas as pd
 import streamlit as st
 from uuid import uuid4
@@ -28,9 +29,10 @@ def save_inference_result_image(data):
             - detection_id: ID único de la detección
             - motorcycle_count: Conteo de motocicletas detectadas
             - timestamp: Fecha y hora de la inferencia
+            - time: Tiempo de procesamiento de la inferencia
     """
     # Añadir validación de campos necesarios
-    required_fields = ["type", "inference_id", "detection_id", "motorcycle_count", "timestamp"]
+    required_fields = ["type", "inference_id", "detection_id", "motorcycle_count", "timestamp", "time"]
     for field in required_fields:
         if field not in data:
             st.error(f"Falta el campo obligatorio: {field}")
@@ -38,7 +40,8 @@ def save_inference_result_image(data):
 
     # Insertar en MongoDB
     collection.insert_one(data)
-    # st.success(f"Resultado de inferencia guardado en MongoDB con ID {data.get('inference_id')}")
+    st.success(f"Resultado de inferencia guardado en MongoDB con ID {data.get('inference_id')}")
+
 
 # Función para guardar los resultados de una inferencia de un video en MongoDB
 def save_inference_result_video(inference_id, motorcycle_count_per_frame):
@@ -50,6 +53,7 @@ def save_inference_result_video(inference_id, motorcycle_count_per_frame):
         motorcycle_count_per_frame (list[dict]): Lista de conteos por frame. Cada elemento debe incluir:
             - "timestamp" (datetime): Fecha y hora del frame procesado.
             - "motorcycle_count" (int): Conteo de motocicletas detectadas en ese frame.
+            - "time" (float): Tiempo de procesamiento del frame.
     """
     for frame_result in motorcycle_count_per_frame:
         document = {
@@ -58,6 +62,7 @@ def save_inference_result_video(inference_id, motorcycle_count_per_frame):
             "detection_id": str(uuid4()),  # Generar un ID único para la detección
             "timestamp": frame_result["timestamp"],
             "motorcycle_count": frame_result["motorcycle_count"],
+            "time": frame_result.get("time", None)  # Añadir el campo "time" si está disponible
         }
         collection.insert_one(document)
     st.success(f"Resultados de inferencia guardados en MongoDB para inference_id {inference_id}")
