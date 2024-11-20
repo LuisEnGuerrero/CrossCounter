@@ -142,7 +142,7 @@ elif inference_mode == "Video":
                 cap.release()
 
                 # Procesar video
-                results = process_video(temp_path, frame_interval=99, total_frames=total_frames)
+                results = process_video(temp_path, frame_interval=101, total_frames=total_frames)
 
                 # Guardar en MongoDB
                 save_inference_result_video(
@@ -166,7 +166,7 @@ elif inference_mode == "Video":
                 # Eliminar archivo temporal
                 try:
                     temp_path.unlink()
-                    st.info("Video temporal eliminado correctamente.")
+                    # st.info("Video temporal eliminado correctamente.")
                 except Exception as e:
                     st.error(f"Error al eliminar el archivo temporal: {e}")
         else:
@@ -187,7 +187,6 @@ elif inference_mode == "YouTube":
                 st.write(f"**Duración:** {info['duration'] // 60} minutos {info['duration'] % 60} segundos")
 
                 # Mostrar codigo qr del video
-                st.write("Código QR para ver el video:")
                 st.markdown(qr_code_html(youtube_url), unsafe_allow_html=True)
 
                 with st.spinner("Procesando el video de YouTube..."):

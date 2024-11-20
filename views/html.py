@@ -46,8 +46,8 @@ def generate_qr_code(video_url):
     qr = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=10,
-        border=4,
+        box_size=7,
+        border=3,
     )
     qr.add_data(video_url)
     qr.make(fit=True)
