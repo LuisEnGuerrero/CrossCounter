@@ -179,29 +179,31 @@ elif inference_mode == "YouTube":
     youtube_url = st.text_input("Ingrese la URL del video de YouTube:")
 
     if youtube_url:
-        with st.spinner("Obteniendo información del video..."):
-            try:
-                info = display_youtube_info(youtube_url)
-                st.write(f"**Título:** {info['title']}")
-                st.write(f"**Autor:** {info['author']}")
-                st.write(f"**Duración:** {info['duration'] // 60} minutos {info['duration'] % 60} segundos")
+        # Mostrar codigo qr del video
+        st.markdown(qr_code_html(youtube_url), unsafe_allow_html=True)
 
-                # Mostrar codigo qr del video
-                st.markdown(qr_code_html(youtube_url), unsafe_allow_html=True)
+        if st.button("Empezar conteo"):
+            with st.spinner("Obteniendo información del video..."):
+                try:
+                    info = display_youtube_info(youtube_url)
+                    st.write(f"**Título:** {info['title']}")
+                    st.write(f"**Autor:** {info['author']}")
+                    st.write(f"**Duración:** {info['duration'] // 60} minutos {info['duration'] % 60} segundos")
 
-                with st.spinner("Procesando el video de YouTube..."):
-                    results = process_youtube_video(youtube_url)
-
-                st.success(f"Inferencia completada. Total de motocicletas detectadas: {results.get('total_motos', 0)}")
-                if "processed_video_path" in results:
-                    st.markdown(
-                        f"[Descargar video procesado]({results['processed_video_path']})",
-                        unsafe_allow_html=True
-                    )
+                    with st.spinner("Procesando el video de YouTube..."):
+                        results = process_youtube_video(youtube_url)
 
 
-            except Exception as e:
-                st.error(f"Error procesando el video de YouTube: {e}")
+                    st.success(f"Inferencia completada. Total de motocicletas detectadas: {results.get('total_motos', 0)}")
+                    if "processed_video_path" in results:
+                        st.download_button(
+                            label="Descargar video procesado",
+                            data=open(results["processed_video_path"], "rb").read(),
+                            file_name="video_procesado.mp4",
+                            mime="video/mp4")
+
+                except Exception as e:
+                    st.error(f"Error procesando el video de YouTube: {e}")
 
 
 

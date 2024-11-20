@@ -139,6 +139,10 @@ def process_video(video_path, frame_interval=99, total_frames=None):
         # Escribir el frame procesado en el video de salida
         out.write(frame)
 
+        # Mostrar en un cuadro de imagen pequeño el frame procesado
+        frame_small = cv2.resize(frame, (300, 300))
+        st.image(frame_small, channels="BGR", use_column_width=True)
+
         frame_count += 1
 
         if total_frames:
