@@ -137,15 +137,13 @@ def process_video(video_path, frame_interval=99, total_frames=None):
 
         # Añadir título y contador total al frame
         motos_text = f"Motos encontradas: {total_motorcycle_count}"
-        cv2.putText(frame, app_name, (10, height - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
-        cv2.putText(frame, motos_text, (10, height - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+        cv2.putText(frame, app_name, (10, height - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+        cv2.putText(frame, motos_text, (10, height - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
         # Escribir el frame procesado en el video de salida
         out.write(frame)
 
-        image_container = st.empty()  # Crear un contenedor vacío para mostrar los frames procesados
         # Mostrar en un cuadro de imagen pequeño el frame procesado dentro de un container de Streamlit
-
         frame_small = resize_frame_proportionally(frame, scale=0.5)
 
         if image_container:
