@@ -186,7 +186,6 @@ def process_youtube_video(youtube_url):
         # Añadir la marca de agua y el contador total al video
         total_motorcycle_count = results["total_motos"]
         final_video_path = add_watermark_and_counter(temp_path, total_motorcycle_count)
-        os.remove(temp_path)
 
         # Guardar resultado en MongoDB
         save_inference_result_video(inference_id, results["motorcycle_count_per_frame"])
@@ -198,6 +197,7 @@ def process_youtube_video(youtube_url):
             file_name="video_procesado.mp4",
             mime="video/mp4"
         )
+        os.remove(temp_path)
         os.remove(final_video_path)
     else:
         st.warning("El video será segmentado debido a su tamaño.")
@@ -221,7 +221,6 @@ def process_youtube_video(youtube_url):
 
         # Añadir la marca de agua y el contador total al último segmento
         final_video_path = add_watermark_and_counter(last_segment, total_motorcycle_count)
-        os.remove(last_segment)
 
         # Guardar resultado en MongoDB
         save_inference_result_video(inference_id, all_frame_data)
@@ -233,6 +232,7 @@ def process_youtube_video(youtube_url):
             file_name="video_procesado.mp4",
             mime="video/mp4"
         )
+        os.remove(last_segment)
         os.remove(final_video_path)
 
     return {"inference_id": inference_id, "status": "completed"}
