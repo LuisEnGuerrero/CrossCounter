@@ -137,8 +137,8 @@ def process_video(video_path, frame_interval=99, total_frames=None):
 
         # Añadir título y contador total al frame
         motos_text = f"Motos encontradas: {total_motorcycle_count}"
-        cv2.putText(frame, app_name, (10, height - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-        cv2.putText(frame, motos_text, (10, height - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        cv2.putText(frame, app_name, (10, height - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+        cv2.putText(frame, motos_text, (10, height - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
         # Escribir el frame procesado en el video de salida
         out.write(frame)
@@ -149,7 +149,7 @@ def process_video(video_path, frame_interval=99, total_frames=None):
         frame_small = resize_frame_proportionally(frame, scale=0.5)
 
         if image_container:
-            image_container.image(frame_small, channels="BGR", use_column_width=True, width=300)
+            image_container.image(frame_small, channels="BGR", caption=f"Frame {frame_count}")
 
         frame_count += 1
 
