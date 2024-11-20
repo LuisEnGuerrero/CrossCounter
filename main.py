@@ -186,9 +186,13 @@ elif inference_mode == "YouTube":
             with st.spinner("Obteniendo información del video..."):
                 try:
                     info = display_youtube_info(youtube_url)
-                    st.write(f"**Título:** {info['title']}")
-                    st.write(f"**Autor:** {info['author']}")
-                    st.write(f"**Duración:** {info['duration'] // 60} minutos {info['duration'] % 60} segundos")
+                    if not info:
+                        st.error("No se pudo obtener la información del video.")
+                    else:
+                        st.write("Información del video:")
+                        st.write(f"**Título:** {info['title']}")
+                        st.write(f"**Autor:** {info['author']}")
+                        st.write(f"**Duración:** {info['duration'] // 60} minutos {info['duration'] % 60} segundos")
 
                     with st.spinner("Procesando el video de YouTube..."):
                         results = process_youtube_video(youtube_url)

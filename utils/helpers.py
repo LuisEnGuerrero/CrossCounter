@@ -113,6 +113,9 @@ def display_youtube_info(youtube_url):
         # Manejar datos opcionales
         title = yt.get("title", "Título no disponible")
         duration = yt.get("duration", 0)  # Duración en segundos
+        if duration is None:
+            st.error("No se pudo obtener la duración del video.")
+            return {}
         uploader = yt.get("uploader", "Autor no disponible")
         filesize_approx = None  # Inicializamos en None
 

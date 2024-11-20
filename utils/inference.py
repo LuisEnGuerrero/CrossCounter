@@ -225,14 +225,14 @@ def process_youtube_video(youtube_url):
         all_frame_data = []
 
         for segment in segment_paths[:-1]:
-            segment_results = process_video(segment, frame_interval=33, total_frames=frame_count)
+            segment_results = process_video(segment, frame_interval=33)
             total_motorcycle_count += segment_results["total_motos"]
             all_frame_data.extend(segment_results["motorcycle_count_per_frame"])
             os.remove(segment)
 
         # Procesar el último segmento y añadir la marca de agua
         last_segment = segment_paths[-1]
-        last_segment_results = process_video(last_segment, frame_interval=33, total_frames=frame_count)
+        last_segment_results = process_video(last_segment, frame_interval=33)
         total_motorcycle_count += last_segment_results["total_motos"]
         all_frame_data.extend(last_segment_results["motorcycle_count_per_frame"])
 
