@@ -61,7 +61,7 @@ def process_image(image_path):
     return {"predictions": detections}
 
 
-def process_video(video_path, frame_interval=99, total_frames=None):
+def process_video(video_path, frame_interval=103, total_frames=None):
     """
     Procesa un video utilizando YOLO.
 
@@ -140,14 +140,14 @@ def process_video(video_path, frame_interval=99, total_frames=None):
         cv2.putText(frame, app_name, (10, height - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
         cv2.putText(frame, motos_text, (10, height - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
-        # Escribir el frame procesado en el video de salida
-        out.write(frame)
-
         # Mostrar en un cuadro de imagen pequeño el frame procesado dentro de un container de Streamlit
         frame_small = resize_frame_proportionally(frame, scale=0.5)
 
         if image_container:
             image_container.image(frame_small, channels="BGR", caption=f"Frame {frame_count}")
+
+        # Escribir el frame procesado en el video de salida
+        out.write(frame)
 
         frame_count += 1
 
