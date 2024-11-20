@@ -87,6 +87,8 @@ def process_video(video_path, frame_interval=99, total_frames=None):
     total_motorcycle_count = 0
     frame_count = 0
     motorcycle_count_per_frame = []
+    
+    image_container = st.empty()  # Crear un contenedor vacío para mostrar los frames procesados
 
     # Crear barra de progreso única
     progress_bar = st.progress(0)
@@ -140,9 +142,12 @@ def process_video(video_path, frame_interval=99, total_frames=None):
         # Escribir el frame procesado en el video de salida
         out.write(frame)
 
+        image_container = st.empty()  # Crear un contenedor vacío para mostrar los frames procesados
         # Mostrar en un cuadro de imagen pequeño el frame procesado dentro de un container de Streamlit
-        frame_small = resize_frame_proportionally(frame, scale=0.5)
-        st.container().image(frame_small, channels="BGR", use_column_width=True)
+
+        if image_container:
+            frame_small = resize_frame_proportionally(frame, scale=0.5)
+            image_container.image(frame_small, channels="BGR", use_column_width=True, width=300)
 
         frame_count += 1
 

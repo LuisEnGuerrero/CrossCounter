@@ -261,3 +261,13 @@ footer {
 ::-webkit-scrollbar-thumb:hover {
     background: #327fba;
 }
+
+.center-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.center-container img {
+    width: 33%;
+}
