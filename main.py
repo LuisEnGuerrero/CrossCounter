@@ -170,7 +170,7 @@ elif inference_mode == "Video":
                 except Exception as e:
                     st.error(f"Error al eliminar el archivo temporal: {e}")
         else:
-            st.info("El video ya ha sido procesado. Carga un nuevo video para realizar otra inferencia.")
+            print("El video ya ha sido procesado. Carga un nuevo video para realizar otra inferencia.")
             
 
 # Inferencia en videos de YouTube
@@ -185,6 +185,10 @@ elif inference_mode == "YouTube":
                 st.write(f"**Título:** {info['title']}")
                 st.write(f"**Autor:** {info['author']}")
                 st.write(f"**Duración:** {info['duration'] // 60} minutos {info['duration'] % 60} segundos")
+
+                # Mostrar codigo qr del video
+                st.write("Código QR para ver el video:")
+                st.markdown(qr_code_html(youtube_url), unsafe_allow_html=True)
 
                 with st.spinner("Procesando el video de YouTube..."):
                     results = process_youtube_video(youtube_url)

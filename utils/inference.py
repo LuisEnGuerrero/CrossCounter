@@ -60,7 +60,7 @@ def process_image(image_path):
     return {"predictions": detections}
 
 
-def process_video(video_path, frame_interval=99, total_frames=None, progress_bar=None):
+def process_video(video_path, frame_interval=99, total_frames=None):
     """
     Procesa un video utilizando YOLO.
 
@@ -139,10 +139,10 @@ def process_video(video_path, frame_interval=99, total_frames=None, progress_bar
         # Escribir el frame procesado en el video de salida
         out.write(frame)
 
+        frame_count += 1
+
         if total_frames:
             update_progress(progress_bar, frame_count, total_frames)
-
-        frame_count += 1
 
     cap.release()
     out.release()
@@ -179,9 +179,11 @@ def process_youtube_video(youtube_url):
         info = display_youtube_info(youtube_url)
         video_size = info.get("filesize_approx")
 
+    progress_bar = st.progress(0)  # Crear una sola barra de progreso
+
     if video_size and video_size <= 200 * 1024 * 1024:
         temp_path = download_youtube_video(youtube_url)
-        results = process_video(temp_path, frame_interval=33, total_frames=None, progress_bar=st.progress(0))
+        results = process_video(temp_path, frame_interval=33, total_frames=info.get("total_frames"))
 
         # Añadir la marca de agua y el contador total al video
         total_motorcycle_count = results["total_motos"]
@@ -204,24 +206,29 @@ def process_youtube_video(youtube_url):
         os.remove(temp_path)
         os.remove(final_video_path)
     else:
-        st.warning("El video será segmentado debido a su tamaño.")
         temp_path = download_youtube_video(youtube_url, output_path="temp_large.mp4")
         segment_paths = segment_video(temp_path)
+        st.warning(f"El video se ha segmentado debido a su tamaño, en {len(segment_paths)} segmentos.")
 
         total_motorcycle_count = 0
         all_frame_data = []
 
         for segment in segment_paths[:-1]:
-            segment_results = process_video(segment)
+            segment_results = process_video(segment, frame_interval=33, total_frames=None)
             total_motorcycle_count += segment_results["total_motos"]
             all_frame_data.extend(segment_results["motorcycle_count_per_frame"])
             os.remove(segment)
 
         # Procesar el último segmento y añadir la marca de agua
         last_segment = segment_paths[-1]
-        last_segment_results = process_video(last_segment)
+        last_segment_results = process_video(last_segment, frame_interval=33, total_frames=None)
         total_motorcycle_count += last_segment_results["total_motos"]
         all_frame_data.extend(last_segment_results["motorcycle_count_per_frame"])
+
+        frame_count += 1
+
+        if results.get("total_frames"):
+            update_progress(progress_bar, frame_count, results["total_frames"])
 
         # Añadir la marca de agua y el contador total al último segmento
         final_video_path = add_watermark_and_counter(last_segment, total_motorcycle_count)
@@ -241,5 +248,6 @@ def process_youtube_video(youtube_url):
         )
         os.remove(last_segment)
         os.remove(final_video_path)
+        
 
     return {"inference_id": inference_id, "total_motos": total_motorcycle_count, "processed_video_path": st.session_state["processed_video"]}
