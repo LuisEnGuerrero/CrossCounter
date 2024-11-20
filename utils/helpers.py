@@ -205,3 +205,27 @@ def add_watermark_and_counter(video_path, total_motorcycle_count):
 
     return output_path
 
+# función para redimensionar un frame de forma proporcional
+def resize_frame_proportionally(frame, scale=0.5):
+    """
+    Redimensiona un frame de forma proporcional.
+
+    Args:
+        frame (numpy.ndarray): El frame original.
+        scale (float): El factor de escala (por defecto 0.5 para reducir al 50%).
+
+    Returns:
+        numpy.ndarray: El frame redimensionado.
+    """
+    # Obtener las dimensiones originales del frame
+    original_height, original_width = frame.shape[:2]
+
+    # Calcular las nuevas dimensiones
+    new_width = int(original_width * scale)
+    new_height = int(original_height * scale)
+
+    # Redimensionar el frame
+    resized_frame = cv2.resize(frame, (new_width, new_height), interpolation=cv2.INTER_AREA)
+
+    return resized_frame
+

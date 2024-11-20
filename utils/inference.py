@@ -13,6 +13,7 @@ from utils.helpers import (
     generate_inference_id,
     add_watermark_and_counter,
     get_youtube_video_metadata,
+    resize_frame_proportionally,
     )
 import tempfile
 import base64
@@ -139,9 +140,9 @@ def process_video(video_path, frame_interval=99, total_frames=None):
         # Escribir el frame procesado en el video de salida
         out.write(frame)
 
-        # Mostrar en un cuadro de imagen pequeño el frame procesado
-        frame_small = cv2.resize(frame, (300, 300))
-        st.image(frame_small, channels="BGR", use_column_width=True)
+        # Mostrar en un cuadro de imagen pequeño el frame procesado dentro de un container de Streamlit
+        frame_small = resize_frame_proportionally(frame, scale=0.5)
+        st.container().image(frame_small, channels="BGR", use_column_width=True)
 
         frame_count += 1
 
