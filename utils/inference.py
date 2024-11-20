@@ -60,7 +60,7 @@ def process_image(image_path):
     return {"predictions": detections}
 
 
-def process_video(video_path, frame_interval=99, total_frames=None):
+def process_video(video_path, frame_interval=99, total_frames=None, progress_bar=None):
     """
     Procesa un video utilizando YOLO.
 
@@ -181,7 +181,7 @@ def process_youtube_video(youtube_url):
 
     if video_size and video_size <= 200 * 1024 * 1024:
         temp_path = download_youtube_video(youtube_url)
-        results = process_video(temp_path)
+        results = process_video(temp_path, frame_interval=33, total_frames=None, progress_bar=st.progress(0))
 
         # Añadir la marca de agua y el contador total al video
         total_motorcycle_count = results["total_motos"]
@@ -190,6 +190,9 @@ def process_youtube_video(youtube_url):
         # Guardar resultado en MongoDB
         save_inference_result_video(inference_id, results["motorcycle_count_per_frame"])
 
+        # Guardar el estado del video procesado
+        st.session_state["processed_video"] = final_video_path
+
         # Proporcionar un botón de descarga para el video procesado
         st.download_button(
             label="Descargar video procesado",
@@ -197,6 +200,7 @@ def process_youtube_video(youtube_url):
             file_name="video_procesado.mp4",
             mime="video/mp4"
         )
+        # eliminar archivos temporales
         os.remove(temp_path)
         os.remove(final_video_path)
     else:
@@ -225,6 +229,9 @@ def process_youtube_video(youtube_url):
         # Guardar resultado en MongoDB
         save_inference_result_video(inference_id, all_frame_data)
 
+        # Guardar el estado del video procesado
+        st.session_state["processed_video"] = final_video_path
+
         # Proporcionar un botón de descarga para el video procesado
         st.download_button(
             label="Descargar video procesado",
@@ -235,5 +242,4 @@ def process_youtube_video(youtube_url):
         os.remove(last_segment)
         os.remove(final_video_path)
 
-    return {"inference_id": inference_id, "status": "completed"}
-
+    return {"inference_id": inference_id, "total_motos": total_motorcycle_count, "processed_video_path": st.session_state["processed_video"]}
