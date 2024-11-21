@@ -196,14 +196,7 @@ elif inference_mode == "YouTube":
                 with st.spinner("Procesando el video de YouTube..."):
                     results = process_youtube_video(youtube_url)
 
-
                 st.success(f"Inferencia completada. Total de motocicletas detectadas: {results.get('total_motos', 0)}")
-                if "processed_video_path" in results:
-                    st.download_button(
-                        label="Descargar video procesado",
-                        data=open(results["processed_video_path"], "rb").read(),
-                        file_name="video_procesado.mp4",
-                        mime="video/mp4")
 
             except Exception as e:
                 st.error(f"Error procesando el video de YouTube: {e}")

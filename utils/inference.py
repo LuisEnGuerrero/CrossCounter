@@ -208,12 +208,12 @@ def process_youtube_video(youtube_url):
         st.session_state["processed_video"] = final_video_path
 
         # Proporcionar un botón de descarga para el video procesado
-        # st.download_button(
-        #     label="Descargar video procesado",
-        #     data=open(final_video_path, "rb").read(),
-        #     file_name="video_procesado.mp4",
-        #     mime="video/mp4"
-        # )
+        st.download_button(
+            label="Descargar video procesado",
+            data=open(final_video_path, "rb").read(),
+            file_name="video_procesado.mp4",
+            mime="video/mp4"
+        )
         # eliminar archivos temporales
         os.remove(temp_path)
         os.remove(final_video_path)
@@ -252,12 +252,12 @@ def process_youtube_video(youtube_url):
         st.session_state["processed_video"] = final_video_path
 
         # Proporcionar un botón de descarga para el video procesado
-        # st.download_button(
-        #     label="Descargar video procesado",
-        #     data=open(final_video_path, "rb").read(),
-        #     file_name="video_procesado.mp4",
-        #     mime="video/mp4"
-        # )
+        st.download_button(
+            label="Descargar video procesado",
+            data=open(final_video_path, "rb").read(),
+            file_name="video_procesado.mp4",
+            mime="video/mp4"
+        )
         os.remove(last_segment)
         os.remove(final_video_path)
         
