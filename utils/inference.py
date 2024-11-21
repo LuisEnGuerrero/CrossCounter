@@ -187,11 +187,13 @@ def process_youtube_video(youtube_url):
     total_frames = info.get("total_frames")
     frame_count = 0
 
+    # Crear un contenedor vacío para mostrar los frames procesados
+    image_container = st.empty()  
+
+
     if not video_size:
         info = display_youtube_info(youtube_url)
         video_size = info.get("filesize_approx")
-
-    # progress_bar = st.progress(0)  # Crear una sola barra de progreso
 
     if video_size and video_size <= 200 * 1024 * 1024:
         temp_path = download_youtube_video(youtube_url)

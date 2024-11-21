@@ -98,8 +98,11 @@ def segment_video(video_path, segment_duration=200, output_dir="segments"):
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
+    # Calcular el tamaño de un frame en bytes
+    frame_size = width * height * 3  # 3 bytes por píxel (RGB)
+
     # Calcular el número de frames por segmento
-    segment_frames = int((segment_duration * 1024 * 1024 * 8) / (fps * width * height * 3))
+    segment_frames = int((segment_duration * 1024 * 1024) / frame_size)
 
     segment_paths = []
     segment_index = 0
