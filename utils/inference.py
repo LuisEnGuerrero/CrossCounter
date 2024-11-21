@@ -194,6 +194,7 @@ def process_youtube_video(youtube_url):
     if not video_size:
         info = display_youtube_info(youtube_url)
         video_size = info.get("filesize_approx")
+        st.write(f"Tamaño del video: {video_size}Mb")
 
     if video_size and video_size <= 200 * 1024 * 1024:
         temp_path = download_youtube_video(youtube_url)
@@ -241,11 +242,14 @@ def process_youtube_video(youtube_url):
 
         frame_count += 1
 
-        # if results.get("total_frames"):
-        #     update_progress(progress_bar, frame_count, results["total_frames"])
-
         # Añadir la marca de agua y el contador total al último segmento
         final_video_path = add_watermark_and_counter(last_segment, total_motorcycle_count)
+
+        # Mostrar en un cuadro de imagen pequeño el frame procesado dentro de un container de Streamlit
+        frame_small = resize_frame_proportionally(last_segment, scale=0.5)
+
+        if image_container:
+            image_container.image(frame_small, channels="BGR", caption=f"Frame {frame_count}")
 
         # Guardar resultado en MongoDB
         save_inference_result_video(inference_id, all_frame_data)
