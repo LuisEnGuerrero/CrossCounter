@@ -90,13 +90,41 @@ def segment_video(video_path, segment_duration=200, output_dir="segments"):
         list: Lista de rutas a los segmentos generados.
     """
     os.makedirs(output_dir, exist_ok=True)
-    ydl_opts = {
-        "format": "best",
-        "outtmpl": f"{output_dir}/segment_%(part)d.mp4",
-        "max_filesize": segment_duration * 1024 * 1024,
-    }
-    with YoutubeDL(ydl_opts) as ydl:
-        ydl.download([video_path])
+    
+    # Abrir el video original
+    cap = cv2.VideoCapture(video_path)
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    # Calcular el número de frames por segmento
+    segment_frames = int((segment_duration * 1024 * 1024 * 8) / (fps * width * height * 3))
+
+    segment_paths = []
+    segment_index = 0
+    frame_count = 0
+
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        if frame_count % segment_frames == 0:
+            if frame_count > 0:
+                out.release()
+            segment_index += 1
+            segment_path = os.path.join(output_dir, f"segment_{segment_index}.mp4")
+            segment_paths.append(segment_path)
+            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+            out = cv2.VideoWriter(segment_path, fourcc, fps, (width, height))
+
+        out.write(frame)
+        frame_count += 1
+
+    cap.release()
+    out.release()
+
     return sorted(Path(output_dir).glob("segment_*.mp4"))
 
 
