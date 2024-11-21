@@ -46,6 +46,8 @@ def get_youtube_video_metadata(youtube_url):
         "title": title,
         "duration": duration_seconds,
         "video_id": video_id,
+        "total_frames" : int(duration_seconds * 30),  # Asumir 30 FPS
+
     }
 
 

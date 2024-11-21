@@ -183,31 +183,30 @@ elif inference_mode == "YouTube":
         st.markdown(qr_code_html(youtube_url), unsafe_allow_html=True)
 
         if st.button("Empezar conteo"):
-            with st.spinner("Obteniendo información del video..."):
-                try:
-                    info = display_youtube_info(youtube_url)
-                    if not info:
-                        st.error("No se pudo obtener la información del video.")
-                    else:
-                        st.write("Información del video:")
-                        st.write(f"**Título:** {info['title']}")
-                        st.write(f"**Autor:** {info['author']}")
-                        st.write(f"**Duración:** {info['duration'] // 60} minutos {info['duration'] % 60} segundos")
+            try:
+                info = display_youtube_info(youtube_url)
+                if not info:
+                    st.error("No se pudo obtener la información del video.")
+                else:
+                    st.write("Información del video:")
+                    st.write(f"**Título:** {info['title']}")
+                    st.write(f"**Autor:** {info['author']}")
+                    st.write(f"**Duración:** {info['duration'] // 60} minutos {info['duration'] % 60} segundos")
 
-                    with st.spinner("Procesando el video de YouTube..."):
-                        results = process_youtube_video(youtube_url)
+                with st.spinner("Procesando el video de YouTube..."):
+                    results = process_youtube_video(youtube_url)
 
 
-                    st.success(f"Inferencia completada. Total de motocicletas detectadas: {results.get('total_motos', 0)}")
-                    if "processed_video_path" in results:
-                        st.download_button(
-                            label="Descargar video procesado",
-                            data=open(results["processed_video_path"], "rb").read(),
-                            file_name="video_procesado.mp4",
-                            mime="video/mp4")
+                st.success(f"Inferencia completada. Total de motocicletas detectadas: {results.get('total_motos', 0)}")
+                if "processed_video_path" in results:
+                    st.download_button(
+                        label="Descargar video procesado",
+                        data=open(results["processed_video_path"], "rb").read(),
+                        file_name="video_procesado.mp4",
+                        mime="video/mp4")
 
-                except Exception as e:
-                    st.error(f"Error procesando el video de YouTube: {e}")
+            except Exception as e:
+                st.error(f"Error procesando el video de YouTube: {e}")
 
 
 
