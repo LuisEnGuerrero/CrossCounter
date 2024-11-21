@@ -184,6 +184,7 @@ def process_youtube_video(youtube_url):
     inference_id = generate_inference_id()
     info = get_youtube_video_metadata(youtube_url)
     video_size = info.get("filesize_approx")
+    total_frames = info.get("total_frames")
     frame_count = 0
 
     if not video_size:
@@ -194,7 +195,7 @@ def process_youtube_video(youtube_url):
 
     if video_size and video_size <= 200 * 1024 * 1024:
         temp_path = download_youtube_video(youtube_url)
-        results = process_video(temp_path, frame_interval=33, total_frames=info.get("total_frames"))
+        results = process_video(temp_path, frame_interval=33, total_frames=total_frames)
 
         # Añadir la marca de agua y el contador total al video
         total_motorcycle_count = results["total_motos"]
@@ -225,14 +226,14 @@ def process_youtube_video(youtube_url):
         all_frame_data = []
 
         for segment in segment_paths[:-1]:
-            segment_results = process_video(segment, frame_interval=33)
+            segment_results = process_video(segment, frame_interval=33, total_frames=total_frames)
             total_motorcycle_count += segment_results["total_motos"]
             all_frame_data.extend(segment_results["motorcycle_count_per_frame"])
             os.remove(segment)
 
         # Procesar el último segmento y añadir la marca de agua
         last_segment = segment_paths[-1]
-        last_segment_results = process_video(last_segment, frame_interval=33)
+        last_segment_results = process_video(last_segment, frame_interval=33, total_frames=total_frames)
         total_motorcycle_count += last_segment_results["total_motos"]
         all_frame_data.extend(last_segment_results["motorcycle_count_per_frame"])
 
