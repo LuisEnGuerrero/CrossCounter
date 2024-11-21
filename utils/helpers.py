@@ -42,13 +42,17 @@ def get_youtube_video_metadata(youtube_url):
     import isodate
     duration_seconds = isodate.parse_duration(duration_iso).total_seconds()
 
-    return {
-        "title": title,
-        "duration": duration_seconds,
-        "video_id": video_id,
-        "total_frames" : int(duration_seconds * 30),  # Asumir 30 FPS
+    # Estimar el tamaño del video (esto es solo una estimación)
+    average_bitrate = 5 * 1024 * 1024  # 5 Mbps
+    filesize_approx = (duration_seconds * average_bitrate) / 8  # Convertir a bytes
 
-    }
+    return {
+            "title": title,
+            "duration": duration_seconds,
+            "video_id": video_id,
+            "filesize_approx": filesize_approx,
+            "total_frames" : int(duration_seconds * 30),  # Asumir 30 FPS
+        }
 
 
 def download_youtube_video(youtube_url, output_path="temp_youtube.mp4"):

@@ -53,7 +53,7 @@ inference_mode = st.sidebar.selectbox(
 )
 
 # Mostrar la imagen del logo en la barra lateral
-st.sidebar.image('media/logox512.jpg', use_column_width=True)
+st.sidebar.image('media/logox512.jpg', use_container_width=True)
 
 # Inferencia en imágenes
 if inference_mode == "Imagen":
