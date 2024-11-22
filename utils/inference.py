@@ -320,14 +320,14 @@ def process_youtube_video_inference(video_path, frame_interval=33, total_frames=
                                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
                         frame_motorcycle_count += 1
 
-            # Actualizar el contador total de motocicletas
-            total_motorcycle_count += frame_motorcycle_count
+                # Actualizar el contador total de motocicletas
+                total_motorcycle_count += frame_motorcycle_count
 
-            # Acumular resultados por frame
-            motorcycle_count_per_frame.append({
-                "timestamp": datetime.now(),
-                "motorcycle_count": frame_motorcycle_count,
-            })
+                # Acumular resultados por frame
+                motorcycle_count_per_frame.append({
+                    "timestamp": datetime.now(),
+                    "motorcycle_count": frame_motorcycle_count,
+                })
 
         # Añadir título y contador total al frame
         motos_text = f"Motos encontradas: {total_motorcycle_count}"
@@ -346,7 +346,9 @@ def process_youtube_video_inference(video_path, frame_interval=33, total_frames=
         frame_count += 1
 
         # Actualizar la barra de progreso
-        progress_bar.progress(frame_count / total_frames)
+        progress_value = min(frame_count / total_frames, 1.0)
+        progress_bar.progress(progress_value)
+
 
     cap.release()
     out.release()
