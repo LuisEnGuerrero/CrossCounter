@@ -304,8 +304,12 @@ def process_youtube_video_inference(video_path, frame_interval=33, total_frames=
             # Convertir frame a formato PIL para la inferencia
             img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
 
+            # Guardar el frame temporalmente para procesarlo como imagen
+            temp_frame_path = tempfile.NamedTemporaryFile(delete=False, suffix=".jpg").name
+            img.save(temp_frame_path)
+
             # Realizar inferencia en el frame
-            results = process_image(img)
+            results = process_image(temp_frame_path)
 
             for result in results:
                 for box in result.boxes:
@@ -328,6 +332,13 @@ def process_youtube_video_inference(video_path, frame_interval=33, total_frames=
                 "timestamp": datetime.now(),
                 "motorcycle_count": frame_motorcycle_count,
             })
+
+            # Mostrar el frame procesado en el contenedor de imagen
+            if image_container:
+                image_container.image(frame, channels="BGR", use_container_width=True)
+
+            # Eliminar el frame temporal
+            os.remove(temp_frame_path)
 
         # Añadir título y contador total al frame
         motos_text = f"Motos encontradas: {total_motorcycle_count}"
