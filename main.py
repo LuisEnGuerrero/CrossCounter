@@ -70,6 +70,9 @@ if inference_mode == "Imagen":
     if uploaded_image and uploaded_image != st.session_state.image_uploaded:
         st.session_state.image_uploaded = uploaded_image  # Actualizar estado con la nueva imagen
 
+        # Crear un contenedor vacío para mostrar los frames procesados
+        image_container = st.empty()  
+
         temp_path = Path(f"temp_{uploaded_image.name}")
 
         with st.spinner("Procesando la imagen..."):
@@ -90,6 +93,7 @@ if inference_mode == "Imagen":
             detection_id = str(uuid.uuid4())  # Generar un ID único para la detección
             timestamp = datetime.now()  # Fecha y hora de la inferencia
 
+
             # Guardar en MongoDB
             # st.write(detections) # identificar el formato de las detecciones
             save_inference_result_image({
@@ -100,13 +104,15 @@ if inference_mode == "Imagen":
                 "timestamp": timestamp,
             })
 
+            # Mostrar el frame procesado en el contenedor de imagen
+            if image_container:
             # Mostrar la imagen procesada
-            st.image(
-                image_with_boxes,
-                caption="Imagen con detecciones",
-                use_container_width=True
-            )
-            st.success(f"Inferencia completada. Total de motocicletas detectadas: {len(detections['predictions'])}")
+                image_container.image(
+                    image_with_boxes,
+                    caption="Imagen con detecciones",
+                    use_container_width=True
+                )
+                st.success(f"Inferencia completada. Total de motocicletas detectadas: {len(detections['predictions'])}")
 
                 # Eliminar archivo temporal
         try:
