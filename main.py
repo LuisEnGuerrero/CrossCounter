@@ -197,7 +197,6 @@ elif inference_mode == "YouTube":
                     results = process_youtube_video(youtube_url)
 
                 st.success(f"Inferencia completada. Total de motocicletas detectadas: {results.get('total_motos', 0)}")
-                st.text_input().empty()
             except Exception as e:
                 st.error(f"Error procesando el video de YouTube: {e}")
 
