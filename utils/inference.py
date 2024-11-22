@@ -291,32 +291,34 @@ def process_youtube_video_inference(video_path, frame_interval=33, total_frames=
     # Crear barra de progreso única
     progress_bar = st.progress(0)
 
+    app_name = "AI-MotorCycle CrossCounter TalentoTECH"  # Nombre de la aplicación
+
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
 
-        if frame_count % frame_interval == 0:
-            # Redimensionar el frame de forma proporcional
-            frame_small = resize_frame_proportionally(frame, scale=0.5)
+        frame_motorcycle_count = 0  # Contador de motocicletas por frame
 
-            # Guardar el frame temporalmente para procesarlo como imagen
-            temp_frame_path = tempfile.NamedTemporaryFile(delete=False, suffix=".jpg").name
-            cv2.imwrite(temp_frame_path, frame)
+        if frame_count % frame_interval == 0:
+            # Convertir frame a formato PIL para la inferencia
+            img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
 
             # Realizar inferencia en el frame
-            results = process_image(frame)
+            results = model(img)
 
-            frame_motorcycle_count = 0
-            for detection in results["predictions"]:
-                if detection["name"] == "motorcycle":
-                    x_min, y_min, x_max, y_max = int(detection["xmin"]), int(detection["ymin"]), int(detection["xmax"]), int(detection["ymax"])
-                    conf = detection["confidence"]
-                    # Dibujar detección en el frame
-                    cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
-                    cv2.putText(frame, f"{detection['name']} {conf:.2f}", (x_min, y_min - 10),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                    frame_motorcycle_count += 1
+            for result in results:
+                for box in result.boxes:
+                    cls = result.names[int(box.cls[0])]
+
+                    if cls == "motorcycle":
+                        conf = box.conf[0]
+                        x_min, y_min, x_max, y_max = map(int, box.xyxy[0].tolist())
+                        # Dibujar detección en el frame
+                        cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+                        cv2.putText(frame, f"{cls} {conf:.2f}", (x_min, y_min - 10),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                        frame_motorcycle_count += 1
 
             # Actualizar el contador total de motocicletas
             total_motorcycle_count += frame_motorcycle_count
@@ -327,9 +329,19 @@ def process_youtube_video_inference(video_path, frame_interval=33, total_frames=
                 "motorcycle_count": frame_motorcycle_count,
             })
 
-            # Mostrar el frame procesado en el contenedor de imagen
-            if image_container:
-                image_container.image(frame_small, channels="BGR", use_container_width=True)
+        # Añadir título y contador total al frame
+        motos_text = f"Motos encontradas: {total_motorcycle_count}"
+        cv2.putText(frame, app_name, (10, height - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+        cv2.putText(frame, motos_text, (10, height - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+
+        # Mostrar en un cuadro de imagen pequeño el frame procesado dentro de un container de Streamlit
+        frame_small = resize_frame_proportionally(frame, scale=0.5)
+
+        if image_container:
+            image_container.image(frame_small, channels="BGR", caption=f"Frame {frame_count}")
+
+        # Escribir el frame procesado en el video de salida
+        out.write(frame)
 
         frame_count += 1
 
