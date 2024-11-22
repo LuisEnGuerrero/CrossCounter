@@ -185,8 +185,6 @@ def process_youtube_video(youtube_url):
     info = get_youtube_video_metadata(youtube_url)
     video_size = info.get("filesize_approx")
     total_frames = info.get("total_frames")
-    frame_count = 0
-
 
     if not video_size:
         info = display_youtube_info(youtube_url)
@@ -236,8 +234,6 @@ def process_youtube_video(youtube_url):
         last_segment_results = process_video(last_segment, frame_interval=33, total_frames=total_frames)
         total_motorcycle_count += last_segment_results["total_motos"]
         all_frame_data.extend(last_segment_results["motorcycle_count_per_frame"])
-
-        frame_count += 1
 
         # Añadir la marca de agua y el contador total al último segmento
         final_video_path = add_watermark_and_counter(last_segment, total_motorcycle_count)
@@ -304,21 +300,23 @@ def process_youtube_video_inference(video_path, frame_interval=33, total_frames=
             # Redimensionar el frame de forma proporcional
             frame_small = resize_frame_proportionally(frame, scale=0.5)
 
+            # Guardar el frame temporalmente para procesarlo como imagen
+            temp_frame_path = tempfile.NamedTemporaryFile(delete=False, suffix=".jpg").name
+            cv2.imwrite(temp_frame_path, frame)
+
             # Realizar inferencia en el frame
-            results = model(frame)
+            results = process_image(frame)
 
             frame_motorcycle_count = 0
-            for result in results:
-                for box in result.boxes:
-                    cls = result.names[int(box.cls[0])]
-                    if cls == "motorcycle":
-                        conf = box.conf[0]
-                        x_min, y_min, x_max, y_max = map(int, box.xyxy[0].tolist())
-                        # Dibujar detección en el frame
-                        cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
-                        cv2.putText(frame, f"{cls} {conf:.2f}", (x_min, y_min - 10),
-                                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                        frame_motorcycle_count += 1
+            for detection in results["predictions"]:
+                if detection["name"] == "motorcycle":
+                    x_min, y_min, x_max, y_max = int(detection["xmin"]), int(detection["ymin"]), int(detection["xmax"]), int(detection["ymax"])
+                    conf = detection["confidence"]
+                    # Dibujar detección en el frame
+                    cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+                    cv2.putText(frame, f"{detection['name']} {conf:.2f}", (x_min, y_min - 10),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                    frame_motorcycle_count += 1
 
             # Actualizar el contador total de motocicletas
             total_motorcycle_count += frame_motorcycle_count
