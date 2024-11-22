@@ -305,7 +305,7 @@ def process_youtube_video_inference(video_path, frame_interval=33, total_frames=
             img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
 
             # Realizar inferencia en el frame
-            results = model(img)
+            results = process_image(img)
 
             for result in results:
                 for box in result.boxes:
@@ -320,14 +320,14 @@ def process_youtube_video_inference(video_path, frame_interval=33, total_frames=
                                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
                         frame_motorcycle_count += 1
 
-                # Actualizar el contador total de motocicletas
-                total_motorcycle_count += frame_motorcycle_count
+            # Actualizar el contador total de motocicletas
+            total_motorcycle_count += frame_motorcycle_count
 
-                # Acumular resultados por frame
-                motorcycle_count_per_frame.append({
-                    "timestamp": datetime.now(),
-                    "motorcycle_count": frame_motorcycle_count,
-                })
+            # Acumular resultados por frame
+            motorcycle_count_per_frame.append({
+                "timestamp": datetime.now(),
+                "motorcycle_count": frame_motorcycle_count,
+            })
 
         # Añadir título y contador total al frame
         motos_text = f"Motos encontradas: {total_motorcycle_count}"
