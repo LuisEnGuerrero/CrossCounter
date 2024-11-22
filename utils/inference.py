@@ -191,7 +191,7 @@ def process_youtube_video(youtube_url):
         video_size = info.get("filesize_approx")
         st.write(f"Tamaño del video: {video_size}Mb")
 
-    if video_size and video_size <= 200 * 1024 * 1024 * 1024:
+    if video_size and video_size <= 200 * 1024 * 1024:
         temp_path = download_youtube_video(youtube_url)
         results = process_youtube_video_inference(temp_path, frame_interval=33, total_frames=total_frames)
 
