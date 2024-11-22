@@ -337,26 +337,11 @@ def process_youtube_video_inference(video_path, frame_interval=33, total_frames=
             # Eliminar el frame temporal
             os.remove(temp_frame_path)
 
-        # Añadir título y contador total al frame
-        motos_text = f"Motos encontradas: {total_motorcycle_count}"
-        cv2.putText(frame, app_name, (10, height - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-        cv2.putText(frame, motos_text, (10, height - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-
-        # Mostrar en un cuadro de imagen pequeño el frame procesado dentro de un container de Streamlit
-        frame_small = resize_frame_proportionally(frame, scale=0.5)
-
-        if image_container:
-            image_container.image(frame_small, channels="BGR", caption=f"Frame {frame_count}")
-
-        # Escribir el frame procesado en el video de salida
-        out.write(frame)
-
         frame_count += 1
 
         # Actualizar la barra de progreso
         progress_value = min(frame_count / total_frames, 1.0)
         progress_bar.progress(progress_value)
-
 
     cap.release()
     out.release()
