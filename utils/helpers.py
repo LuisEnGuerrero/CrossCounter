@@ -2,6 +2,7 @@ import streamlit as st
 from yt_dlp import YoutubeDL
 from pathlib import Path
 import os
+import subprocess
 from googleapiclient.discovery import build
 from datetime import datetime
 import cv2
@@ -57,30 +58,36 @@ def get_youtube_video_metadata(youtube_url):
         }
 
 #  función para descargar un video de YouTube
-def download_youtube_video(youtube_url, output_path="temp_youtube.mp4"):
+def download_youtube_video(url, start_time=None, end_time=None):
     """
-    Descarga un video de YouTube usando yt-dlp.
+    Descarga un video de YouTube utilizando yt-dlp.
 
     Args:
-        youtube_url (str): URL del video de YouTube.
-        output_path (str): Ruta para guardar el video descargado.
+        url (str): URL del video de YouTube.
+        start_time (int, optional): Tiempo de inicio en segundos para la descarga.
+        end_time (int, optional): Tiempo de finalización en segundos para la descarga.
 
     Returns:
-        str: Ruta del archivo descargado.
+        str: Ruta al archivo descargado.
     """
-    ydl_opts = {
-        "format": "best",
-        "outtmpl": output_path or "%(title)s.%(ext)s",
-    }
+    output_template = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4").name
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        result = ydl.download([youtube_url])
-        if isinstance(result, list):
-            return result[0]  # Ruta del archivo descargado
-        return result
+    # Comando base para yt-dlp
+    base_command = ["yt-dlp", "-f", "mp4", "-o", output_template, url]
+
+    # Agregar parámetros de segmentación si son proporcionados
+    if start_time is not None or end_time is not None:
+        segment_flag = f"#t={start_time or 0},{end_time or ''}"
+        base_command[3] = f"{url}{segment_flag}"
+
+    try:
+        subprocess.run(base_command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return output_template
+    except Exception as e:
+        raise RuntimeError(f"Error descargando el video: {e}")
 
 
-def segment_video(video_path, segment_duration=200, output_dir="segments"):
+def segment_video(video_path, max_segment_duration=200, output_dir="segments"):
     """
     Divide un video en segmentos más pequeños.
 
@@ -92,46 +99,19 @@ def segment_video(video_path, segment_duration=200, output_dir="segments"):
     Returns:
         list: Lista de rutas a los segmentos generados.
     """
-    os.makedirs(output_dir, exist_ok=True)
-    
-    # Abrir el video original
-    cap = cv2.VideoCapture(video_path)
-    fps = int(cap.get(cv2.CAP_PROP_FPS))
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    # Obtener duración del video
+    video_info = get_video_info(video_path)
+    total_duration = video_info["duration"]  # En segundos
 
-    # Calcular el tamaño de un frame en bytes
-    frame_size = width * height * 3  # 3 bytes por píxel (RGB)
+    segments = []
+    start_time = 0
 
-    # Calcular el número de frames por segmento
-    segment_frames = int((segment_duration * 1024 * 1024) / frame_size)
+    while start_time < total_duration:
+        end_time = min(start_time + max_segment_duration, total_duration)
+        segments.append((start_time, end_time))
+        start_time = end_time
 
-    segment_paths = []
-    segment_index = 0
-    frame_count = 0
-
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            break
-
-        if frame_count % segment_frames == 0:
-            if frame_count > 0:
-                out.release()
-            segment_index += 1
-            segment_path = os.path.join(output_dir, f"segment_{segment_index}.mp4")
-            segment_paths.append(segment_path)
-            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-            out = cv2.VideoWriter(segment_path, fourcc, fps, (width, height))
-
-        out.write(frame)
-        frame_count += 1
-
-    cap.release()
-    out.release()
-
-    return sorted(Path(output_dir).glob("segment_*.mp4"))
+    return segments
 
 
 def display_youtube_info(youtube_url):

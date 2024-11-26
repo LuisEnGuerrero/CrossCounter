@@ -198,6 +198,23 @@ elif inference_mode == "YouTube":
                             file_name="video_procesado_youtube.mp4",
                             mime="video/mp4"
                         )
+                if "YouTube" not in st.session_state:
+                    st.session_state["YouTube"] = {
+                        "video_processed": False,
+                        "video_path": None,
+                        "results": None
+                    }
+
+                # Actualizar el estado después del procesamiento
+                processing_complete = results.get("processing_complete", False)
+                if processing_complete:
+                    st.session_state["YouTube"]["video_processed"] = True
+                    st.session_state["YouTube"]["video_path"] = results["processed_video_path"]
+                    st.session_state["YouTube"]["results"] = results
+
+                # Verificar si ya se procesó un video
+                if st.session_state["youtube_inference_state"]["video_processed"]:
+                    st.video(st.session_state["youtube_inference_state"]["video_path"])
             except Exception as e:
                 st.error(f"Error al procesar el video de YouTube: {e}")
 
