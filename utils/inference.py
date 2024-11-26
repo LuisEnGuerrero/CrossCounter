@@ -14,9 +14,13 @@ from utils.helpers import (
     add_watermark_and_counter,
     get_youtube_video_metadata,
     resize_frame_proportionally,
+    get_video_duration_and_size,
+    process_video_segment,
+    get_video_info,    
     )
 import tempfile
 import base64
+from pytube import YouTube
 
 from utils.mongodb import save_inference_result_video
 
@@ -171,91 +175,66 @@ def process_video(video_path, frame_interval=103, total_frames=None):
     }
 
 
-def process_youtube_video(youtube_url):
+
+def process_youtube_video(youtube_url, frame_interval=99, max_segment_duration=200):
     """
-    Procesa un video de YouTube y almacena los resultados de inferencia en MongoDB.
+    Procesa un video de YouTube dividiéndolo en segmentos si es necesario.
 
     Args:
         youtube_url (str): URL del video de YouTube.
+        api_key (str): Clave de la API de YouTube.
+        frame_interval (int): Procesar cada n-ésimo frame.
+        max_segment_duration (int): Duración máxima de un segmento en segundos.
 
     Returns:
         dict: Resultados de la inferencia.
     """
+    # Obtener información del video
+    video_info = get_video_info(youtube_url)
+    duration = video_info["duration"]
+
+    # Decidir si descargar completo o por segmentos
+    if duration <= max_segment_duration:
+        video_path = download_youtube_video(youtube_url)
+        return process_video(video_path, frame_interval)
+
+    # Descargar y procesar por segmentos
     inference_id = generate_inference_id()
-    info = get_youtube_video_metadata(youtube_url)
-    video_size = info.get("filesize_approx")
-    total_frames = info.get("total_frames")
+    total_motorcycle_count = 0
+    motorcycle_count_per_frame = []
+    processed_video_path = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4").name
 
-    if not video_size:
-        info = display_youtube_info(youtube_url)
-        video_size = info.get("filesize_approx")
-        st.write(f"Tamaño del video: {video_size}Mb")
+    for start_time in range(0, int(duration), max_segment_duration):
+        end_time = min(start_time + max_segment_duration, duration)
 
-    if video_size and video_size <= 200 * 1024 * 1024 * 4:
-        temp_path = download_youtube_video(youtube_url)
-        results = process_youtube_video_inference(temp_path, frame_interval=33, total_frames=total_frames)
+        # Descargar segmento
+        segment_path = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4").name
+        segment_url = f"{youtube_url}&begin={start_time}&end={end_time}"
+        download_youtube_video(segment_url, output_path=segment_path)
 
-        # Añadir la marca de agua y el contador total al video
-        total_motorcycle_count = results["total_motos"]
-        final_video_path = add_watermark_and_counter(temp_path, total_motorcycle_count)
+        # Procesar segmento
+        segment_result = process_video(segment_path, frame_interval)
+        total_motorcycle_count += segment_result["total_motos"]
+        motorcycle_count_per_frame.extend(segment_result["motorcycle_count_per_frame"])
 
-        # Guardar resultado en MongoDB
-        save_inference_result_video(inference_id, results["motorcycle_count_per_frame"])
+        # Combinar el video procesado
+        with open(segment_result["processed_video_path"], "rb") as segment_file:
+            with open(processed_video_path, "ab") as final_video:
+                final_video.write(segment_file.read())
 
-        # Guardar el estado del video procesado
-        st.session_state["processed_video"] = final_video_path
+        # Limpiar recursos temporales
+        os.remove(segment_path)
+        os.remove(segment_result["processed_video_path"])
 
-        # Proporcionar un botón de descarga para el video procesado
-        st.download_button(
-            label="Descargar video procesado",
-            data=open(final_video_path, "rb").read(),
-            file_name="video_procesado.mp4",
-            mime="video/mp4"
-        )
-        # eliminar archivos temporales
-        os.remove(temp_path)
-        os.remove(final_video_path)
-    else:
-        temp_path = download_youtube_video(youtube_url, output_path="temp_large.mp4")
-        segment_paths = segment_video(temp_path)
-        st.warning(f"El video se ha segmentado debido a su tamaño, en {len(segment_paths)} segmentos.")
+    # Guardar resultados en MongoDB
+    save_inference_result_video(inference_id, motorcycle_count_per_frame)
 
-        total_motorcycle_count = 0
-        all_frame_data = []
+    return {
+        "inference_id": inference_id,
+        "total_motos": total_motorcycle_count,
+        "processed_video_path": processed_video_path,
+    }
 
-        for segment in segment_paths[:-1]:
-            segment_results = process_video(segment, frame_interval=33, total_frames=total_frames)
-            total_motorcycle_count += segment_results["total_motos"]
-            all_frame_data.extend(segment_results["motorcycle_count_per_frame"])
-            os.remove(segment)
-
-        # Procesar el último segmento y añadir la marca de agua
-        last_segment = segment_paths[-1]
-        last_segment_results = process_video(last_segment, frame_interval=33, total_frames=total_frames)
-        total_motorcycle_count += last_segment_results["total_motos"]
-        all_frame_data.extend(last_segment_results["motorcycle_count_per_frame"])
-
-        # Añadir la marca de agua y el contador total al último segmento
-        final_video_path = add_watermark_and_counter(last_segment, total_motorcycle_count)
-
-        # Guardar resultado en MongoDB
-        save_inference_result_video(inference_id, all_frame_data)
-
-        # Guardar el estado del video procesado
-        st.session_state["processed_video"] = final_video_path
-
-        # Proporcionar un botón de descarga para el video procesado
-        st.download_button(
-            label="Descargar video procesado",
-            data=open(final_video_path, "rb").read(),
-            file_name="video_procesado.mp4",
-            mime="video/mp4"
-        )
-        os.remove(last_segment)
-        os.remove(final_video_path)
-        
-
-    return {"inference_id": inference_id, "total_motos": total_motorcycle_count, "processed_video_path": st.session_state["processed_video"]}
 
 
 def process_youtube_video_inference(video_path, frame_interval=33, total_frames=None):

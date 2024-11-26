@@ -5,7 +5,9 @@ import os
 from googleapiclient.discovery import build
 from datetime import datetime
 import cv2
-
+import tempfile
+import requests
+import yt_dlp
 
 # Obtener la API de YouTube desde los secretos de Streamlit Cloud
 YOUTUBE_API_KEY = st.secrets["YOUTUBE"]["YOUTUBE_API_KEY"]
@@ -54,10 +56,10 @@ def get_youtube_video_metadata(youtube_url):
             "total_frames" : int(duration_seconds * 30),  # Asumir 30 FPS
         }
 
-
+#  función para descargar un video de YouTube
 def download_youtube_video(youtube_url, output_path="temp_youtube.mp4"):
     """
-    Descarga un video de YouTube.
+    Descarga un video de YouTube usando yt-dlp.
 
     Args:
         youtube_url (str): URL del video de YouTube.
@@ -66,15 +68,16 @@ def download_youtube_video(youtube_url, output_path="temp_youtube.mp4"):
     Returns:
         str: Ruta del archivo descargado.
     """
-    metadata = get_youtube_video_metadata(youtube_url)
-    video_id = metadata["video_id"]
+    ydl_opts = {
+        "format": "best",
+        "outtmpl": output_path or "%(title)s.%(ext)s",
+    }
 
-    # Descargar video con yt-dlp
-    ydl_opts = {"format": "best", "outtmpl": output_path}
-    with YoutubeDL(ydl_opts) as ydl:
-        ydl.download([f"https://www.youtube.com/watch?v={video_id}"])
-
-    return output_path
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        result = ydl.download([youtube_url])
+        if isinstance(result, list):
+            return result[0]  # Ruta del archivo descargado
+        return result
 
 
 def segment_video(video_path, segment_duration=200, output_dir="segments"):
@@ -174,8 +177,7 @@ def display_youtube_info(youtube_url):
     except Exception as e:
         st.error(f"Error al extraer información del video: {e}")
         return {}
-    
-    
+        
 
 def update_progress(bar, processed_frames, total_frames):
     """
@@ -202,7 +204,6 @@ def generate_inference_id():
         str: ID único en formato ISO 8601.
     """
     return datetime.now().isoformat()
-
 
 # Añade una marca de agua y un contador total de motocicletas a un video.
 def add_watermark_and_counter(video_path, total_motorcycle_count):
@@ -268,4 +269,114 @@ def resize_frame_proportionally(frame, scale=0.5):
     resized_frame = cv2.resize(frame, (new_width, new_height), interpolation=cv2.INTER_AREA)
 
     return resized_frame
+
+
+def get_video_duration_and_size(video_path):
+    """
+    Calcula la duración y el tamaño de un video.
+
+    Args:
+        video_path (str): Ruta al archivo de video.
+
+    Returns:
+        tuple: Duración en segundos y tamaño en MB.
+    """
+    cap = cv2.VideoCapture(video_path)
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    duration_seconds = total_frames / fps
+    video_size_mb = os.path.getsize(video_path) / (1024 * 1024)
+    cap.release()
+    return duration_seconds, video_size_mb
+
+#   función para procesar un segmento de video
+def process_video_segment(cap, start_frame, end_frame, frame_interval):
+    """
+    Procesa un segmento del video.
+
+    Args:
+        cap (cv2.VideoCapture): Objeto de captura del video.
+        start_frame (int): Frame inicial del segmento.
+        end_frame (int): Frame final del segmento.
+        frame_interval (int): Intervalo de frames a procesar.
+
+    Returns:
+        dict: Resultados del segmento procesado.
+    """
+    cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+    segment_motorcycle_count = 0
+    frame_results = []
+    processed_video_path = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4").name
+    out = cv2.VideoWriter(
+        processed_video_path,
+        cv2.VideoWriter_fourcc(*'mp4v'),
+        cap.get(cv2.CAP_PROP_FPS),
+        (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+    )
+
+    while cap.isOpened():
+        frame_pos = cap.get(cv2.CAP_PROP_POS_FRAMES)
+        if frame_pos >= end_frame:
+            break
+
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        if int(frame_pos) % frame_interval == 0:
+            # Procesar frame
+            frame_motorcycle_count = 0
+            # (Aquí debes incluir la lógica de detección y marcaje usando YOLO)
+            # Actualizar resultados
+            segment_motorcycle_count += frame_motorcycle_count
+            frame_results.append({
+                "timestamp": datetime.now(),
+                "motorcycle_count": frame_motorcycle_count,
+            })
+
+        out.write(frame)
+
+    cap.release()
+    out.release()
+    
+    return {
+        "motorcycle_count": segment_motorcycle_count,
+        "frame_results": frame_results,
+        "processed_video_path": processed_video_path,
+    }
+
+# función para obtener información de un video de YouTube
+def get_video_info(youtube_url):
+    """
+    Obtiene información de un video de YouTube usando la API de YouTube.
+
+    Args:
+        youtube_url (str): URL del video de YouTube.
+        api_key (str): Clave de la API de YouTube.
+
+    Returns:
+        dict: Información del video (tamaño, duración, título, etc.).
+    """
+    # Extraer el ID del video de la URL
+    video_id = youtube_url.split("v=")[-1].split("&")[0]
+    api_url = f"https://www.googleapis.com/youtube/v3/videos?id={video_id}&key={YOUTUBE_API_KEY}&part=contentDetails,snippet"
+
+    response = requests.get(api_url)
+    if response.status_code != 200:
+        raise ValueError(f"Error al obtener información del video: {response.json()}")
+
+    video_data = response.json()["items"][0]
+    duration = video_data["contentDetails"]["duration"]
+    title = video_data["snippet"]["title"]
+
+    # Convertir la duración de ISO 8601 a segundos
+    def parse_duration(duration):
+        import isodate
+        return isodate.parse_duration(duration).total_seconds()
+
+    return {
+        "video_id": video_id,
+        "title": title,
+        "duration": parse_duration(duration),  # En segundos
+    }
 
