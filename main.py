@@ -180,7 +180,7 @@ elif inference_mode == "Video":
             
 
 # Inferencia en videos de YouTube
-elif inference_mode == "Video de YouTube":
+elif inference_mode == "YouTube":
     st.subheader("Procesar un Video de YouTube")
     youtube_url = st.text_input("Introduce la URL del video de YouTube")
 
