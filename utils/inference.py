@@ -199,7 +199,7 @@ def process_youtube_video(youtube_url, frame_interval=99, max_segment_duration=2
     is_large = is_large_video(youtube_url)
     if not is_large and duration <= max_segment_duration:
         video_path = download_youtube_video(youtube_url)
-        return process_video(video_path, frame_interval)
+        return process_youtube_video_inference(video_path, frame_interval)
 
     # Descargar y procesar por segmentos
     inference_id = generate_inference_id()
@@ -210,10 +210,11 @@ def process_youtube_video(youtube_url, frame_interval=99, max_segment_duration=2
     for start_time in range(0, int(duration), max_segment_duration):
         end_time = min(start_time + max_segment_duration, duration)
 
-        # Descargar segmento
+        # Descargar y segmentar el video
         segment_path = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4").name
-        segment_url = f"{youtube_url}&begin={start_time}&end={end_time}"
-        download_youtube_video(segment_url, output_path=segment_path)
+        download_youtube_video(
+            youtube_url, output_path=segment_path, start_time=start_time, end_time=end_time
+        )
 
         # Procesar segmento
         segment_result = process_youtube_video_inference(segment_path, frame_interval)
@@ -224,9 +225,6 @@ def process_youtube_video(youtube_url, frame_interval=99, max_segment_duration=2
         with open(segment_result["processed_video_path"], "rb") as segment_file:
             with open(processed_video_path, "ab") as final_video:
                 final_video.write(segment_file.read())
-
-        # Feedback: Mostrar progreso del segmento al usuario
-        st.info(f"Segmento {start_time // max_segment_duration + 1} procesado. Total motos: {segment_result['total_motos']}.")
 
         # Limpiar recursos temporales
         os.remove(segment_path)
@@ -289,22 +287,21 @@ def process_youtube_video_inference(video_path, frame_interval=33, total_frames=
             # Convertir frame a formato PIL para la inferencia
             img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
 
-            # Guardar el frame temporalmente para procesarlo como imagen
-            temp_frame_path = tempfile.NamedTemporaryFile(delete=False, suffix=".jpg").name
-            img.save(temp_frame_path)
-
             # Realizar inferencia en el frame
-            results = process_image(temp_frame_path)
+            results = model(img)
 
-            for detection in results["predictions"]:
-                if detection["name"] == "motorcycle":
-                    x_min, y_min, x_max, y_max = int(detection["xmin"]), int(detection["ymin"]), int(detection["xmax"]), int(detection["ymax"])
-                    conf = detection["confidence"]
-                    # Dibujar detección en el frame
-                    cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
-                    cv2.putText(frame, f"{detection['name']} {conf:.2f}", (x_min, y_min - 10),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                    frame_motorcycle_count += 1
+            for result in results:
+                for box in result.boxes:
+                    cls = result.names[int(box.cls[0])]
+
+                    if cls == "motorcycle":
+                        conf = box.conf[0]
+                        x_min, y_min, x_max, y_max = map(int, box.xyxy[0].tolist())
+                        # Dibujar detección en el frame
+                        cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+                        cv2.putText(frame, f"{cls} {conf:.2f}", (x_min, y_min - 10),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                        frame_motorcycle_count += 1
 
             # Actualizar el contador total de motocicletas
             total_motorcycle_count += frame_motorcycle_count
@@ -315,23 +312,21 @@ def process_youtube_video_inference(video_path, frame_interval=33, total_frames=
                 "motorcycle_count": frame_motorcycle_count,
             })
 
-            # Añadir título y contador total al frame
-            motos_text = f"Motos encontradas: {total_motorcycle_count}"
-            cv2.putText(frame, app_name, (10, height - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-            cv2.putText(frame, motos_text, (10, height - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+        # Añadir título y contador total al frame
+        motos_text = f"Motos encontradas: {total_motorcycle_count}"
+        cv2.putText(frame, app_name, (10, height - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+        cv2.putText(frame, motos_text, (10, height - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
-            # Mostrar en un cuadro de imagen pequeño el frame procesado dentro de un container de Streamlit
-            frame_small = resize_frame_proportionally(frame, scale=0.5)
+        # Mostrar en un cuadro de imagen pequeño el frame procesado dentro de un container de Streamlit
+        frame_small = resize_frame_proportionally(frame, scale=0.5)
 
-            # Mostrar el frame procesado en el contenedor de imagen
-            if image_container:
-                image_container.image(frame, channels="BGR", use_container_width=True)
+        # Mostrar el frame procesado en el contenedor de imagen
+        if image_container:
+            image_container.image(frame, channels="BGR", use_container_width=True)
 
-            # Escribir el frame procesado en el video de salida
-            out.write(frame)
+        # Escribir el frame procesado en el video de salida
+        out.write(frame)
 
-            # Eliminar el frame temporal
-            os.remove(temp_frame_path)
 
         frame_count += 1
 
@@ -341,6 +336,11 @@ def process_youtube_video_inference(video_path, frame_interval=33, total_frames=
 
     cap.release()
     out.release()
+
+    # Leer el video procesado como binario
+    with open(output_path, "rb") as file:
+        video_data = file.read()
+        encoded_video = base64.b64encode(video_data).decode()
 
     return {
         "inference_id": inference_id,
