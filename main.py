@@ -180,32 +180,26 @@ elif inference_mode == "Video":
             
 
 # Inferencia en videos de YouTube
-elif inference_mode == "YouTube":
+elif inference_mode == "Video de YouTube":
     st.subheader("Procesar un Video de YouTube")
-    youtube_url = st.text_input("Ingrese la URL del video de YouTube:")
+    youtube_url = st.text_input("Introduce la URL del video de YouTube")
 
     if youtube_url:
-        # Mostrar codigo qr del video
-        st.markdown(qr_code_html(youtube_url), unsafe_allow_html=True)
-
-        if st.button("Empezar conteo"):
+        with st.spinner("Procesando el video de YouTube..."):
             try:
-                info = display_youtube_info(youtube_url)
-                if not info:
-                    st.error("No se pudo obtener la información del video.")
-                else:
-                    st.write("Información del video:")
-                    st.write(f"**Título:** {info['title']}")
-                    st.write(f"**Autor:** {info['author']}")
-                    st.write(f"**Duración:** {info['duration'] // 60} minutos {info['duration'] % 60} segundos")
+                results = process_youtube_video(youtube_url)
+                st.success(f"Inferencia completada. Total de motocicletas detectadas: {results['total_motos']}")
 
-                with st.spinner("Procesando el video de YouTube..."):
-                    results = process_youtube_video(youtube_url)
-
-                st.success(f"Inferencia completada. Total de motocicletas detectadas: {results.get('total_motos', 0)}")
+                if "processed_video_path" in results:
+                    with open(results["processed_video_path"], "rb") as f:
+                        st.download_button(
+                            label="Descargar video procesado",
+                            data=f,
+                            file_name="video_procesado_youtube.mp4",
+                            mime="video/mp4"
+                        )
             except Exception as e:
-                st.error(f"Error procesando el video de YouTube: {e}")
-
+                st.error(f"Error al procesar el video de YouTube: {e}")
 
 
 # Sección de Estadísticas
