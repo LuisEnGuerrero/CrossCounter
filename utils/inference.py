@@ -192,6 +192,7 @@ def process_youtube_video(youtube_url, frame_interval=99, max_segment_duration=2
     # Obtener información del video
     video_info = get_video_info(youtube_url)
     duration = video_info["duration"]
+    video_title = video_info["title"]
 
     # Decidir si descargar completo o por segmentos
     if duration <= max_segment_duration:
@@ -221,6 +222,9 @@ def process_youtube_video(youtube_url, frame_interval=99, max_segment_duration=2
         with open(segment_result["processed_video_path"], "rb") as segment_file:
             with open(processed_video_path, "ab") as final_video:
                 final_video.write(segment_file.read())
+
+        # Feedback: Mostrar progreso del segmento al usuario
+        st.info(f"Segmento {start_time // max_segment_duration + 1} procesado. Total motos: {segment_result['total_motos']}.")
 
         # Limpiar recursos temporales
         os.remove(segment_path)
