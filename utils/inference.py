@@ -16,7 +16,8 @@ from utils.helpers import (
     resize_frame_proportionally,
     get_video_duration_and_size,
     process_video_segment,
-    get_video_info,    
+    get_video_info,
+    is_large_video,
     )
 import tempfile
 import base64
@@ -194,8 +195,9 @@ def process_youtube_video(youtube_url, frame_interval=99, max_segment_duration=2
     duration = video_info["duration"]
     video_title = video_info["title"]
 
-    # Decidir si descargar completo o por segmentos
-    if duration <= max_segment_duration:
+     # Validar tamaño y decidir si segmentar
+    is_large = is_large_video(youtube_url)
+    if not is_large and duration <= max_segment_duration:
         video_path = download_youtube_video(youtube_url)
         return process_video(video_path, frame_interval)
 
@@ -214,7 +216,7 @@ def process_youtube_video(youtube_url, frame_interval=99, max_segment_duration=2
         download_youtube_video(segment_url, output_path=segment_path)
 
         # Procesar segmento
-        segment_result = process_video(segment_path, frame_interval)
+        segment_result = process_youtube_video_inference(segment_path, frame_interval)
         total_motorcycle_count += segment_result["total_motos"]
         motorcycle_count_per_frame.extend(segment_result["motorcycle_count_per_frame"])
 

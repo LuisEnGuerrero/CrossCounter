@@ -380,3 +380,17 @@ def get_video_info(youtube_url):
         "duration": parse_duration(duration),  # En segundos
     }
 
+
+def is_large_video(video_url, max_size_mb=200):
+    """
+    Verifica si el tamaño del video supera el límite permitido.
+
+    Args:
+        video_url (str): URL del video de YouTube.
+        max_size_mb (int): Tamaño máximo permitido en MB.
+
+    Returns:
+        bool: True si el video es grande, False en caso contrario.
+    """
+    info = yt_dlp.YoutubeDL({"quiet": True}).extract_info(video_url, download=False)
+    return info.get("filesize", 0) > max_size_mb * 1024 * 1024
