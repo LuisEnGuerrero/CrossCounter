@@ -6,17 +6,10 @@ import os
 import cv2
 from PIL import Image
 from utils.helpers import (
-    update_progress, 
-    download_youtube_video, 
-    segment_video, 
-    display_youtube_info, 
-    generate_inference_id,
-    add_watermark_and_counter,
     get_youtube_video_metadata,
+    download_youtube_video, 
+    generate_inference_id,
     resize_frame_proportionally,
-    get_video_duration_and_size,
-    process_video_segment,
-    get_video_info,
     is_large_video,
     )
 import tempfile
@@ -190,7 +183,7 @@ def process_youtube_video(youtube_url, frame_interval=99, max_segment_duration=2
         dict: Resultados de la inferencia.
     """
     # Obtener información del video
-    video_info = get_video_info(youtube_url)
+    video_info = get_youtube_video_metadata(youtube_url)
     duration = video_info["duration"]
   
     # Validar tamaño y decidir si segmentar
