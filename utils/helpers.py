@@ -32,100 +32,125 @@ def get_youtube_video_metadata(youtube_url):
 
     Returns:
         dict: Metadatos del video (título, duración en segundos, tamaño estimado, etc.).
+
+    Raises:
+        RuntimeError: Si ocurre algún error al obtener los datos del video.
     """
-    # Extraer el ID del video desde la URL
-    video_id = youtube_url.split("v=")[1].split("&")[0]
+    try:
+        # Extraer el ID del video desde la URL
+        if "v=" in youtube_url:
+            video_id = youtube_url.split("v=")[1].split("&")[0]
+        else:
+            raise ValueError("URL de YouTube no válida.")
 
-    # Construir cliente de la API de YouTube
-    youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
+        # Construir cliente de la API de YouTube
+        youtube = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
 
-    # Obtener información del video
-    request = youtube.videos().list(part="snippet,contentDetails", id=video_id)
-    response = request.execute()
+        # Obtener información del video
+        request = youtube.videos().list(part="snippet,contentDetails", id=video_id)
+        response = request.execute()
 
-    if not response["items"]:
-        raise ValueError("El video no fue encontrado.")
+        # Validar que el video existe
+        if not response["items"]:
+            raise ValueError("El video no fue encontrado en YouTube.")
 
-    video_data = response["items"][0]
-    title = video_data["snippet"]["title"]
-    duration_iso = video_data["contentDetails"]["duration"]  # Formato ISO 8601
+        # Extraer datos del video
+        video_data = response["items"][0]
+        title = video_data["snippet"]["title"]
+        duration_iso = video_data["contentDetails"]["duration"]  # Duración en formato ISO 8601
 
-    # Convertir duración ISO 8601 a segundos
-    import isodate
-    duration_seconds = isodate.parse_duration(duration_iso).total_seconds()
+        # Convertir duración ISO 8601 a segundos
+        import isodate
+        duration_seconds = isodate.parse_duration(duration_iso).total_seconds()
 
-    # Estimar el tamaño del video (esto es solo una estimación)
-    average_bitrate = 5 * 1024 * 1024  # 5 Mbps
-    filesize_approx = (duration_seconds * average_bitrate) / 8  # Convertir a bytes
+        # Estimar el tamaño del video (esto es una aproximación basada en bitrate promedio)
+        average_bitrate = 5 * 1024 * 1024  # 5 Mbps promedio
+        filesize_approx = (duration_seconds * average_bitrate) / 8  # Convertir a bytes
 
-    return {
+        # Retornar los metadatos del video
+        return {
             "title": title,
             "duration": duration_seconds,
             "video_id": video_id,
             "filesize_approx": filesize_approx,
-            "total_frames" : int(duration_seconds * 30),  # Asumir 30 FPS
+            "total_frames": int(duration_seconds * 30),  # Suponiendo 30 FPS
         }
 
+    except Exception as e:
+        # Manejar errores y lanzar excepciones con un mensaje descriptivo
+        raise RuntimeError(f"Error al obtener los metadatos del video: {e}")
+
 #  función para descargar un video de YouTube
-def download_youtube_video(youtube_url, start_time=None, end_time=None):
+def download_youtube_video(youtube_url):
     """
-    Descarga un video de YouTube utilizando yt-dlp con soporte para segmentación.
+    Descarga un video de YouTube utilizando yt-dlp.
 
     Args:
         youtube_url (str): URL del video de YouTube.
-        start_time (int, optional): Tiempo de inicio en segundos para la descarga.
-        end_time (int, optional): Tiempo de finalización en segundos para la descarga.
 
     Returns:
         str: Ruta al archivo descargado.
     """
-    # Crear un archivo temporal para guardar el video descargado
     output_template = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4").name
 
-    # Opciones para yt-dlp
     ydl_opts = {
-        "format": "mp4",
+        "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4",
         "outtmpl": output_template,
         "quiet": True,
     }
 
-    # Configurar segmentación si se proporcionan start_time y end_time
-    if start_time is not None or end_time is not None:
-        time_segment = f"#t={start_time or 0},{end_time or ''}"
-        youtube_url += time_segment
-
     try:
         with YoutubeDL(ydl_opts) as ydl:
             ydl.download([youtube_url])
+        if os.path.getsize(output_template) == 0:
+            raise RuntimeError("El video descargado está vacío.")
         return output_template
     except Exception as e:
         raise RuntimeError(f"Error al descargar el video: {e}")
 
 # función para segmentar un video
-def segment_video(video_path, max_segment_duration=200, output_dir="segments"):
+def segment_video(video_path, segment_duration=200):
     """
     Divide un video en segmentos más pequeños.
 
     Args:
         video_path (str): Ruta del video original.
-        segment_duration (int): Duración máxima de cada segmento en MB.
-        output_dir (str): Directorio donde guardar los segmentos.
+        segment_duration (int): Duración máxima de cada segmento en segundos.
 
     Returns:
         list: Lista de rutas a los segmentos generados.
     """
-    # Obtener duración del video
-    video_info = get_video_info(video_path)
-    total_duration = video_info["duration"]  # En segundos
+    cap = cv2.VideoCapture(video_path)
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    total_duration = total_frames / fps
 
     segments = []
     start_time = 0
 
     while start_time < total_duration:
-        end_time = min(start_time + max_segment_duration, total_duration)
-        segments.append((start_time, end_time))
+        end_time = min(start_time + segment_duration, total_duration)
+        segment_path = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4").name
+
+        out = cv2.VideoWriter(
+            segment_path,
+            cv2.VideoWriter_fourcc(*'mp4v'),
+            fps,
+            (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))),
+        )
+
+        cap.set(cv2.CAP_PROP_POS_FRAMES, start_time * fps)
+        while cap.get(cv2.CAP_PROP_POS_MSEC) < end_time * 1000:
+            ret, frame = cap.read()
+            if not ret:
+                break
+            out.write(frame)
+
+        out.release()
+        segments.append(segment_path)
         start_time = end_time
 
+    cap.release()
     return segments
 
 
@@ -285,32 +310,47 @@ def get_video_duration_and_size(video_path):
     return duration_seconds, video_size_mb
 
 #   función para procesar un segmento de video
-def process_video_segment(cap, start_frame, end_frame, frame_interval):
+def process_video_segment(cap, start_frame, end_frame, frame_interval, inference_id):
     """
-    Procesa un segmento del video.
+    Procesa un segmento de video utilizando el modelo YOLO.
 
     Args:
         cap (cv2.VideoCapture): Objeto de captura del video.
         start_frame (int): Frame inicial del segmento.
         end_frame (int): Frame final del segmento.
         frame_interval (int): Intervalo de frames a procesar.
+        inference_id (str): ID único para la inferencia.
 
     Returns:
-        dict: Resultados del segmento procesado.
+        dict: Resultados del segmento procesado, incluyendo el conteo total y la ruta del video.
     """
+    # Establecer el punto inicial del segmento
     cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+
     segment_motorcycle_count = 0
     frame_results = []
     processed_video_path = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4").name
+
+    # Crear el escritor de video
     out = cv2.VideoWriter(
         processed_video_path,
         cv2.VideoWriter_fourcc(*'mp4v'),
         cap.get(cv2.CAP_PROP_FPS),
-        (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+        (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))),
     )
+
+    # Inicializar variables para mostrar progreso
+    frame_count = start_frame
+    total_frames_in_segment = end_frame - start_frame
+    progress_bar = st.progress(0)
+
+    # Nombre de la aplicación
+    app_name = "AI-MotorCycle CrossCounter TalentoTECH"
 
     while cap.isOpened():
         frame_pos = cap.get(cv2.CAP_PROP_POS_FRAMES)
+
+        # Detener si se alcanza el final del segmento
         if frame_pos >= end_frame:
             break
 
@@ -318,31 +358,53 @@ def process_video_segment(cap, start_frame, end_frame, frame_interval):
         if not ret:
             break
 
+        frame_motorcycle_count = 0
+
+        # Procesar frame solo si cumple con el intervalo
         if int(frame_pos) % frame_interval == 0:
             img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
             results = model(img)
 
-            frame_motorcycle_count = sum(1 for box in results[0].boxes if box.name == "motorcycle")
+            # Detecciones y anotaciones en el frame
+            for result in results:
+                for box in result.boxes:
+                    cls = result.names[int(box.cls[0])]
+                    if cls == "motorcycle":
+                        conf = box.conf[0]
+                        x_min, y_min, x_max, y_max = map(int, box.xyxy[0].tolist())
+                        # Dibujar detección en el frame
+                        cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+                        cv2.putText(frame, f"{cls} {conf:.2f}", (x_min, y_min - 10),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                        frame_motorcycle_count += 1
+
+            # Actualizar conteo total de motocicletas en el segmento
             segment_motorcycle_count += frame_motorcycle_count
 
-            # Dibujar detecciones en el frame
-            for box in results[0].boxes:
-                x_min, y_min, x_max, y_max = map(int, box.xyxy[0].tolist())
-                cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
-
-            # Añadir título y contador total al frame
-            cv2.putText(frame, f"Motos encontradas: {segment_motorcycle_count}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-
+            # Guardar resultados del frame
             frame_results.append({
                 "timestamp": datetime.now(),
                 "motorcycle_count": frame_motorcycle_count,
             })
 
+        # Añadir título y contador total al frame
+        motos_text = f"Motos encontradas: {segment_motorcycle_count}"
+        cv2.putText(frame, app_name, (10, frame.shape[0] - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        cv2.putText(frame, motos_text, (10, frame.shape[0] - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+        # Escribir el frame en el video de salida
         out.write(frame)
+
+        # Actualizar progreso
+        progress = (frame_pos - start_frame + 1) / total_frames_in_segment
+        progress_bar.progress(min(progress, 1.0))
+
+        frame_count += 1
 
     cap.release()
     out.release()
 
+    # Retornar resultados del segmento procesado
     return {
         "motorcycle_count": segment_motorcycle_count,
         "frame_results": frame_results,
