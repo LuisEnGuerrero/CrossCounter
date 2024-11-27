@@ -183,7 +183,6 @@ def process_youtube_video(youtube_url, frame_interval=99, max_segment_duration=2
 
     Args:
         youtube_url (str): URL del video de YouTube.
-        api_key (str): Clave de la API de YouTube.
         frame_interval (int): Procesar cada n-ésimo frame.
         max_segment_duration (int): Duración máxima de un segmento en segundos.
 
@@ -194,7 +193,7 @@ def process_youtube_video(youtube_url, frame_interval=99, max_segment_duration=2
     video_info = get_video_info(youtube_url)
     duration = video_info["duration"]
   
-     # Validar tamaño y decidir si segmentar
+    # Validar tamaño y decidir si segmentar
     is_large = is_large_video(youtube_url)
     if not is_large and duration <= max_segment_duration:
         video_path = download_youtube_video(youtube_url)
@@ -209,10 +208,15 @@ def process_youtube_video(youtube_url, frame_interval=99, max_segment_duration=2
     for start_time in range(0, int(duration), max_segment_duration):
         end_time = min(start_time + max_segment_duration, duration)
 
-        # Descargar y segmentar el video
-        segment_path = download_youtube_video(youtube_url, start_time=start_time, end_time=end_time)
+        # Descargar el segmento del video
+        segment_url = f"{youtube_url}#t={start_time},{end_time}"
+        segment_path = download_youtube_video(segment_url)
 
-        # Procesar segmento
+        # Verificar que el segmento se descargó correctamente
+        if not os.path.exists(segment_path) or os.path.getsize(segment_path) == 0:
+            raise ValueError(f"El segmento del video no se descargó correctamente: {segment_url}")
+
+        # Procesar el segmento
         segment_result = process_youtube_video_inference(segment_path, frame_interval)
         total_motorcycle_count += segment_result["total_motos"]
         motorcycle_count_per_frame.extend(segment_result["motorcycle_count_per_frame"])
@@ -234,7 +238,6 @@ def process_youtube_video(youtube_url, frame_interval=99, max_segment_duration=2
         "total_motos": total_motorcycle_count,
         "processed_video_path": processed_video_path,
     }
-
 
 
 def process_youtube_video_inference(video_path, frame_interval=33, total_frames=None):
