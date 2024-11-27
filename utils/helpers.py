@@ -11,6 +11,7 @@ import tempfile
 from PIL import Image
 import requests
 import yt_dlp
+import isodate
 
 # Obtener la API de YouTube desde los secretos de Streamlit Cloud
 YOUTUBE_API_KEY = st.secrets["YOUTUBE"]["YOUTUBE_API_KEY"]
@@ -60,11 +61,10 @@ def get_youtube_video_metadata(youtube_url):
         duration_iso = video_data["contentDetails"]["duration"]  # Duración en formato ISO 8601
 
         # Convertir duración ISO 8601 a segundos
-        import isodate
         duration_seconds = isodate.parse_duration(duration_iso).total_seconds()
 
         # Estimar el tamaño del video (esto es una aproximación basada en bitrate promedio)
-        average_bitrate = 5 * 1024 * 1024  # 5 Mbps promedio
+        average_bitrate = 2.4 * 1024 * 1024  # 5 Mbps promedio
         filesize_approx = (duration_seconds * average_bitrate) / 8  # Convertir a bytes
 
         # Retornar los metadatos del video
@@ -434,42 +434,6 @@ def process_video_segment(cap, start_frame, end_frame, frame_interval, inference
     }
 
 
-# función para obtener información de un video de YouTube
-def get_video_info(youtube_url):
-    """
-    Obtiene información de un video de YouTube usando la API de YouTube.
-
-    Args:
-        youtube_url (str): URL del video de YouTube.
-        api_key (str): Clave de la API de YouTube.
-
-    Returns:
-        dict: Información del video (tamaño, duración, título, etc.).
-    """
-    # Extraer el ID del video de la URL
-    video_id = youtube_url.split("v=")[-1].split("&")[0]
-    api_url = f"https://www.googleapis.com/youtube/v3/videos?id={video_id}&key={YOUTUBE_API_KEY}&part=contentDetails,snippet"
-
-    response = requests.get(api_url)
-    if response.status_code != 200:
-        raise ValueError(f"Error al obtener información del video: {response.json()}")
-
-    video_data = response.json()["items"][0]
-    duration = video_data["contentDetails"]["duration"]
-    title = video_data["snippet"]["title"]
-
-    # Convertir la duración de ISO 8601 a segundos
-    def parse_duration(duration):
-        import isodate
-        return isodate.parse_duration(duration).total_seconds()
-
-    return {
-        "video_id": video_id,
-        "title": title,
-        "duration": parse_duration(duration),  # En segundos
-    }
-
-
 def is_large_video(video_url, max_size_mb=200):
     """
     Verifica si el tamaño del video supera el límite permitido.
@@ -489,7 +453,8 @@ def is_large_video(video_url, max_size_mb=200):
     filesize = info.get("filesize")
     if not filesize:
         duration = info.get("duration", 0)  # en segundos
-        estimated_size = (5 * 1024 * 1024) * duration / 8  # 5 Mbps bitrate
+        estimated_size = (2.4 * 1024 * 1024) * duration / 8  # 5 Mbps bitrate
         filesize = estimated_size
 
     return filesize > max_size_mb * 1024 * 1024
+
