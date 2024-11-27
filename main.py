@@ -184,13 +184,37 @@ elif inference_mode == "YouTube":
     st.subheader("Procesar un Video de YouTube")
     youtube_url = st.text_input("Introduce la URL del video de YouTube")
 
-    if youtube_url:
-        with st.spinner("Procesando el video de YouTube..."):
-            try:
-                results = process_youtube_video(youtube_url)
-                st.success(f"Inferencia completada. Total de motocicletas detectadas: {results['total_motos']}")
+    # Inicializar estado de sesión para YouTube si no existe
+    if "YouTube" not in st.session_state:
+        st.session_state["YouTube"] = {
+            "video_processed": False,
+            "video_path": None,
+            "results": None,
+            "processing": False,
+            "progress": 0,
+        }
 
-                if "processed_video_path" in results:
+    # Mostrar barra de progreso si el procesamiento está en curso
+    if st.session_state["YouTube"]["processing"]:
+        st.progress(st.session_state["YouTube"]["progress"])
+
+    if youtube_url:
+        if st.button("Iniciar Inferencia") and not st.session_state["YouTube"]["processing"]:
+            st.session_state["YouTube"]["processing"] = True  # Marcar como en proceso
+            st.session_state["YouTube"]["progress"] = 0  # Reiniciar barra de progreso
+
+            with st.spinner("Procesando el video de YouTube..."):
+                try:
+                    results = process_youtube_video(youtube_url)
+                    st.session_state["YouTube"]["processing"] = False  # Marcar como terminado
+                    st.session_state["YouTube"]["video_processed"] = True
+                    st.session_state["YouTube"]["video_path"] = results["processed_video_path"]
+                    st.session_state["YouTube"]["results"] = results
+
+                    # Mostrar mensaje de éxito
+                    st.success(f"Inferencia completada. Total de motocicletas detectadas: {results['total_motos']}")
+
+                    # Botón para descargar el video procesado
                     with open(results["processed_video_path"], "rb") as f:
                         st.download_button(
                             label="Descargar video procesado",
@@ -198,25 +222,17 @@ elif inference_mode == "YouTube":
                             file_name="video_procesado_youtube.mp4",
                             mime="video/mp4"
                         )
-                if "YouTube" not in st.session_state:
-                    st.session_state["YouTube"] = {
-                        "video_processed": False,
-                        "video_path": None,
-                        "results": None
-                    }
 
-                # Actualizar el estado después del procesamiento
-                processing_complete = results.get("processing_complete", False)
-                if processing_complete:
-                    st.session_state["YouTube"]["video_processed"] = True
-                    st.session_state["YouTube"]["video_path"] = results["processed_video_path"]
-                    st.session_state["YouTube"]["results"] = results
+                    # Mostrar el video procesado
+                    st.video(results["processed_video_path"])
 
-                # Verificar si ya se procesó un video
-                if st.session_state["youtube_inference_state"]["video_processed"]:
-                    st.video(st.session_state["youtube_inference_state"]["video_path"])
-            except Exception as e:
-                st.error(f"Error al procesar el video de YouTube: {e}")
+                except Exception as e:
+                    st.session_state["YouTube"]["processing"] = False  # Marcar como terminado
+                    st.error(f"Error al procesar el video de YouTube: {e}")
+
+    # Mostrar el video si ya fue procesado
+    if st.session_state["YouTube"]["video_processed"]:
+        st.video(st.session_state["YouTube"]["video_path"])
 
 
 # Sección de Estadísticas

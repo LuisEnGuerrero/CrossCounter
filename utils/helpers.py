@@ -67,35 +67,41 @@ def get_youtube_video_metadata(youtube_url):
         }
 
 #  función para descargar un video de YouTube
-def download_youtube_video(url, start_time=None, end_time=None):
+def download_youtube_video(youtube_url, start_time=None, end_time=None):
     """
-    Descarga un video de YouTube utilizando yt-dlp.
+    Descarga un video de YouTube utilizando yt-dlp con soporte para segmentación.
 
     Args:
-        url (str): URL del video de YouTube.
+        youtube_url (str): URL del video de YouTube.
         start_time (int, optional): Tiempo de inicio en segundos para la descarga.
         end_time (int, optional): Tiempo de finalización en segundos para la descarga.
 
     Returns:
         str: Ruta al archivo descargado.
     """
+    # Crear un archivo temporal para guardar el video descargado
     output_template = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4").name
 
-    # Comando base para yt-dlp
-    base_command = ["yt-dlp", "-f", "mp4", "-o", output_template, url]
+    # Opciones para yt-dlp
+    ydl_opts = {
+        "format": "mp4",
+        "outtmpl": output_template,
+        "quiet": True,
+    }
 
-    # Agregar parámetros de segmentación si son proporcionados
+    # Configurar segmentación si se proporcionan start_time y end_time
     if start_time is not None or end_time is not None:
-        segment_flag = f"#t={start_time or 0},{end_time or ''}"
-        base_command[3] = f"{url}{segment_flag}"
+        time_segment = f"#t={start_time or 0},{end_time or ''}"
+        youtube_url += time_segment
 
     try:
-        subprocess.run(base_command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        with YoutubeDL(ydl_opts) as ydl:
+            ydl.download([youtube_url])
         return output_template
     except Exception as e:
-        raise RuntimeError(f"Error descargando el video: {e}")
+        raise RuntimeError(f"Error al descargar el video: {e}")
 
-
+# función para segmentar un video
 def segment_video(video_path, max_segment_duration=200, output_dir="segments"):
     """
     Divide un video en segmentos más pequeños.
