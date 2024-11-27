@@ -93,17 +93,39 @@ def download_youtube_video(youtube_url):
     """
     output_template = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4").name
 
+    # Comprobar los formatos disponibles antes de descargar
+    try:
+        with YoutubeDL({"quiet": True}) as ydl:
+            info = ydl.extract_info(youtube_url, download=False)
+        
+        # Seleccionar el mejor formato disponible con preferencia por MP4
+        best_format = None
+        for fmt in info.get("formats", []):
+            if fmt.get("ext") == "mp4":
+                best_format = fmt["format_id"]
+                break
+        
+        if not best_format:
+            raise RuntimeError("No se encontró un formato compatible en MP4 para este video.")
+
+    except Exception as e:
+        raise RuntimeError(f"Error al obtener información del video: {e}")
+
+    # Descargar el video utilizando el formato encontrado
     ydl_opts = {
-        "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4",
+        "format": best_format,
         "outtmpl": output_template,
-        "quiet": True,
+        "quiet": False,  # Cambiar a False temporalmente para depuración
     }
 
     try:
         with YoutubeDL(ydl_opts) as ydl:
             ydl.download([youtube_url])
-        if os.path.getsize(output_template) == 0:
-            raise RuntimeError("El video descargado está vacío.")
+        
+        # Verificar que el archivo se haya descargado correctamente
+        if not os.path.exists(output_template) or os.path.getsize(output_template) == 0:
+            raise RuntimeError("El video descargado está vacío o no se descargó correctamente.")
+        
         return output_template
     except Exception as e:
         raise RuntimeError(f"Error al descargar el video: {e}")
@@ -459,5 +481,15 @@ def is_large_video(video_url, max_size_mb=200):
     Returns:
         bool: True si el video es grande, False en caso contrario.
     """
-    info = yt_dlp.YoutubeDL({"quiet": True}).extract_info(video_url, download=False)
-    return info.get("filesize", 0) > max_size_mb * 1024 * 1024
+    ydl_opts = {"quiet": True}
+    with YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(video_url, download=False)
+
+    # Si no hay información de tamaño, estima con duración y un bitrate promedio
+    filesize = info.get("filesize")
+    if not filesize:
+        duration = info.get("duration", 0)  # en segundos
+        estimated_size = (5 * 1024 * 1024) * duration / 8  # 5 Mbps bitrate
+        filesize = estimated_size
+
+    return filesize > max_size_mb * 1024 * 1024
