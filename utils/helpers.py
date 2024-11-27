@@ -1,18 +1,27 @@
 import streamlit as st
 from yt_dlp import YoutubeDL
 from pathlib import Path
+from ultralytics import YOLO
 import os
 import subprocess
 from googleapiclient.discovery import build
 from datetime import datetime
 import cv2
 import tempfile
+from PIL import Image
 import requests
 import yt_dlp
 
 # Obtener la API de YouTube desde los secretos de Streamlit Cloud
 YOUTUBE_API_KEY = st.secrets["YOUTUBE"]["YOUTUBE_API_KEY"]
 
+# Cargar el modelo YOLOv8
+model_path = "models/best.pt"
+try:
+    model = YOLO(model_path, verbose=False)
+except Exception as e:
+    st.error(f"Error al cargar el modelo: {e}")
+    st.stop()
 
 def get_youtube_video_metadata(youtube_url):
     """
@@ -304,11 +313,20 @@ def process_video_segment(cap, start_frame, end_frame, frame_interval):
             break
 
         if int(frame_pos) % frame_interval == 0:
-            # Procesar frame
-            frame_motorcycle_count = 0
-            # (Aquí debes incluir la lógica de detección y marcaje usando YOLO)
-            # Actualizar resultados
+            img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            results = model(img)
+
+            frame_motorcycle_count = sum(1 for box in results[0].boxes if box.name == "motorcycle")
             segment_motorcycle_count += frame_motorcycle_count
+
+            # Dibujar detecciones en el frame
+            for box in results[0].boxes:
+                x_min, y_min, x_max, y_max = map(int, box.xyxy[0].tolist())
+                cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+
+            # Añadir título y contador total al frame
+            cv2.putText(frame, f"Motos encontradas: {segment_motorcycle_count}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
             frame_results.append({
                 "timestamp": datetime.now(),
                 "motorcycle_count": frame_motorcycle_count,
@@ -318,12 +336,13 @@ def process_video_segment(cap, start_frame, end_frame, frame_interval):
 
     cap.release()
     out.release()
-    
+
     return {
         "motorcycle_count": segment_motorcycle_count,
         "frame_results": frame_results,
         "processed_video_path": processed_video_path,
     }
+
 
 # función para obtener información de un video de YouTube
 def get_video_info(youtube_url):

@@ -193,8 +193,7 @@ def process_youtube_video(youtube_url, frame_interval=99, max_segment_duration=2
     # Obtener información del video
     video_info = get_video_info(youtube_url)
     duration = video_info["duration"]
-    video_title = video_info["title"]
-
+  
      # Validar tamaño y decidir si segmentar
     is_large = is_large_video(youtube_url)
     if not is_large and duration <= max_segment_duration:
@@ -211,10 +210,7 @@ def process_youtube_video(youtube_url, frame_interval=99, max_segment_duration=2
         end_time = min(start_time + max_segment_duration, duration)
 
         # Descargar y segmentar el video
-        segment_path = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4").name
-        download_youtube_video(
-            youtube_url, output_path=segment_path, start_time=start_time, end_time=end_time
-        )
+        segment_path = download_youtube_video(youtube_url, start_time=start_time, end_time=end_time)
 
         # Procesar segmento
         segment_result = process_youtube_video_inference(segment_path, frame_interval)
