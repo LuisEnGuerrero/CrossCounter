@@ -64,7 +64,7 @@ def get_youtube_video_metadata(youtube_url):
         duration_seconds = isodate.parse_duration(duration_iso).total_seconds()
 
         # Estimar el tamaño del video (esto es una aproximación basada en bitrate promedio)
-        average_bitrate = 2.4 * 1024 * 1024  # 5 Mbps promedio
+        average_bitrate = 2.4 * 1024  # 2.4 Mbps promedio
         filesize_approx = (duration_seconds * average_bitrate) / 8  # Convertir a bytes
 
         # Retornar los metadatos del video

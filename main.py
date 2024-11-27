@@ -43,7 +43,7 @@ def load_css(file_path):
     with open(file_path) as file:
         st.markdown(f"<style>{file.read()}</style>", unsafe_allow_html=True)
 
-# Mostrar introducción
+# Mostrar Contenido Markdown
 def load_markdown(file_path):
     with open(file_path, "r", encoding="utf-8") as file:
         return file.read()
