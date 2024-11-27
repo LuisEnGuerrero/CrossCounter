@@ -5,8 +5,16 @@ from views.html import (
     qr_code_html, about_section_html, team_section_html, documentation_html, meta_html
 )
 from utils.visualization import show_statistics, draw_detections, show_inspected_data
-from utils.inference import process_image, process_video, process_youtube_video
-from utils.helpers import display_youtube_info
+from utils.inference import (
+    process_image, 
+    process_video, 
+    process_youtube_video,
+    process_youtube_video_inference,
+)
+from utils.helpers import (
+    get_youtube_video_metadata,
+    download_youtube_video,
+)
 from utils.mongodb import save_inference_result_image, save_inference_result_video
 from datetime import datetime
 from pathlib import Path
@@ -206,11 +214,18 @@ elif inference_mode == "YouTube":
             with st.spinner("Procesando el video de YouTube..."):
                 try:
                     # Descargar y procesar el video
-                    video_path = download_youtube_video(youtube_url)
-                    if not os.path.exists(video_path) or os.path.getsize(video_path) == 0:
-                        raise ValueError("El video descargado está vacío o no existe.")
+                    video_metadata = get_youtube_video_metadata(youtube_url)
+                    is_large = video_metadata["filesize_approx"] > 200 * 1024 * 1024
 
-                    results = process_youtube_video_inference(video_path)
+                    if is_large:
+                        st.warning("El video es grande y será procesado en segmentos.")
+                        results = process_youtube_video(youtube_url)
+                    else:
+                        video_path = download_youtube_video(youtube_url)
+                        if not os.path.exists(video_path) or os.path.getsize(video_path) == 0:
+                            raise ValueError("El video descargado está vacío o no existe.")
+
+                        results = process_youtube_video_inference(video_path)
 
                     # Actualizar el estado en la sesión
                     st.session_state["YouTube"]["processing"] = False
@@ -218,26 +233,27 @@ elif inference_mode == "YouTube":
                     st.session_state["YouTube"]["video_path"] = results["processed_video_path"]
                     st.session_state["YouTube"]["results"] = results
 
-                    # Mostrar mensaje de éxito y el video procesado
+                    # Mostrar mensaje de éxito
                     st.success(f"Inferencia completada. Total de motocicletas detectadas: {results['total_motos']}")
-                    st.video(results["processed_video_path"])
-
-                    # Botón para descargar el video procesado
-                    with open(results["processed_video_path"], "rb") as f:
-                        st.download_button(
-                            label="Descargar video procesado",
-                            data=f,
-                            file_name="video_procesado_youtube.mp4",
-                            mime="video/mp4"
-                        )
 
                 except Exception as e:
                     st.session_state["YouTube"]["processing"] = False
                     st.error(f"Error al procesar el video de YouTube: {e}")
 
-    # Mostrar el video si ya fue procesado
+    # Mostrar el video procesado si ya fue procesado correctamente
     if st.session_state["YouTube"]["video_processed"]:
         st.video(st.session_state["YouTube"]["video_path"])
+        st.write("Resultados de la Inferencia:")
+        st.json(st.session_state["YouTube"]["results"])
+
+        # Botón para descargar el video procesado
+        with open(st.session_state["YouTube"]["video_path"], "rb") as f:
+            st.download_button(
+                label="Descargar video procesado",
+                data=f,
+                file_name="video_procesado_youtube.mp4",
+                mime="video/mp4"
+            )
 
 
 # Sección de Estadísticas
