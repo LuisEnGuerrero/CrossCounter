@@ -95,7 +95,7 @@ def download_youtube_video(youtube_url):
 
     # Comprobar los formatos disponibles antes de descargar
     try:
-        with YoutubeDL as ydl:
+        with YoutubeDL() as ydl:  # Cambiar a YoutubeDL() para instanciar correctamente
             info = ydl.extract_info(youtube_url, download=False)
         
         # Seleccionar el mejor formato disponible con preferencia por MP4
@@ -119,7 +119,7 @@ def download_youtube_video(youtube_url):
     }
 
     try:
-        with YoutubeDL(ydl_opts) as ydl:
+        with YoutubeDL(ydl_opts) as ydl:  # Cambiar a YoutubeDL(ydl_opts) para instanciar correctamente
             ydl.download([youtube_url])
         
         # Verificar que el archivo se haya descargado correctamente
