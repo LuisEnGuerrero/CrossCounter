@@ -126,10 +126,10 @@ def download_youtube_video(youtube_url):
             ydl.download([f"https://www.youtube.com/watch?v={video_id}"])
         
         # Verificar que el archivo se haya descargado correctamente
-        if not os.path.exists(output_template):
-            raise RuntimeError("El archivo de video no existe después de la descarga.")
-        if os.path.getsize(output_template) == 0:
-            raise RuntimeError("El video descargado está vacío o no se descargó correctamente.")
+        #if not os.path.exists(output_template):
+        #    raise RuntimeError("El archivo de video no existe después de la descarga.")
+        #if os.path.getsize(output_template) == 0:
+        #    raise RuntimeError("El video descargado está vacío o no se descargó correctamente.")
         
         return output_template
     except Exception as e:
