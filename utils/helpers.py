@@ -110,6 +110,9 @@ def download_youtube_video(youtube_url):
     except Exception as e:
         raise RuntimeError(f"Error al obtener información del video: {e}")
 
+    metadata = get_youtube_video_metadata(youtube_url)
+    video_id = metadata["video_id"]
+    
     # Descargar el video utilizando el formato encontrado
     ydl_opts = {
         "format": best_format,
@@ -120,7 +123,7 @@ def download_youtube_video(youtube_url):
 
     try:
         with YoutubeDL(ydl_opts) as ydl:
-            ydl.download([youtube_url])
+            ydl.download([[f"https://www.youtube.com/watch?v={video_id}"]])
         
         # Verificar que el archivo se haya descargado correctamente
         if not os.path.exists(output_template):
