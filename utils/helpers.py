@@ -101,7 +101,7 @@ def download_youtube_video(youtube_url):
         # Seleccionar el mejor formato disponible con preferencia por MP4
         best_format = None
         for fmt in info.get("formats", []):
-            if fmt.get("ext") == "mp4" | fmt.get("ext") == "webm":
+            if fmt.get("ext") == "mp4" or fmt.get("ext") == "webm":  # Cambiar | por or
                 best_format = fmt["format_id"]
                 break
         
