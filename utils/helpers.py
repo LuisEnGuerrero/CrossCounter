@@ -100,7 +100,7 @@ def download_youtube_video(youtube_url):
         
         # Seleccionar el mejor formato disponible con preferencia por MP4
         best_format = next(
-            (fmt["ext"] for fmt in info.get("formats", []) if fmt.get("ext") in ["mp4", "webm", "avi"]),
+            (fmt["format_id"] for fmt in info.get("formats", []) if fmt.get("ext") in ["mp4", "webm", "avi"]),
             None
         )
         
@@ -122,12 +122,15 @@ def download_youtube_video(youtube_url):
             ydl.download([youtube_url])
         
         # Verificar que el archivo se haya descargado correctamente
-        if not os.path.exists(output_template) or os.path.getsize(output_template) == 0:
+        if not os.path.exists(output_template):
+            raise RuntimeError("El archivo de video no existe después de la descarga.")
+        if os.path.getsize(output_template) == 0:
             raise RuntimeError("El video descargado está vacío o no se descargó correctamente.")
         
         return output_template
     except Exception as e:
         raise RuntimeError(f"Error al descargar el video: {e}")
+
 
 # función para segmentar un video
 def segment_video(video_path, segment_duration=200):
