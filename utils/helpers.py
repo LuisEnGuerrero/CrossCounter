@@ -124,7 +124,7 @@ def download_youtube_video(youtube_url):
     try:
         with YoutubeDL(ydl_opts) as ydl:
             ydl.download([f"https://www.youtube.com/watch?v={video_id}"])
-            st.text(f"Descargando video: {ydl.process_info['downloaded_bytes'] / 1024 / 1024:.2f} MB")
+            # st.text(f"Descargando video: {ydl.process_info['downloaded_bytes'] / 1024 / 1024:.2f} MB")
         
         # Verificar que el archivo se haya descargado correctamente
         if not os.path.exists(output_template):
