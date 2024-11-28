@@ -115,7 +115,7 @@ def download_youtube_video(youtube_url):
 
     # Descargar el video utilizando el formato encontrado
     ydl_opts = {
-        "format": best_format,
+        "format": best_format['ext'],
         "outtmpl": output_template,
         "quiet": False,  # Cambiar a False temporalmente para depuración
         "postprocessors": [],  # No usar postprocesadores que requieran ffmpeg
@@ -124,12 +124,13 @@ def download_youtube_video(youtube_url):
     try:
         with YoutubeDL(ydl_opts) as ydl:
             ydl.download([f"https://www.youtube.com/watch?v={video_id}"])
+            st.text(f"Descargando video: {ydl.process_info['downloaded_bytes'] / 1024 / 1024:.2f} MB")
         
         # Verificar que el archivo se haya descargado correctamente
-        #if not os.path.exists(output_template):
-        #    raise RuntimeError("El archivo de video no existe después de la descarga.")
-        #if os.path.getsize(output_template) == 0:
-        #    raise RuntimeError("El video descargado está vacío o no se descargó correctamente.")
+        if not os.path.exists(output_template):
+            raise RuntimeError("El archivo de video no existe después de la descarga.")
+        if os.path.getsize(output_template) == 0:
+            raise RuntimeError("El video descargado está vacío o no se descargó correctamente.")
         
         return output_template
     except Exception as e:
