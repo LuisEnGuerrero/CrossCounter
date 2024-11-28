@@ -115,7 +115,7 @@ def download_youtube_video(youtube_url):
 
     # Descargar el video utilizando el formato encontrado
     ydl_opts = {
-        "format": best_format['format_id'],
+        "format": 'bestvideo/best',  # Seleccionar el mejor formato disponible
         "outtmpl": output_template,
         "quiet": False,  # Cambiar a False temporalmente para depuración
         "postprocessors": [],  # No usar postprocesadores que requieran ffmpeg
