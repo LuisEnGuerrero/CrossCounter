@@ -100,7 +100,7 @@ def download_youtube_video(youtube_url):
         
         # Seleccionar el mejor formato disponible sin necesidad de ffmpeg
         best_format = next(
-            (fmt["format_id"] for fmt in info.get("formats", []) if fmt.get("ext") in ["mp4", "webm", "avi"] and not fmt.get("acodec") == "none"),
+            (fmt["format_id"] for fmt in info.get("formats", []) if fmt.get("ext") in ["mp4", "webm", "avi"] and fmt.get("vcodec") != "none" and fmt.get("acodec") != "none"),
             None
         )
         
