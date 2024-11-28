@@ -95,18 +95,17 @@ def download_youtube_video(youtube_url):
 
     # Comprobar los formatos disponibles antes de descargar
     try:
-        with YoutubeDL() as ydl:  # Cambiar a YoutubeDL() para instanciar correctamente
+        with YoutubeDL() as ydl:
             info = ydl.extract_info(youtube_url, download=False)
         
         # Seleccionar el mejor formato disponible con preferencia por MP4
-        best_format = None
-        for fmt in info.get("formats", []):
-            if fmt.get("ext") == "mp4" or fmt.get("ext") == "webm":  # Cambiar | por or
-                best_format = fmt["format_id"]
-                break
+        best_format = next(
+            (fmt["ext"] for fmt in info.get("formats", []) if fmt.get("ext") in ["mp4", "webm", "avi"]),
+            None
+        )
         
         if not best_format:
-            raise RuntimeError("No se encontró un formato compatible en MP4 para este video.")
+            raise RuntimeError("No se encontró un formato compatible para este video.")
 
     except Exception as e:
         raise RuntimeError(f"Error al obtener información del video: {e}")
@@ -119,7 +118,7 @@ def download_youtube_video(youtube_url):
     }
 
     try:
-        with YoutubeDL(ydl_opts) as ydl:  # Cambiar a YoutubeDL(ydl_opts) para instanciar correctamente
+        with YoutubeDL(ydl_opts) as ydl:
             ydl.download([youtube_url])
         
         # Verificar que el archivo se haya descargado correctamente
