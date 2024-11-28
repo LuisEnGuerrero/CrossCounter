@@ -215,7 +215,7 @@ elif inference_mode == "YouTube":
                 try:
                     # Descargar y procesar el video
                     video_metadata = get_youtube_video_metadata(youtube_url)
-                    is_large = video_metadata["filesize_approx"] > 200 * 1024 * 1024
+                    is_large = video_metadata["filesize_approx"] > 200 * 1024
 
                     if is_large:
                         st.warning("El video es grande y será procesado en segmentos.")
