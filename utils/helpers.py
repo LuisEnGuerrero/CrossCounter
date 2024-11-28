@@ -98,9 +98,9 @@ def download_youtube_video(youtube_url):
         with YoutubeDL() as ydl:
             info = ydl.extract_info(youtube_url, download=False)
         
-        # Seleccionar el mejor formato disponible con preferencia por MP4
+        # Seleccionar el mejor formato disponible sin necesidad de ffmpeg
         best_format = next(
-            (fmt["format_id"] for fmt in info.get("formats", []) if fmt.get("ext") in ["mp4", "webm", "avi"]),
+            (fmt["format_id"] for fmt in info.get("formats", []) if fmt.get("ext") in ["mp4", "webm", "avi"] and not fmt.get("acodec") == "none"),
             None
         )
         
@@ -115,6 +115,7 @@ def download_youtube_video(youtube_url):
         "format": best_format,
         "outtmpl": output_template,
         "quiet": False,  # Cambiar a False temporalmente para depuración
+        "postprocessors": [],  # No usar postprocesadores que requieran ffmpeg
     }
 
     try:
