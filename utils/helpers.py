@@ -112,11 +112,10 @@ def download_youtube_video(youtube_url):
 
     metadata = get_youtube_video_metadata(youtube_url)
     video_id = metadata["video_id"]
-    ext = best_format['ext']
 
     # Descargar el video utilizando el formato encontrado
     ydl_opts = {
-        "format": ext,
+        "format": best_format['format_id'],
         "outtmpl": output_template,
         "quiet": False,  # Cambiar a False temporalmente para depuración
         "postprocessors": [],  # No usar postprocesadores que requieran ffmpeg
