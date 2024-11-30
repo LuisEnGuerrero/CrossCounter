@@ -278,3 +278,10 @@ st.markdown(documentation_html(), unsafe_allow_html=True)
 
 # Pie de Página
 st.markdown(logo_separator_html(), unsafe_allow_html=True)
+
+# Sección de Introducción
+intro_content = load_markdown("README.md")
+st.markdown(intro_content)
+
+# Pie de Página
+st.markdown(logo_separator_html(), unsafe_allow_html=True)
