@@ -9,7 +9,7 @@ Este proyecto está diseñado para la detección y conteo de motocicletas utiliz
 - **Procesamiento de Videos**: Analiza videos y visualiza los resultados, incluyendo el conteo de motocicletas por frame.
 - **Estadísticas de Conteo**: Consulta gráficos interactivos que resumen los datos de detección almacenados.
 - **Almacenamiento en MongoDB**: Todos los resultados de detección son almacenados automáticamente para su posterior análisis.
-- [Ver informe completo](docs/INFORME.pdf)
+- [Ver informe completo](https://github.com/LuisEnGuerrero/CrossCounter/blob/main/docs/INFORME.pdf)
 
 ---
 
