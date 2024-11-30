@@ -57,7 +57,7 @@ st.markdown(header_html(), unsafe_allow_html=True)
 
 # Selección de modo de inferencia
 inference_mode = st.sidebar.selectbox(
-    "Selecciona el modo de inferencia", ("Imagen", "Video", "YouTube")
+    "Selecciona el modo de inferencia", ("Imagen", "Video")
 )
 
 # Mostrar la imagen del logo en la barra lateral
