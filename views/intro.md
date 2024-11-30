@@ -17,7 +17,7 @@ Este proyecto está diseñado para la detección y conteo de motocicletas utiliz
 1. Selecciona si deseas analizar **imágenes** o **videos** desde la barra lateral.
 2. Carga tu archivo y presiona el botón correspondiente para procesar.
 3. Consulta los resultados directamente en pantalla y revisa las estadísticas de detección en tiempo real.
-
+[Ver informe completo](docs/INFORME.pdf)
 ---
 
 ### Notas Importantes
