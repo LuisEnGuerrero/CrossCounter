@@ -9,6 +9,7 @@ Este proyecto está diseñado para la detección y conteo de motocicletas utiliz
 - **Procesamiento de Videos**: Analiza videos y visualiza los resultados, incluyendo el conteo de motocicletas por frame.
 - **Estadísticas de Conteo**: Consulta gráficos interactivos que resumen los datos de detección almacenados.
 - **Almacenamiento en MongoDB**: Todos los resultados de detección son almacenados automáticamente para su posterior análisis.
+- [Ver informe completo](docs/INFORME.pdf)
 
 ---
 
@@ -17,7 +18,7 @@ Este proyecto está diseñado para la detección y conteo de motocicletas utiliz
 1. Selecciona si deseas analizar **imágenes** o **videos** desde la barra lateral.
 2. Carga tu archivo y presiona el botón correspondiente para procesar.
 3. Consulta los resultados directamente en pantalla y revisa las estadísticas de detección en tiempo real.
-[Ver informe completo](docs/INFORME.pdf)
+
 ---
 
 ### Notas Importantes
